@@ -7,26 +7,53 @@
 
 namespace Star\Component\State\Fixtures;
 
+use Star\Component\State\LogicException;
 use Star\Component\State\State;
 
 /**
- * Class DomainContextState
- *
  * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State\Fixtures
  */
 abstract class DomainContextState implements State
 {
-    public abstract function enable(DomainContext $context);
+    /**
+     * @param DomainContext $context
+     * @throws \LogicException
+     */
+    public function enable(DomainContext $context)
+    {
+        throw LogicException::createInvalidTransition($this->stateValue(), 'enabled');
+    }
 
-    public abstract function disable(DomainContext $context);
+    /**
+     * @param DomainContext $context
+     * @throws \LogicException
+     */
+    public function disable(DomainContext $context)
+    {
+        throw LogicException::createInvalidTransition($this->stateValue(), 'disabled');
+    }
 
-    public abstract function suspend(DomainContext $context);
+    /**
+     * @param DomainContext $context
+     * @throws \LogicException
+     */
+    public function suspend(DomainContext $context)
+    {
+        throw LogicException::createInvalidTransition($this->stateValue(), 'suspended');
+    }
 
-    public abstract function isEnabled();
+    public function isEnabled()
+    {
+        return false;
+    }
 
-    public abstract function isDisabled();
+    public function isDisabled()
+    {
+        return false;
+    }
 
-    public abstract function isSuspended();
+    public function isSuspended()
+    {
+        return false;
+    }
 }

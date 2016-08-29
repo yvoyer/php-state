@@ -10,11 +10,7 @@ namespace Star\Component\State;
 use Star\Component\State\Fixtures\DomainContext;
 
 /**
- * Class StateHandlingContextTest
- *
  * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State
  */
 abstract class StateHandlingContextTest extends \PHPUnit_Framework_TestCase
 {
@@ -68,7 +64,7 @@ abstract class StateHandlingContextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \LogicException
+     * @expectedException        \Star\Component\State\LogicException
      * @expectedExceptionMessage The state cannot be suspended when disabled.
      */
     public function test_it_should_not_be_suspended_when_disabled()
@@ -79,7 +75,7 @@ abstract class StateHandlingContextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \LogicException
+     * @expectedException        \Star\Component\State\LogicException
      * @expectedExceptionMessage The state cannot be disabled when disabled.
      */
     public function test_it_should_not_be_disabled_when_disabled()
@@ -89,7 +85,7 @@ abstract class StateHandlingContextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \LogicException
+     * @expectedException        \Star\Component\State\LogicException
      * @expectedExceptionMessage The state cannot be disabled when suspended.
      */
     public function test_it_should_not_be_disabled_when_suspended()
@@ -101,7 +97,7 @@ abstract class StateHandlingContextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \LogicException
+     * @expectedException        \Star\Component\State\LogicException
      * @expectedExceptionMessage The state cannot be enabled when enabled.
      */
     public function test_it_should_not_be_enabled_when_enabled()
@@ -112,7 +108,7 @@ abstract class StateHandlingContextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \LogicException
+     * @expectedException        \Star\Component\State\LogicException
      * @expectedExceptionMessage The state cannot be suspended when suspended.
      */
     public function test_it_should_not_be_suspended_when_suspended()

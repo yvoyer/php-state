@@ -5,16 +5,12 @@
  * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
-namespace Star\Component\State\Fixtures;
+namespace Star\Component\State;
 
 /**
- * Class LogicException
- *
  * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State\Fixtures
  */
-final class LogicException
+final class LogicException extends \Exception
 {
     /**
      * @param string $from
@@ -24,6 +20,6 @@ final class LogicException
      */
     public static function createInvalidTransition($from, $to)
     {
-        return new \LogicException("The state cannot be {$to} when {$from}.");
+        return new self("The state cannot be {$to} when {$from}.");
     }
 }

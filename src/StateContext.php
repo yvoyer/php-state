@@ -8,16 +8,12 @@
 namespace Star\Component\State;
 
 /**
- * Class StateContext
- *
  * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State
  */
 interface StateContext
 {
     /**
-     * This method SHOULD only be called by the State implementation.
+     * @internals This method SHOULD only be called by the State implementation.
      *
      * @param State $state
      */

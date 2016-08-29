@@ -8,11 +8,7 @@
 namespace Star\Component\State\Fixtures;
 
 /**
- * Class Disable
- *
  * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State\Fixtures
  */
 final class Disable extends DomainContextState
 {
@@ -21,28 +17,18 @@ final class Disable extends DomainContextState
         $context->setState(new Enable());
     }
 
-    public function disable(DomainContext $context)
-    {
-        throw LogicException::createInvalidTransition('disabled', 'disabled');
-    }
-
-    public function suspend(DomainContext $context)
-    {
-        throw LogicException::createInvalidTransition('disabled', 'suspended');
-    }
-
-    public function isEnabled()
-    {
-        return false;
-    }
-
     public function isDisabled()
     {
         return true;
     }
 
-    public function isSuspended()
+    /**
+     * The value representation of your state object for reconstruction or storage on your context.
+     *
+     * @return mixed
+     */
+    public function stateValue()
     {
-        return false;
+        return 'disabled';
     }
 }

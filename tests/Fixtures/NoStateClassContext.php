@@ -7,15 +7,12 @@
 
 namespace Star\Component\State\Fixtures;
 
+use Star\Component\State\LogicException;
 use Star\Component\State\State;
 use Star\Component\State\StateContext;
 
 /**
- * Class NoStateClassContext
- *
  * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State\Fixtures
  */
 final class NoStateClassContext implements StateContext
 {

@@ -11,11 +11,7 @@ use Star\Component\State\State;
 use Star\Component\State\StateContext;
 
 /**
- * Class DomainContext
- *
  * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State\Fixtures
  */
 final class DomainContext implements StateContext
 {

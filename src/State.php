@@ -8,13 +8,14 @@
 namespace Star\Component\State;
 
 /**
- * Class State
- *
  * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State
  */
 interface State
 {
-    const INTERFACE_STATE = __CLASS__;
+    /**
+     * The value representation of your state object for reconstruction or storage on your context.
+     *
+     * @return mixed
+     */
+    public function stateValue();
 }

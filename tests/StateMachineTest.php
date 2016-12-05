@@ -13,7 +13,7 @@ use Star\Component\State\Events\TransitionWasRequested;
 final class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @expectedException        \Star\Component\State\InvalidGameTransitionException
+     * @expectedException        \Star\Component\State\InvalidStateTransitionException
      * @expectedExceptionMessage The transition from 'current' to 'not-configured' is not allowed.
      */
     public function test_it_should_not_allow_to_transition_to_a_not_configured_state()
@@ -229,6 +229,27 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($context->isParked());
         $this->assertFalse($context->isStarted());
         $this->assertTrue($context->isStopped());
+    }
+
+    /**
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage The transition from 'first' to 'invalid' is not allowed.
+     */
+    public function test_it_should_allow_to_change_exception_type_that_throw_exception()
+    {
+        $machine = StateMachine::create($context = TestContext::fromString('first'))
+            ->useFailureHandler(new AlwaysThrowException('\RuntimeException'));
+
+        $machine->transitContext($context, 'invalid');
+    }
+
+    public function test_it_should_allow_to_change_way_errors_are_handled()
+    {
+        $machine = StateMachine::create($context = TestContext::fromString('first'))
+            ->useFailureHandler($this->getMock(FailureHandler::class));
+
+        $machine->transitContext($context, 'invalid');
+        $this->assertSame('first', $context->getCurrentState()->toString(), 'The exception should be silenced');
     }
 }
 

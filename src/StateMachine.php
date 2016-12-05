@@ -14,8 +14,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class StateMachine
 {
-    const ALLOWED = 1;
-
     /**
      * @var array
      *
@@ -42,18 +40,24 @@ class StateMachine
     private $context;
 
     /**
+     * @var FailureHandler
+     */
+    private $failureHandler;
+
+    /**
      * @param StateContext $context
      */
     public function __construct(StateContext $context)
     {
         $this->dispatcher = new EventDispatcher();
         $this->context = $context;
+        $this->failureHandler = new AlwaysThrowException();
     }
 
     /**
      * @param StateContext $context
      * @param State|string $to
-     * @throws InvalidGameTransitionException
+     * @throws InvalidStateTransitionException
      */
     public function transitContext(StateContext $context, $to)
     {
@@ -102,8 +106,7 @@ class StateMachine
             return;
         }
 
-        // todo add handler for not allowed transition (default to exception)
-        throw InvalidGameTransitionException::invalidTransition($from, $to);
+        $this->failureHandler->handleNotAllowedTransition($context, $from, $to);
     }
 
     /**
@@ -121,6 +124,8 @@ class StateMachine
     }
 
     /**
+     * Returns whether the context's state evaluate to the $state.
+     *
      * @param State|string $state
      * @param StateContext $context
      *
@@ -134,6 +139,9 @@ class StateMachine
     }
 
     /**
+     * Add a rule to the white list.
+     * Before and after callback can be appended here, when its not necessary to register an event subscriber.
+     *
      * @param State|string $from
      * @param State|string $to
      * @param callable $beforeCallback A callback to run before the transition
@@ -160,6 +168,30 @@ class StateMachine
     }
 
     /**
+     * @param EventSubscriber $subscriber
+     *
+     * @return StateMachine
+     */
+    public function addSubscriber(EventSubscriber $subscriber)
+    {
+        $this->dispatcher->addSubscriber($subscriber);
+
+        return $this;
+    }
+
+    /**
+     * @param FailureHandler $handler
+     *
+     * @return StateMachine
+     */
+    public function useFailureHandler(FailureHandler $handler)
+    {
+        $this->failureHandler = $handler;
+
+        return $this;
+    }
+
+    /**
      * @param State $from
      * @param State $to
      * @param callable $beforeCallback
@@ -172,7 +204,7 @@ class StateMachine
         \Closure $afterCallback = null
     ) {
         $to = self::state($to);
-        $this->whitelist[$from->toString()][$to->toString()] = self::ALLOWED;
+        $this->whitelist[$from->toString()][$to->toString()] = 1;
 
         if ($beforeCallback) {
             $this->dispatcher->addListener(
@@ -187,18 +219,6 @@ class StateMachine
                 $afterCallback
             );
         }
-    }
-
-    /**
-     * @param EventSubscriber $subscriber
-     *
-     * @return StateMachine
-     */
-    public function addSubscriber(EventSubscriber $subscriber)
-    {
-        $this->dispatcher->addSubscriber($subscriber);
-
-        return $this;
     }
 
     /**

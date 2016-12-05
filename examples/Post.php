@@ -48,31 +48,6 @@ class Post implements StateContext
         return $this->workflow()->isState(self::DELETED, $this);
     }
 
-    private function workflow()
-    {
-        return StateMachine::create($this)
-            ->whitelist(self::DRAFT, [self::PUBLISHED, self::DELETED])
-            ->whitelist(self::PUBLISHED, [self::DRAFT, self::ARCHIVED])
-            ->whitelist(self::ARCHIVED, [self::DRAFT, self::DELETED])
-            // deleted post cannot have transitions
-        ;
-    }
-
-    public function setState(State $state)
-    {
-        $this->state = $state->toString();
-    }
-
-    public function getCurrentState()
-    {
-        return $this->workflow()->state($this->state);
-    }
-
-    public function contextAlias()
-    {
-        return 'post';
-    }
-
     public function markAsDraft()
     {
         $this->workflow()->transitContext($this, self::DRAFT);
@@ -123,5 +98,30 @@ class Post implements StateContext
     public static function deleted()
     {
         return new self(self::DELETED);
+    }
+
+    public function setState(State $state)
+    {
+        $this->state = $state->toString();
+    }
+
+    public function getCurrentState()
+    {
+        return $this->workflow()->state($this->state);
+    }
+
+    public function contextAlias()
+    {
+        return 'post';
+    }
+
+    private function workflow()
+    {
+        return StateMachine::create($this)
+            ->whitelist(self::DRAFT, [self::PUBLISHED, self::DELETED])
+            ->whitelist(self::PUBLISHED, [self::DRAFT, self::ARCHIVED])
+            ->whitelist(self::ARCHIVED, [self::DRAFT, self::DELETED])
+            // deleted post cannot have transitions
+            ;
     }
 }

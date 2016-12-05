@@ -7,6 +7,6 @@
 
 namespace Star\Component\State;
 
-final class InvalidStateTransitionException extends \Exception
+class InvalidStateTransitionException extends \Exception
 {
 }

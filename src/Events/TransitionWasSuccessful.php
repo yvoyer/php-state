@@ -10,41 +10,41 @@ namespace Star\Component\State\Events;
 use Star\Component\State\State;
 use Symfony\Component\EventDispatcher\Event;
 
-final class TransitionWasPerformed extends Event
+final class TransitionWasSuccessful extends Event
 {
     /**
      * @var State
      */
-    private $wasOn;
+    private $before;
 
     /**
      * @var State
      */
-    private $currentState;
+    private $current;
 
     /**
-     * @param State $wasOn
-     * @param State $currentState
+     * @param State $before
+     * @param State $current
      */
-    public function __construct(State $wasOn, State $currentState)
+    public function __construct(State $before, State $current)
     {
-        $this->wasOn = $wasOn;
-        $this->currentState = $currentState;
+        $this->before = $before;
+        $this->current = $current;
     }
 
     /**
      * @return State
      */
-    public function wasOn()
+    public function before()
     {
-        return $this->wasOn;
+        return $this->before;
     }
 
     /**
      * @return State
      */
-    public function currentState()
+    public function current()
     {
-        return $this->currentState;
+        return $this->current;
     }
 }

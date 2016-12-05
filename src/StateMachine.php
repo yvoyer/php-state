@@ -7,8 +7,10 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\Events\ContextTransitionWasRequested;
+use Star\Component\State\Events\ContextTransitionWasSuccessful;
 use Star\Component\State\Events\StateEventStore;
-use Star\Component\State\Events\TransitionWasPerformed;
+use Star\Component\State\Events\TransitionWasSuccessful;
 use Star\Component\State\Events\TransitionWasRequested;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -19,11 +21,11 @@ class StateMachine
      *
      * $whitelist = [
      *     'state1' => [
-     *         'state2' => callable,
-     *         'state3' => callable,
+     *         'state2' => allowed,
+     *         'state3' => allowed,
      *     ],
      *     'state2' => [
-     *         'state1 => callable,
+     *         'state1 => allowed,
      *     ]
      * ];
      */
@@ -61,7 +63,7 @@ class StateMachine
      */
     public function transitContext(StateContext $context, $to)
     {
-        $to = self::state($to);
+        $to = static::state($to);
         $from = $context->getCurrentState();
 
         if ($from->matchState($to)) {
@@ -72,12 +74,12 @@ class StateMachine
             // custom event for transition
             $this->dispatcher->dispatch(
                 sprintf(
-                    'before.%s.%s_to_%s',
+                    StateEventStore::CUSTOM_EVENT_BEFORE,
                     $context->contextAlias(),
                     $from->toString(),
                     $to->toString()
                 ),
-                new TransitionWasRequested($from, $to)
+                new ContextTransitionWasRequested($context)
             );
 
             $this->dispatcher->dispatch(
@@ -89,18 +91,18 @@ class StateMachine
 
             $this->dispatcher->dispatch(
                 StateEventStore::AFTER_TRANSITION,
-                new TransitionWasPerformed($from, $to)
+                new TransitionWasSuccessful($from, $to)
             );
 
             // custom event for transition
             $this->dispatcher->dispatch(
                 sprintf(
-                    'after.%s.%s_to_%s',
+                    StateEventStore::CUSTOM_EVENT_AFTER,
                     $context->contextAlias(),
                     $from->toString(),
                     $to->toString()
                 ),
-                new TransitionWasRequested($from, $to)
+                new ContextTransitionWasSuccessful($context)
             );
 
             return;
@@ -117,8 +119,8 @@ class StateMachine
      */
     public function isAllowed($from, $to)
     {
-        $from = self::state($from);
-        $to = self::state($to);
+        $from = static::state($from);
+        $to = static::state($to);
 
         return isset($this->whitelist[$from->toString()][$to->toString()]);
     }
@@ -133,35 +135,27 @@ class StateMachine
      */
     public function isState($state, StateContext $context)
     {
-        $state = self::state($state);
+        $state = static::state($state);
 
         return $state->matchState($context->getCurrentState());
     }
 
     /**
      * Add a rule to the white list.
-     * Before and after callback can be appended here, when its not necessary to register an event subscriber.
      *
      * @param State|string $from
      * @param State|string $to
-     * @param callable $beforeCallback A callback to run before the transition
-     * @param callable $afterCallback A callback to run after the transition
      *
      * @return StateMachine
      */
-    public function whitelist(
-        $from,
-        $to,
-        \Closure $beforeCallback = null,
-        \Closure $afterCallback = null
-    ) {
-        $from = self::state($from);
+    public function whitelist($from, $to) {
+        $from = static::state($from);
         if (is_array($to)) {
             foreach ($to as $_to) {
-                $this->whitelistTransition($from, $_to, $beforeCallback, $afterCallback);
+                $this->whitelistTransition($from, $_to);
             }
         } else {
-            $this->whitelistTransition($from, $to, $beforeCallback, $afterCallback);
+            $this->whitelistTransition($from, $to);
         }
 
         return $this;
@@ -194,31 +188,10 @@ class StateMachine
     /**
      * @param State $from
      * @param State $to
-     * @param callable $beforeCallback
-     * @param callable $afterCallback
      */
-    private function whitelistTransition(
-        State $from,
-        $to,
-        \Closure $beforeCallback = null,
-        \Closure $afterCallback = null
-    ) {
-        $to = self::state($to);
+    private function whitelistTransition(State $from, $to) {
+        $to = static::state($to);
         $this->whitelist[$from->toString()][$to->toString()] = 1;
-
-        if ($beforeCallback) {
-            $this->dispatcher->addListener(
-                StateEventStore::BEFORE_TRANSITION,
-                $beforeCallback
-            );
-        }
-
-        if ($afterCallback) {
-            $this->dispatcher->addListener(
-                StateEventStore::AFTER_TRANSITION,
-                $afterCallback
-            );
-        }
     }
 
     /**
@@ -228,7 +201,7 @@ class StateMachine
      */
     public static function create(StateContext $context)
     {
-        return new self($context);
+        return new static($context);
     }
 
     /**

@@ -7,7 +7,10 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Events\TransitionWasPerformed;
+use Star\Component\State\Events\ContextTransitionWasRequested;
+use Star\Component\State\Events\ContextTransitionWasSuccessful;
+use Star\Component\State\Events\StateEventStore;
+use Star\Component\State\Events\TransitionWasSuccessful;
 use Star\Component\State\Events\TransitionWasRequested;
 
 final class StateMachineTest extends \PHPUnit_Framework_TestCase
@@ -50,85 +53,95 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
         $machine->transitContext($context, 'finish');
     }
 
-    public function test_it_should_trigger_a_callback_on_before_transition()
-    {
-        $triggered = false;
-        $context = TestContext::fromString('start');
-        $machine = StateMachine::create($context)
-            ->whitelist(
-                'start',
-                'event',
-                function (TransitionWasRequested $event) use (&$triggered) {
-                    $triggered = true;
-                }
-            )
-        ;
-
-        $this->assertTrue($machine->isAllowed('start', 'event'));
-
-        $machine->transitContext($context, 'event');
-        $this->assertTrue($triggered, 'The Callback should be triggered on transition');
-    }
-
-    public function test_it_should_trigger_a_callback_on_after_transition()
-    {
-        $triggered = false;
-        $context = TestContext::fromString('start');
-        $machine = StateMachine::create($context)
-            ->whitelist(
-                'start',
-                'event',
-                null,
-                function (TransitionWasPerformed $event) use (&$triggered) {
-                    $triggered = true;
-                }
-            )
-        ;
-
-        $this->assertTrue($machine->isAllowed('start', 'event'));
-
-        $machine->transitContext($context, 'event');
-        $this->assertTrue($triggered, 'The Callback should be triggered on transition');
-    }
-
-    public function test_it_should_trigger_a_custom_event_before_a_transition()
+    public function test_it_should_trigger_an_event_before_any_transition()
     {
         $subscriber = new TestSubscriber();
-
-        $this->assertFalse($subscriber->methodWasCalled('beforeStartToFinish'));
         $context = TestContext::fromString('start');
         $machine = StateMachine::create($context)
-            ->whitelist('start', 'finish')
+            ->whitelist('start', 'end')
             ->addSubscriber($subscriber)
         ;
-        $this->assertTrue($machine->isAllowed('start', 'finish'));
 
+        $this->assertFalse($subscriber->methodWasCalled('beforeTransition'));
+        $machine->transitContext($context, 'end');
+        $this->assertTrue($subscriber->methodWasCalled('beforeTransition'));
+
+        /**
+         * @var TransitionWasRequested $event
+         */
+        $event = $subscriber->triggeredEvent('beforeTransition');
+        $this->assertInstanceOf(TransitionWasRequested::class, $event);
+        $this->assertEquals(new StringState('start'), $event->from());
+        $this->assertEquals(new StringState('end'), $event->to());
+    }
+
+    public function test_it_should_trigger_an_event_after_any_transition()
+    {
+        $subscriber = new TestSubscriber();
+        $context = TestContext::fromString('start');
+        $machine = StateMachine::create($context)
+            ->whitelist('start', 'end')
+            ->addSubscriber($subscriber)
+        ;
+
+        $this->assertFalse($subscriber->methodWasCalled('afterTransition'));
+        $machine->transitContext($context, 'end');
+        $this->assertTrue($subscriber->methodWasCalled('afterTransition'));
+
+        /**
+         * @var TransitionWasSuccessful $event
+         */
+        $event = $subscriber->triggeredEvent('afterTransition');
+        $this->assertInstanceOf(TransitionWasSuccessful::class, $event);
+        $this->assertEquals(new StringState('start'), $event->before());
+        $this->assertEquals(new StringState('end'), $event->current());
+    }
+
+    public function test_it_should_trigger_a_custom_event_before_a_specific_transition()
+    {
+        $subscriber = new TestSubscriber();
+        $context = TestContext::fromString('start');
+        $machine = StateMachine::create($context)
+            ->addSubscriber($subscriber)
+            ->whitelist('start', 'finish');
+
+        $this->assertFalse($subscriber->methodWasCalled('beforeStartToFinish'));
         $machine->transitContext($context, 'finish');
-
         $this->assertTrue(
             $subscriber->methodWasCalled('beforeStartToFinish'),
             'The start to finish transition event should be triggered on before'
         );
+
+        /**
+         * @var ContextTransitionWasRequested $event
+         */
+        $event = $subscriber->triggeredEvent('beforeStartToFinish');
+        $this->assertInstanceOf(ContextTransitionWasRequested::class, $event);
+        $this->assertSame($context, $event->context());
     }
 
-    public function test_it_should_trigger_a_custom_event_after_a_transition()
+    public function test_it_should_trigger_a_custom_event_after_a_specific_transition()
     {
         $subscriber = new TestSubscriber();
-
-        $this->assertFalse($subscriber->methodWasCalled('afterStartToFinish'));
         $context = TestContext::fromString('start');
         $machine = StateMachine::create($context)
             ->whitelist('start', 'finish')
             ->addSubscriber($subscriber)
         ;
-        $this->assertTrue($machine->isAllowed('start', 'finish'));
 
+        $this->assertFalse($subscriber->methodWasCalled('afterStartToFinish'));
         $machine->transitContext($context, 'finish');
-
         $this->assertTrue(
             $subscriber->methodWasCalled('afterStartToFinish'),
             'The start to finish transition event should be triggered on after'
         );
+
+        /**
+         * @var ContextTransitionWasSuccessful $event
+         */
+        $event = $subscriber->triggeredEvent('afterStartToFinish');
+        $this->assertInstanceOf(ContextTransitionWasSuccessful::class, $event);
+        $this->assertSame($context, $event->context());
     }
 
     public function test_it_should_allow_to_give_array_for_white_listing_transitions()
@@ -146,11 +159,11 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $context = TestContext::fromString('first');
         $subscriber = new TestSubscriber();
-
-        $this->assertFalse($subscriber->methodWasCalled('shouldNotBeCalled'));
         $machine = StateMachine::create($context)
             ->whitelist('first', 'first')
             ->addSubscriber($subscriber);
+
+        $this->assertFalse($subscriber->methodWasCalled('shouldNotBeCalled'));
         $machine->transitContext($context, 'first');
         $this->assertFalse(
             $subscriber->methodWasCalled('shouldNotBeCalled'),
@@ -251,6 +264,15 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
         $machine->transitContext($context, 'invalid');
         $this->assertSame('first', $context->getCurrentState()->toString(), 'The exception should be silenced');
     }
+
+    /**
+     * @expectedException        \InvalidArgumentException
+     * @expectedExceptionMessage The state of type 'integer' is not yet supported.
+     */
+    public function test_it_should_throw_exception_when_not_supported_state_type_is_given()
+    {
+        StateMachine::state(213);
+    }
 }
 
 final class TestContext implements StateContext
@@ -295,52 +317,52 @@ final class TestContext implements StateContext
 final class TestSubscriber implements EventSubscriber
 {
     private $methods = [];
+
     public function methodWasCalled($method)
     {
         return isset($this->methods[$method]);
     }
 
-    /**
-     * Returns an array of event names this subscriber wants to listen to.
-     *
-     * The array keys are event names and the value can be:
-     *
-     *  * The method name to call (priority defaults to 0)
-     *  * An array composed of the method name to call and the priority
-     *  * An array of arrays composed of the method names to call and respective
-     *    priorities, or 0 if unset
-     *
-     * For instance:
-     *
-     *  * array('eventName' => 'methodName')
-     *  * array('eventName' => array('methodName', $priority))
-     *  * array('eventName' => array(array('methodName1', $priority), array('methodName2')))
-     *
-     * @return array The event names to listen to
-     */
+    public function triggeredEvent($method)
+    {
+        return $this->methods[$method];
+    }
+
     public static function getSubscribedEvents()
     {
         return [
-            'before.context.start_to_finish' => 'beforeStartToFinish',
-            'after.context.start_to_finish' => 'afterStartToFinish',
-            'before.context.first_to_first' => 'shouldNotBeCalled',
-            'after.context.first_to_first' => 'shouldNotBeCalled',
+            StateEventStore::BEFORE_TRANSITION => 'beforeTransition',
+            StateEventStore::AFTER_TRANSITION => 'afterTransition',
+            'star_state.before.context.start_to_finish' => 'beforeStartToFinish',
+            'star_state.after.context.start_to_finish' => 'afterStartToFinish',
+            'star_state.before.context.first_to_first' => 'shouldNotBeCalled',
+            'star_state.after.context.first_to_first' => 'shouldNotBeCalled',
         ];
     }
 
-    public function afterStartToFinish()
+    public function afterStartToFinish($event)
     {
-        $this->methods[__FUNCTION__] = 1;
+        $this->methods[__FUNCTION__] = $event;
     }
 
-    public function beforeStartToFinish()
+    public function beforeStartToFinish($event)
     {
-        $this->methods[__FUNCTION__] = 1;
+        $this->methods[__FUNCTION__] = $event;
     }
 
-    public function shouldNotBeCalled(TransitionWasRequested $event)
+    public function beforeTransition($event)
     {
-        $this->methods[__FUNCTION__] = 1;
+        $this->methods[__FUNCTION__] = $event;
+    }
+
+    public function afterTransition($event)
+    {
+        $this->methods[__FUNCTION__] = $event;
+    }
+
+    public function shouldNotBeCalled($event)
+    {
+        $this->methods[__FUNCTION__] = $event;
     }
 }
 

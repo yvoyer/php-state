@@ -35,7 +35,7 @@ final class TransitionWasRequested extends Event
     /**
      * @return State
      */
-    public function fromState()
+    public function from()
     {
         return $this->from;
     }
@@ -43,7 +43,7 @@ final class TransitionWasRequested extends Event
     /**
      * @return State
      */
-    public function toState()
+    public function to()
     {
         return $this->to;
     }

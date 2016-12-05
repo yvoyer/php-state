@@ -115,6 +115,9 @@ class Post implements StateContext
         return 'post';
     }
 
+    /**
+     * @return StateMachine
+     */
     private function workflow()
     {
         return StateMachine::create($this)

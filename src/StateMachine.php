@@ -7,11 +7,13 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Events\ContextTransitionWasRequested;
-use Star\Component\State\Events\ContextTransitionWasSuccessful;
-use Star\Component\State\Events\StateEventStore;
-use Star\Component\State\Events\TransitionWasSuccessful;
-use Star\Component\State\Events\TransitionWasRequested;
+use Star\Component\State\Attibute\StateAttribute;
+use Star\Component\State\Attibute\StringAttribute;
+use Star\Component\State\Event\ContextTransitionWasRequested;
+use Star\Component\State\Event\ContextTransitionWasSuccessful;
+use Star\Component\State\Event\StateEventStore;
+use Star\Component\State\Event\TransitionWasSuccessful;
+use Star\Component\State\Event\TransitionWasRequested;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class StateMachine
@@ -30,6 +32,11 @@ class StateMachine
      * ];
      */
     private $whitelist = [];
+
+    /**
+     * @var StateAttribute[]
+     */
+    private $attributes = [];
 
     /**
      * @var EventDispatcher
@@ -57,7 +64,7 @@ class StateMachine
     }
 
     /**
-     * @param StateContext $context
+     * @param StateContext $context todo remove and use class attribute
      * @param State|string $to
      * @throws InvalidStateTransitionException
      */
@@ -129,7 +136,7 @@ class StateMachine
      * Returns whether the context's state evaluate to the $state.
      *
      * @param State|string $state
-     * @param StateContext $context
+     * @param StateContext $context todo remove and use class attribute
      *
      * @return bool
      */
@@ -159,6 +166,56 @@ class StateMachine
         }
 
         return $this;
+    }
+
+    /**
+     * @param StateAttribute|string $attribute
+     * @param State|string $state
+     *
+     * @return StateMachine
+     */
+    public function addAttribute($attribute, $state)
+    {
+        if (is_array($state)) {
+            foreach ($state as $_state) {
+                $this->addAttribute($attribute, $_state);
+            }
+        } else {
+            $state = static::state($state);
+            $attribute = static::attribute($attribute);
+            $this->attributes[$state->toString()][$attribute->toString()] = 1;
+        }
+        // todo add value for attribute?
+
+        return $this;
+    }
+
+    /**
+     * @param State|string $state
+     * @param StateAttribute[]|string[] $attributes
+     *
+     * @return StateMachine
+     */
+    public function addAttributes($state, array $attributes)
+    {
+        foreach ($attributes as $attr) {
+            $this->addAttribute($state, $attr);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param StateAttribute|string $attribute
+     *
+     * @return bool
+     */
+    public function hasAttribute($attribute)
+    {
+        $attribute = static::attribute($attribute);
+        $current = $this->context->getCurrentState();
+
+        return isset($this->attributes[$current->toString()][$attribute->toString()]);
     }
 
     /**
@@ -207,23 +264,48 @@ class StateMachine
     /**
      * @param State|string $state
      *
-     * @return State
+     * @return State todo return StateBuilder
      * @throws \InvalidArgumentException
      */
     public static function state($state)
     {
-        if ($state instanceof State) {
-            return $state;
+        if (is_string($state)) {
+            $state = new StringState($state);
         }
 
-        if (is_string($state)) {
-            return new StringState($state);
+        if ($state instanceof State) {
+            return $state;
         }
 
         throw new \InvalidArgumentException(
             sprintf(
                 "The state of type '%s' is not yet supported.",
                 gettype($state)
+            )
+        );
+    }
+
+    /**
+     * @param StateAttribute|string $attribute
+     * @param mixed $value
+     *
+     * @return StringAttribute
+     * @throws \InvalidArgumentException
+     */
+    public static function attribute($attribute, $value = null)
+    {
+        if (is_string($attribute)) {
+            $attribute = new StringAttribute($attribute, $value);
+        }
+
+        if ($attribute instanceof StateAttribute) {
+            return $attribute;
+        }
+
+        throw new \InvalidArgumentException(
+            sprintf(
+                "Attribute of type '%s' is not yet supported.",
+                gettype($attribute)
             )
         );
     }

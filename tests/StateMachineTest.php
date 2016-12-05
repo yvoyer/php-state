@@ -7,11 +7,12 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Events\ContextTransitionWasRequested;
-use Star\Component\State\Events\ContextTransitionWasSuccessful;
-use Star\Component\State\Events\StateEventStore;
-use Star\Component\State\Events\TransitionWasSuccessful;
-use Star\Component\State\Events\TransitionWasRequested;
+use Star\Component\State\Attibute\StringAttribute;
+use Star\Component\State\Event\ContextTransitionWasRequested;
+use Star\Component\State\Event\ContextTransitionWasSuccessful;
+use Star\Component\State\Event\StateEventStore;
+use Star\Component\State\Event\TransitionWasSuccessful;
+use Star\Component\State\Event\TransitionWasRequested;
 
 final class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
@@ -272,6 +273,52 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_throw_exception_when_not_supported_state_type_is_given()
     {
         StateMachine::state(213);
+    }
+
+    public function test_state_can_have_attribute()
+    {
+        $context = TestContext::fromString('start');
+        $machine = StateMachine::create($context)
+            ->whitelist('start', 'end')
+            ->addAttribute(new StringAttribute('is_valid'), new StringState('start'))
+        ;
+
+        $this->assertTrue($machine->isState('start', $context));
+        $this->assertTrue($machine->hasAttribute('is_valid'));
+        $this->assertFalse($machine->hasAttribute('is_valid'));
+    }
+
+    public function test_state_can_have_attributes()
+    {
+        $context = TestContext::fromString('start');
+        $machine = StateMachine::create($context)
+            ->whitelist('start', 'end')
+            ->addAttribute(new StringAttribute('is_valid'), ['start', new StringState('end')])
+            ->addAttribute('is_ended', 'end')
+        ;
+
+        $this->assertTrue($machine->isState('start', $context));
+        $this->assertTrue($machine->hasAttribute('is_valid'));
+        $this->assertFalse($machine->hasAttribute('is_ended'));
+        $context->setState(new StringState('end'));
+        $this->assertTrue($machine->hasAttribute('is_valid'));
+        $this->assertFalse($machine->hasAttribute('is_ended'));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The attribute 'invalid' is not supported by the state.
+     */
+    public function test_it_should_throw_exception_when_state_do_not_supports_the_attribute()
+    {
+        $context = TestContext::fromString('start');
+        $machine = StateMachine::create($context)
+            ->whitelist('start', 'end')
+            ->addAttribute('is_valid', 'start')
+        ;
+
+        $this->assertTrue($machine->isState('start', $context));
+        $machine->hasAttribute('invalid');
     }
 }
 

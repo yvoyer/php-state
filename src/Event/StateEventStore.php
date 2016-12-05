@@ -5,7 +5,7 @@
  * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
  */
 
-namespace Star\Component\State\Events;
+namespace Star\Component\State\Event;
 
 final class StateEventStore
 {

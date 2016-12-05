@@ -18,6 +18,9 @@ class Post implements StateContext
     const ARCHIVED = 'archived';
     const DELETED = 'deleted';
 
+    const ATTRIBUTE_ACTIVE = 'active';
+    const ATTRIBUTE_CLOSED = 'closed';
+
     /**
      * @var string
      */
@@ -46,6 +49,14 @@ class Post implements StateContext
     public function isDeleted()
     {
         return $this->workflow()->isState(self::DELETED, $this);
+    }
+
+    /**
+     * Tests the attribute of the state. This is not a specific state, but an attribute of a state.
+     */
+    public function isActive()
+    {
+        return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE);
     }
 
     public function markAsDraft()
@@ -124,6 +135,8 @@ class Post implements StateContext
             ->whitelist(self::DRAFT, [self::PUBLISHED, self::DELETED])
             ->whitelist(self::PUBLISHED, [self::DRAFT, self::ARCHIVED])
             ->whitelist(self::ARCHIVED, [self::DRAFT, self::DELETED])
+            ->addAttribute(self::ATTRIBUTE_CLOSED, [self::ARCHIVED, self::DELETED])
+            ->addAttributes(self::PUBLISHED, [self::ATTRIBUTE_ACTIVE])
             // deleted post cannot have transitions
             ;
     }

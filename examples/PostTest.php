@@ -215,7 +215,10 @@ final class PostTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_consider_the_states_as_active_using_attributes()
     {
-        $this->fail('TODO');
+        $this->assertTrue(Post::draft()->isActive());
+        $this->assertTrue(Post::published()->isActive());
+        $this->assertTrue(Post::archived()->isActive());
+        $this->assertTrue(Post::deleted()->isActive());
     }
 
     /**

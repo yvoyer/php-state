@@ -213,6 +213,11 @@ final class PostTest extends \PHPUnit_Framework_TestCase
         $this->assertPostIsDeleted($post);
     }
 
+    public function test_it_should_consider_the_states_as_active_using_attributes()
+    {
+        $this->fail('TODO');
+    }
+
     /**
      * @param Post $post
      */

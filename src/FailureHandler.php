@@ -16,8 +16,7 @@ interface FailureHandler
      * Launched when a not allowed transition is detected.
      *
      * @param StateContext $context
-     * @param State $from
-     * @param State $to
+     * @param StateTransition $transition
      */
-    public function handleNotAllowedTransition(StateContext $context, State $from, State $to);
+    public function handleNotAllowedTransition(StateContext $context, StateTransition $transition);
 }

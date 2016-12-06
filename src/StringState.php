@@ -7,6 +7,7 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\Attribute\StateAttribute;
 use Webmozart\Assert\Assert;
 
 final class StringState implements State
@@ -15,6 +16,11 @@ final class StringState implements State
      * @var string
      */
     private $id;
+
+    /**
+     * @var StateAttribute[]
+     */
+    private $attributes = [];
 
     public function __construct($id)
     {
@@ -28,7 +34,7 @@ final class StringState implements State
      *
      * @return string
      */
-    public function toString()
+    public function name()
     {
         return $this->id;
     }
@@ -41,5 +47,23 @@ final class StringState implements State
     public function matchState(State $state)
     {
         return $state instanceof $this && $this->id === $state->id;
+    }
+
+    /**
+     * @param StateAttribute $attribute
+     */
+    public function addAttribute(StateAttribute $attribute)
+    {
+        $this->attributes[$attribute->name()] = $attribute;
+    }
+
+    /**
+     * @param StateAttribute $attribute
+     *
+     * @return bool
+     */
+    public function hasAttribute(StateAttribute $attribute)
+    {
+        return isset($this->attributes[$attribute->name()]);
     }
 }

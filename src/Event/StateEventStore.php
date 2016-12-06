@@ -26,26 +26,24 @@ final class StateEventStore
     /**
      * This is the format for the before transition, of a specific transition.
      * The first argument is the context alias.
-     * The second argument is the context's state before the transition.
-     * The last argument is the context's state after the transition is executed.
+     * The second argument is the context's transition.
      *
-     * ie. "star_state.before.car.started_to_stopped": would be triggered before the car context
-     * is transitioned from "started" to "stopped".
+     * ie. "star_state.before.car.stop": would be triggered before the car context
+     * is transitioned to the stop transition ("started" to "stopped").
      *
      * Event: ContextTransitionWasRequested
      */
-    const CUSTOM_EVENT_BEFORE = 'star_state.before.%s.%s_to_%s';
+    const CUSTOM_EVENT_BEFORE = 'star_state.before.%s.%s';
 
     /**
      * This is the format for the after transition, of a specific transition.
      * The first argument is the context alias.
-     * The second argument is the context's state before the transition.
-     * The last argument is the context's state after the transition is executed.
+     * The second argument is the context's transition.
      *
-     * ie. "star_state.after.car.started_to_stopped": would be triggered after the car context
-     * is transitioned from "started" to "stopped".
+     * ie. "star_state.after.car.stop": would be triggered after the car context
+     * is transitioned to the stop transition ("started" to "stopped").
      *
      * Event: ContextTransitionWasSuccessful
      */
-    const CUSTOM_EVENT_AFTER = 'star_state.after.%s.%s_to_%s';
+    const CUSTOM_EVENT_AFTER = 'star_state.after.%s.%s';
 }

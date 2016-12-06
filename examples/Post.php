@@ -113,7 +113,7 @@ class Post implements StateContext
 
     public function setState(State $state)
     {
-        $this->state = $state->toString();
+        $this->state = $state->name();
     }
 
     public function getCurrentState()

@@ -30,14 +30,12 @@ final class AlwaysThrowException implements FailureHandler
      * Launched when a not allowed transition is detected.
      *
      * @param StateContext $context
-     * @param State $from
-     * @param State $to
-     * @throws InvalidStateTransitionException
+     * @param StateTransition $transition
      */
-    public function handleNotAllowedTransition(StateContext $context, State $from, State $to)
+    public function handleNotAllowedTransition(StateContext $context, StateTransition $transition)
     {
         throw new $this->exceptionClass(
-            "The transition from '{$from->toString()}' to '{$to->toString()}' is not allowed."
+            "The transition '{$transition->name()}' is not allowed on context '{$context->contextAlias()}'."
         );
     }
 }

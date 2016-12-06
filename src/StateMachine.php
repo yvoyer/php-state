@@ -9,14 +9,16 @@ namespace Star\Component\State;
 
 use Star\Component\State\Attribute\StateAttribute;
 use Star\Component\State\Attribute\StringAttribute;
+use Star\Component\State\Builder\TransitionBuilder;
 use Star\Component\State\Event\ContextTransitionWasRequested;
 use Star\Component\State\Event\ContextTransitionWasSuccessful;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Webmozart\Assert\Assert;
 
-class StateMachine
+final class StateMachine
 {
     /**
      * @var array
@@ -39,6 +41,16 @@ class StateMachine
     private $attributes = [];
 
     /**
+     * @var State[]
+     */
+    private $states = [];
+
+    /**
+     * @var StateTransition[]
+     */
+    private $transitions = [];
+
+    /**
      * @var EventDispatcher
      */
     private $dispatcher;
@@ -54,6 +66,11 @@ class StateMachine
     private $failureHandler;
 
     /**
+     * @var TransitionBuilder
+     */
+    private $transitionFactory;
+
+    /**
      * @param StateContext $context
      */
     public function __construct(StateContext $context)
@@ -61,44 +78,43 @@ class StateMachine
         $this->dispatcher = new EventDispatcher();
         $this->context = $context;
         $this->failureHandler = new AlwaysThrowException();
+        $this->transitionFactory = new TransitionBuilder();
     }
 
     /**
-     * @param StateContext $context todo remove and use class attribute
-     * @param State|string $to
-     * @throws InvalidStateTransitionException
+     * @param StateContext $context
+     * @param string $transitionName
      */
-    public function transitContext(StateContext $context, $to)
+    public function transitContext(StateContext $context, $transitionName)
     {
-        $to = static::state($to);
         $from = $context->getCurrentState();
+        $transition = $this->getTransition($transitionName);
 
-        if ($from->matchState($to)) {
+        if (! $transition->hasChanged($from)) {
             return; // no changes detected, do not trigger transition
         }
 
-        if ($this->isAllowed($from, $to)) {
+        if ($transition->isAllowed($context)) {
             // custom event for transition
             $this->dispatcher->dispatch(
                 sprintf(
                     StateEventStore::CUSTOM_EVENT_BEFORE,
                     $context->contextAlias(),
-                    $from->toString(),
-                    $to->toString()
+                    $transition->name()
                 ),
                 new ContextTransitionWasRequested($context)
             );
 
             $this->dispatcher->dispatch(
                 StateEventStore::BEFORE_TRANSITION,
-                new TransitionWasRequested($from, $to)
+                new TransitionWasRequested($transition)
             );
 
-            $context->setState($to);
+            $transition->applyStateChange($this->context);
 
             $this->dispatcher->dispatch(
                 StateEventStore::AFTER_TRANSITION,
-                new TransitionWasSuccessful($from, $to)
+                new TransitionWasSuccessful($transition)
             );
 
             // custom event for transition
@@ -106,8 +122,7 @@ class StateMachine
                 sprintf(
                     StateEventStore::CUSTOM_EVENT_AFTER,
                     $context->contextAlias(),
-                    $from->toString(),
-                    $to->toString()
+                    $transition->name()
                 ),
                 new ContextTransitionWasSuccessful($context)
             );
@@ -115,22 +130,22 @@ class StateMachine
             return;
         }
 
-        $this->failureHandler->handleNotAllowedTransition($context, $from, $to);
+        $this->failureHandler->handleNotAllowedTransition($context, $transition);
     }
 
-    /**
-     * @param State|string $from
-     * @param State|string $to
-     *
-     * @return bool
-     */
-    public function isAllowed($from, $to)
-    {
-        $from = static::state($from);
-        $to = static::state($to);
-
-        return isset($this->whitelist[$from->toString()][$to->toString()]);
-    }
+//    /**
+//     * @param string $from
+//     * @param string $to
+//     *
+//     * @return bool
+//     */
+//    public function isAllowed($from, $to)
+//    {
+//        Assert::string($from, "From state must be a string, got '%s'.");
+//        Assert::string($to, "To state must be a string, got '%s'.");
+//
+//        return isset($this->whitelist[$from][$to]);
+//    }
 
     /**
      * Returns whether the context's state evaluate to the $state.
@@ -140,52 +155,45 @@ class StateMachine
      *
      * @return bool
      */
-    public function isState($state, StateContext $context)
-    {
-        $state = static::state($state);
-
-        return $state->matchState($context->getCurrentState());
-    }
+//    public function isState($state, StateContext $context)
+//    {
+//        $state = static::state($state);
+//
+//        return $state->matchState($context->getCurrentState());
+//    }
 
     /**
-     * Add a rule to the white list.
-     *
-     * @param State|string $from
-     * @param State|string $to
+     * @param string $name The name of the attribute to add for $state.
+     * @param string|string[] $state State name or names of state(s) to add the attribute to.
+     * @param mixed $value The optional value of the attribute.
      *
      * @return StateMachine
      */
-    public function whitelist($from, $to) {
-        $from = static::state($from);
-        if (is_array($to)) {
-            foreach ($to as $_to) {
-                $this->whitelistTransition($from, $_to);
-            }
-        } else {
-            $this->whitelistTransition($from, $to);
+    public function addAttribute($name, $state, $value = null)
+    {
+        $states = (array) $state;
+        // todo use factory
+        $attribute = new StringAttribute($name, $value);
+
+        foreach ($states as $state) {
+            $this->getState($state)->addAttribute($attribute);
         }
 
         return $this;
     }
 
     /**
-     * @param StateAttribute|string $attribute
-     * @param State|string $state
+     * @param string $name
+     * @param string $from
+     * @param string $to
      *
      * @return StateMachine
      */
-    public function addAttribute($attribute, $state)
+    public function addTransition($name, $from, $to)
     {
-        if (is_array($state)) {
-            foreach ($state as $_state) {
-                $this->addAttribute($attribute, $_state);
-            }
-        } else {
-            $state = static::state($state);
-            $attribute = static::attribute($attribute);
-            $this->attributes[$state->toString()][$attribute->name()] = 1;
-        }
-        // todo add value for attribute?
+        $alias = $this->context->contextAlias();
+        $transition = $this->transitionFactory->createTransition($name, $from, $to);
+        $this->transitions[$alias][$name] = $transition;
 
         return $this;
     }
@@ -198,9 +206,9 @@ class StateMachine
      */
     public function addAttributes($state, array $attributes)
     {
-        foreach ($attributes as $attr) {
-            $this->addAttribute($state, $attr);
-        }
+//        foreach ($attributes as $attr) {
+//            $this->attributes[$state->toString()][$attribute->name()] = 1;
+//        }
 
         return $this;
     }
@@ -212,10 +220,9 @@ class StateMachine
      */
     public function hasAttribute($attribute)
     {
-        $attribute = static::attribute($attribute);
-        $current = $this->context->getCurrentState();
+        $state = $this->context->getCurrentState();
 
-        return isset($this->attributes[$current->toString()][$attribute->name()]);
+        return $state->hasAttribute($attribute);
     }
 
     /**
@@ -243,12 +250,44 @@ class StateMachine
     }
 
     /**
+     * @param string $name
+     *
+     * @return State
+     * @throws NotFoundException
+     */
+    private function getState($name)
+    {
+        $alias = $this->context->contextAlias();
+        if (! $this->states[$alias][$name]) {
+            throw NotFoundException::stateNotFound($name, $alias);
+        }
+
+        return $this->states[$alias][$name];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return StateTransition
+     * @throws NotFoundException
+     */
+    private function getTransition($name)
+    {
+        $alias = $this->context->contextAlias();
+        if (! isset($this->transitions[$alias][$name])) {
+            throw NotFoundException::transitionNotFound($name, $alias);
+        }
+
+        return $this->transitions[$alias][$name];
+    }
+
+    /**
      * @param State $from
      * @param State $to
      */
     private function whitelistTransition(State $from, $to) {
         $to = static::state($to);
-        $this->whitelist[$from->toString()][$to->toString()] = 1;
+        $this->whitelist[$from->name()][$to->name()] = 1;
     }
 
     /**

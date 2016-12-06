@@ -7,6 +7,8 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\Attribute\StateAttribute;
+
 interface State
 {
     /**
@@ -14,7 +16,7 @@ interface State
      *
      * @return string
      */
-    public function toString();
+    public function name();
 
     /**
      * @param State $state
@@ -22,4 +24,16 @@ interface State
      * @return bool
      */
     public function matchState(State $state);
+
+    /**
+     * @param StateAttribute $attribute
+     */
+    public function addAttribute(StateAttribute $attribute);
+
+    /**
+     * @param StateAttribute $attribute
+     *
+     * @return bool
+     */
+    public function hasAttribute(StateAttribute $attribute);
 }

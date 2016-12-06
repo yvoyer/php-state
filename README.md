@@ -48,6 +48,10 @@ You can setup your `Post` object using the following configuration:
 
 ```php
 
+### Attributes
+
+TODO
+
 ## Installation
 
 Using composer, add the following require in your `composer.json`.

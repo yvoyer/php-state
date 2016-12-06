@@ -7,8 +7,8 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Attibute\StateAttribute;
-use Star\Component\State\Attibute\StringAttribute;
+use Star\Component\State\Attribute\StateAttribute;
+use Star\Component\State\Attribute\StringAttribute;
 use Star\Component\State\Event\ContextTransitionWasRequested;
 use Star\Component\State\Event\ContextTransitionWasSuccessful;
 use Star\Component\State\Event\StateEventStore;
@@ -183,7 +183,7 @@ class StateMachine
         } else {
             $state = static::state($state);
             $attribute = static::attribute($attribute);
-            $this->attributes[$state->toString()][$attribute->toString()] = 1;
+            $this->attributes[$state->toString()][$attribute->name()] = 1;
         }
         // todo add value for attribute?
 
@@ -215,7 +215,7 @@ class StateMachine
         $attribute = static::attribute($attribute);
         $current = $this->context->getCurrentState();
 
-        return isset($this->attributes[$current->toString()][$attribute->toString()]);
+        return isset($this->attributes[$current->toString()][$attribute->name()]);
     }
 
     /**

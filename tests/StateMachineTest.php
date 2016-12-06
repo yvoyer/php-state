@@ -7,7 +7,7 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Attibute\StringAttribute;
+use Star\Component\State\Attribute\StringAttribute;
 use Star\Component\State\Event\ContextTransitionWasRequested;
 use Star\Component\State\Event\ContextTransitionWasSuccessful;
 use Star\Component\State\Event\StateEventStore;

@@ -31,9 +31,9 @@ interface State
     public function addAttribute(StateAttribute $attribute);
 
     /**
-     * @param StateAttribute $attribute
+     * @param string $attribute
      *
      * @return bool
      */
-    public function hasAttribute(StateAttribute $attribute);
+    public function hasAttribute($attribute);
 }

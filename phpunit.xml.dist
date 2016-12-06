@@ -13,7 +13,6 @@
     <testsuites>
         <testsuite name="main">
             <directory>tests</directory>
-            <directory>examples</directory>
         </testsuite>
     </testsuites>
 

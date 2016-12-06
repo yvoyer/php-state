@@ -198,7 +198,6 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
             ->addAttribute('is_valid', 'started')
         ;
 
-//        $this->assertTrue($machine->isState('start', $context));
         $this->assertTrue($machine->hasAttribute('is_valid'));
         $this->assertFalse($machine->hasAttribute('is_valid'));
     }
@@ -212,12 +211,13 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
             ->addAttribute('is_ended', 'ended')
         ;
 
-//        $this->assertTrue($machine->isState('start', $context));
+	    $this->assertSame('started', $context->getCurrentState()->name());
         $this->assertTrue($machine->hasAttribute('is_valid'));
         $this->assertFalse($machine->hasAttribute('is_ended'));
-        $context->setState(new StringState('end'));
+        $context->setState(new StringState('ended'));
+	    $this->assertSame('ended', $context->getCurrentState()->name());
         $this->assertTrue($machine->hasAttribute('is_valid'));
-        $this->assertFalse($machine->hasAttribute('is_ended'));
+        $this->assertTrue($machine->hasAttribute('is_ended'));
     }
 
     /**

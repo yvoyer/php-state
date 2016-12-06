@@ -16,7 +16,6 @@ use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Webmozart\Assert\Assert;
 
 final class StateMachine
 {
@@ -193,7 +192,10 @@ final class StateMachine
     {
         $alias = $this->context->contextAlias();
         $transition = $this->transitionFactory->createTransition($name, $from, $to);
+// todo add to interface	    $transition->register(StateRegistry)
         $this->transitions[$alias][$name] = $transition;
+	    $this->states[$alias][$from] = new StringState($from);
+	    $this->states[$alias][$to] = new StringState($to);
 
         return $this;
     }
@@ -258,12 +260,23 @@ final class StateMachine
     private function getState($name)
     {
         $alias = $this->context->contextAlias();
-        if (! $this->states[$alias][$name]) {
+        if (! $this->hasState($alias, $name)) {
             throw NotFoundException::stateNotFound($name, $alias);
         }
 
         return $this->states[$alias][$name];
     }
+
+	/**
+	 * @param string $context The context alias
+	 * @param string $name The state name
+	 *
+	 * @return bool
+	 */
+	public function hasState($context, $name)
+	{
+		return isset($this->states[$context][$name]);
+	}
 
     /**
      * @param string $name

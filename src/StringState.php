@@ -58,12 +58,12 @@ final class StringState implements State
     }
 
     /**
-     * @param StateAttribute $attribute
+     * @param string $attribute
      *
      * @return bool
      */
-    public function hasAttribute(StateAttribute $attribute)
+    public function hasAttribute($attribute)
     {
-        return isset($this->attributes[$attribute->name()]);
+        return isset($this->attributes[$attribute]);
     }
 }

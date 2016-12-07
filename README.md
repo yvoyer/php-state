@@ -31,37 +31,43 @@ The post's allowed workflow should be as follow:
 You can setup your `Post` object using the following configuration:
 
 ```php
+// Post
+/**
+ * @return StateMachine
+ */
+private function workflow()
+{
+    return StateMachine::create($this)
+        ->whitelist(self::DRAFT, [self::PUBLISHED, self::DELETED])
+        ->whitelist(self::PUBLISHED, [self::DRAFT, self::ARCHIVED])
+        ->whitelist(self::ARCHIVED, [self::DRAFT, self::DELETED])
+        // deleted post cannot have transitions
+    ;
+}
 
-    // Post
-    /**
-     * @return StateMachine
-     */
-    private function workflow()
-    {
-        return StateMachine::create($this)
-            ->whitelist(self::DRAFT, [self::PUBLISHED, self::DELETED])
-            ->whitelist(self::PUBLISHED, [self::DRAFT, self::ARCHIVED])
-            ->whitelist(self::ARCHIVED, [self::DRAFT, self::DELETED])
-            // deleted post cannot have transitions
-        ;
-    }
-
-```php
+``` 
 
 ### Attributes
-
-TODO
-
+ Atributes are used to mark as state as having a certain signification to the context. 
+ 
+ Ie. Given your state needs to be considered as being valid while another state should not, you just need to add the `is_valid`attribute to the states that needs it. In doing so, you'lol be able to add a method `isValid()` on your context that will be defined as follow:
+ 
+ ```php
+public function isValid ()
+ {
+     return $this->machine()-hasAttribute ();
+ }
+ $machine
+ ```
+ 
 ## Installation
 
 Using composer, add the following require in your `composer.json`.
 
-```
-
+```json 
     "require": {
-        "star/php-state": ">1.0"
+        "star/php-state": "~1.0"
     }
-
 ```
 
 ## Events
@@ -79,10 +85,10 @@ Subscribers that listens to these events will have their configured callback(s) 
 In order to have more fine grained listening, Subscribers can also choose which transition to listen to
 by using specifics transition events. These specifics events are dynamically configured using this format:
 
-* `star_state.before.{context_alias}.{from_state}_to_{to_state}`: Triggers before the context's new state is set.
-* `star_state.after.{context_alias}.{from_state}_to_{to_state}`: Triggers after the context's new state was set.
-
-**{context_alias}**: All context classes must implement the `Star\Component\State\StateContext` interface. Doing so,
+* `star_state.before.{context_alias}.{transition_name}`: Triggers before the context's new state is set.
+* `star_state.after.{context_alias}.{transition_name}`: Triggers after the context's new state was set.
+ 
+* **{context_alias}**: All context classes must implement the `Star\Component\State\StateContext` interface. Doing so,
  you will need to define the alias for your context, that will be used for the custom events.
-**{from_state}**: This is the string representation given to a `Star\Component\State\State::toString()` class.
-**{to_state}**: This is the string representation given to a `Star\Component\State\State::toString()` class.
+* **{transition_name}**: This is the string representation given by the`Star\Component\State\Transition::name()`.
+

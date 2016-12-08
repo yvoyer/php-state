@@ -1,6 +1,6 @@
 {
-    "name": "star/php-state",
-    "description": "PHP implementation of a configurable State pattern",
+    "name": "star/state-machine",
+    "description": "PHP implementation of a configurable State Machine, Worflow, transitions for your domain models",
     "minimum-stability": "stable",
     "license": "MIT",
     "authors": [

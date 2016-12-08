@@ -23,7 +23,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_allow_from_draft_to_draft()
     {
         $post = Post::draft();
-        $post->markAsDraft();
+        $post->drop();
         $this->assertPostIsDraft($post);
     }
 
@@ -73,7 +73,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_allow_from_publish_to_draft()
     {
         $post = Post::published();
-        $post->markAsDraft();
+        $post->drop();
         $this->assertPostIsDraft($post);
     }
 
@@ -124,7 +124,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_allow_from_archived_to_draft()
     {
         $post = Post::archived();
-        $post->markAsDraft();
+        $post->drop();
         $this->assertPostIsDraft($post);
     }
 
@@ -176,7 +176,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_not_allow_from_deleted_to_draft()
     {
         $post = Post::deleted();
-        $post->markAsDraft();
+        $post->drop();
     }
 
     /**

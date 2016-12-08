@@ -7,9 +7,7 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Attribute\StateAttribute;
 use Star\Component\State\Attribute\StringAttribute;
-use Star\Component\State\Builder\TransitionBuilder;
 use Star\Component\State\Event\ContextTransitionWasRequested;
 use Star\Component\State\Event\ContextTransitionWasSuccessful;
 use Star\Component\State\Event\StateEventStore;
@@ -20,44 +18,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 final class StateMachine
 {
     /**
-     * @var array
-     *
-     * $whitelist = [
-     *     'state1' => [
-     *         'state2' => allowed,
-     *         'state3' => allowed,
-     *     ],
-     *     'state2' => [
-     *         'state1 => allowed,
-     *     ]
-     * ];
-     */
-    private $whitelist = [];
-
-    /**
-     * @var StateAttribute[]
-     */
-    private $attributes = [];
-
-    /**
-     * @var State[]
-     */
-    private $states = [];
-
-    /**
-     * @var StateTransition[]
-     */
-    private $transitions = [];
-
-    /**
      * @var EventDispatcher
      */
     private $dispatcher;
-
-    /**
-     * @var StateContext
-     */
-    private $context;
 
     /**
      * @var FailureHandler
@@ -65,71 +28,59 @@ final class StateMachine
     private $failureHandler;
 
     /**
-     * @var TransitionBuilder
+     * @var TransitionRegistry
      */
-    private $transitionFactory;
+    private $registry;
 
-    /**
-     * @param StateContext $context
-     */
-    public function __construct(StateContext $context)
+    public function __construct()
     {
         $this->dispatcher = new EventDispatcher();
-        $this->context = $context;
         $this->failureHandler = new AlwaysThrowException();
-        $this->transitionFactory = new TransitionBuilder();
+//        $this->transitionFactory = new TransitionBuilder();
+        $this->registry = new TransitionRegistry();
     }
 
     /**
+     * @param string $name
      * @param StateContext $context
-     * @param string $transitionName
      */
-    public function transitContext(StateContext $context, $transitionName)
+    public function transitContext($name, StateContext $context)
     {
-        $from = $context->getCurrentState();
-        $transition = $this->getTransition($transitionName);
+        $alias = $context->contextAlias();
+        $this->registry->useFailureHandler($this->failureHandler);
+        $transition = $this->registry->getTransition($name, $alias);
 
-        if (! $transition->hasChanged($from)) {
+        if (! $transition->changeIsRequired($context)) {
             return; // no changes detected, do not trigger transition
         }
 
-        if ($transition->isAllowed($context)) {
-            // custom event for transition
-            $this->dispatcher->dispatch(
-                sprintf(
-                    StateEventStore::CUSTOM_EVENT_BEFORE,
-                    $context->contextAlias(),
-                    $transition->name()
-                ),
-                new ContextTransitionWasRequested($context)
-            );
-
-            $this->dispatcher->dispatch(
-                StateEventStore::BEFORE_TRANSITION,
-                new TransitionWasRequested($transition)
-            );
-
-            $transition->applyStateChange($this->context);
-
-            $this->dispatcher->dispatch(
-                StateEventStore::AFTER_TRANSITION,
-                new TransitionWasSuccessful($transition)
-            );
-
-            // custom event for transition
-            $this->dispatcher->dispatch(
-                sprintf(
-                    StateEventStore::CUSTOM_EVENT_AFTER,
-                    $context->contextAlias(),
-                    $transition->name()
-                ),
-                new ContextTransitionWasSuccessful($context)
-            );
-
-            return;
+        if (! $transition->isAllowed($context)) {
+            $this->failureHandler->handleTransitionNotAllowed($context, $transition);
         }
 
-        $this->failureHandler->handleNotAllowedTransition($context, $transition);
+        // custom event for transition
+        $this->dispatcher->dispatch(
+            StateEventStore::preTransitionEvent($transition->name(), $context->contextAlias()),
+            new ContextTransitionWasRequested($context)
+        );
+
+        $this->dispatcher->dispatch(
+            StateEventStore::BEFORE_TRANSITION,
+            new TransitionWasRequested($transition)
+        );
+
+        $transition->applyStateChange($context);
+
+        $this->dispatcher->dispatch(
+            StateEventStore::AFTER_TRANSITION,
+            new TransitionWasSuccessful($transition)
+        );
+
+        // custom event for transition
+        $this->dispatcher->dispatch(
+            StateEventStore::postTransitionEvent($transition->name(), $context->contextAlias()),
+            new ContextTransitionWasSuccessful($context)
+        );
     }
 
 //    /**
@@ -150,79 +101,80 @@ final class StateMachine
      * Returns whether the context's state evaluate to the $state.
      *
      * @param State|string $state
-     * @param StateContext $context todo remove and use class attribute
+     * @param StateContext $context
      *
      * @return bool
      */
-//    public function isState($state, StateContext $context)
-//    {
-//        $state = static::state($state);
-//
-//        return $state->matchState($context->getCurrentState());
-//    }
+    public function isState($state, StateContext $context)
+    {
+        $alias = $context->contextAlias();
+
+        return $this
+            ->getState($context->getCurrentState()->name(), $alias)
+            ->matchState($this->getState($state, $alias));
+    }
 
     /**
-     * @param string $name The name of the attribute to add for $state.
+     * @param string $context The context alias
      * @param string|string[] $state State name or names of state(s) to add the attribute to.
+     * @param string $name The name of the attribute to add for $state.
      * @param mixed $value The optional value of the attribute.
      *
      * @return StateMachine
      */
-    public function addAttribute($name, $state, $value = null)
+    public function addAttribute($context, $state, $name, $value = null)
     {
         $states = (array) $state;
-        // todo use factory
-        $attribute = new StringAttribute($name, $value);
-
         foreach ($states as $state) {
-            $this->getState($state)->addAttribute($attribute);
+            $this->registry->setAttribute($context, $state, new StringAttribute($name, $value));
         }
 
         return $this;
     }
 
     /**
+     * @param string $context
      * @param string $name
      * @param string $from
      * @param string $to
      *
      * @return StateMachine
      */
-    public function addTransition($name, $from, $to)
+    public function oneToOne($context, $name, $from, $to)
     {
-        $alias = $this->context->contextAlias();
-        $transition = $this->transitionFactory->createTransition($name, $from, $to);
-// todo add to interface	    $transition->register(StateRegistry)
-        $this->transitions[$alias][$name] = $transition;
-	    $this->states[$alias][$from] = new StringState($from);
-	    $this->states[$alias][$to] = new StringState($to);
+        $this->registry->useFailureHandler($this->failureHandler);
+        $this->registry->addTransition(
+            $context,
+            new OneToOneTransition($name, new StringState($from), new StringState($to))
+        );
 
         return $this;
     }
 
     /**
-     * @param State|string $state
-     * @param StateAttribute[]|string[] $attributes
+     * @param string $name
+     * @param string $context
      *
-     * @return StateMachine
+     * @return State
+     * @throws NotFoundException
      */
-    public function addAttributes($state, array $attributes)
+    public function getState($name, $context)
     {
-//        foreach ($attributes as $attr) {
-//            $this->attributes[$state->toString()][$attribute->name()] = 1;
-//        }
-
-        return $this;
+        return $this->registry->getState($name, $context);
     }
 
     /**
-     * @param StateAttribute|string $attribute
+     * @param string $attribute
+     * @param StateContext $context
      *
      * @return bool
      */
-    public function hasAttribute($attribute)
+    public function hasAttribute($attribute, StateContext $context)
     {
-        $state = $this->context->getCurrentState();
+        $state = $this->registry->getState(
+            $context->getCurrentState()->name(),
+            $context->contextAlias()
+        );
 
         return $state->hasAttribute($attribute);
     }
@@ -252,113 +204,10 @@ final class StateMachine
     }
 
     /**
-     * @param string $name
-     *
-     * @return State
-     * @throws NotFoundException
-     */
-    private function getState($name)
-    {
-        $alias = $this->context->contextAlias();
-        if (! $this->hasState($alias, $name)) {
-            throw NotFoundException::stateNotFound($name, $alias);
-        }
-
-        return $this->states[$alias][$name];
-    }
-
-	/**
-	 * @param string $context The context alias
-	 * @param string $name The state name
-	 *
-	 * @return bool
-	 */
-	public function hasState($context, $name)
-	{
-		return isset($this->states[$context][$name]);
-	}
-
-    /**
-     * @param string $name
-     *
-     * @return StateTransition
-     * @throws NotFoundException
-     */
-    private function getTransition($name)
-    {
-        $alias = $this->context->contextAlias();
-        if (! isset($this->transitions[$alias][$name])) {
-            throw NotFoundException::transitionNotFound($name, $alias);
-        }
-
-        return $this->transitions[$alias][$name];
-    }
-
-    /**
-     * @param State $from
-     * @param State $to
-     */
-    private function whitelistTransition(State $from, $to) {
-        $to = static::state($to);
-        $this->whitelist[$from->name()][$to->name()] = 1;
-    }
-
-    /**
-     * @param StateContext $context
-     *
      * @return StateMachine
      */
-    public static function create(StateContext $context)
+    public static function create()
     {
-        return new static($context);
-    }
-
-    /**
-     * @param State|string $state
-     *
-     * @return State todo return StateBuilder
-     * @throws \InvalidArgumentException
-     */
-    public static function state($state)
-    {
-        if (is_string($state)) {
-            $state = new StringState($state);
-        }
-
-        if ($state instanceof State) {
-            return $state;
-        }
-
-        throw new \InvalidArgumentException(
-            sprintf(
-                "The state of type '%s' is not yet supported.",
-                gettype($state)
-            )
-        );
-    }
-
-    /**
-     * @param StateAttribute|string $attribute
-     * @param mixed $value
-     *
-     * @return StringAttribute
-     * @throws \InvalidArgumentException
-     */
-    public static function attribute($attribute, $value = null)
-    {
-        if (is_string($attribute)) {
-            $attribute = new StringAttribute($attribute, $value);
-        }
-
-        if ($attribute instanceof StateAttribute) {
-            return $attribute;
-        }
-
-        throw new \InvalidArgumentException(
-            sprintf(
-                "Attribute of type '%s' is not yet supported.",
-                gettype($attribute)
-            )
-        );
+        return new static();
     }
 }

@@ -9,7 +9,7 @@ namespace Star\Component\State;
 
 use Webmozart\Assert\Assert;
 
-final class FromToStateTransition implements StateTransition
+final class OneToOneTransition implements StateTransition
 {
     /**
      * @var string
@@ -48,13 +48,13 @@ final class FromToStateTransition implements StateTransition
     }
 
     /**
-     * @param State $from
+     * @param StateContext $context
      *
      * @return bool
      */
-    public function hasChanged(State $from)
+    public function changeIsRequired(StateContext $context)
     {
-        return $this->from->matchState($from);
+        return ! $this->to->matchState($context->getCurrentState());
     }
 
     /**
@@ -64,7 +64,7 @@ final class FromToStateTransition implements StateTransition
      */
     public function isAllowed(StateContext $context)
     {
-        return true; // always allowed
+        return $this->from->matchState($context->getCurrentState());
     }
 
     /**
@@ -73,5 +73,15 @@ final class FromToStateTransition implements StateTransition
     public function applyStateChange(StateContext $context)
     {
         $context->setState($this->to);
+    }
+
+    /**
+     * @param string $context
+     * @param TransitionRegistry $registry
+     */
+    public function register($context, TransitionRegistry $registry)
+    {
+        $registry->addState($this->from, $context);
+        $registry->addState($this->to, $context);
     }
 }

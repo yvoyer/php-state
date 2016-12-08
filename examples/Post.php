@@ -20,6 +20,13 @@ class Post implements StateContext
 
     const ATTRIBUTE_ACTIVE = 'active';
     const ATTRIBUTE_CLOSED = 'closed';
+    const TRANSITION_PUBLISH = 'publish';
+    const ALIAS = 'post';
+    const TRANSITION_DELETE = 'delete';
+    const TRANSITION_DUMP = 'dump';
+    const TRANSITION_ARCHIVE = 'archive';
+    const TRANSITION_UNPUBLISH = 'unPublish';
+    const TRANSITION_UNARCHIVE = 'unArchive';
 
     /**
      * @var string
@@ -56,27 +63,27 @@ class Post implements StateContext
      */
     public function isActive()
     {
-        return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE);
+        return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE, $this);
     }
 
-    public function markAsDraft()
+    public function drop()
     {
-        $this->workflow()->transitContext($this, self::DRAFT);
+        $this->workflow()->transitContext(self::TRANSITION_DUMP, $this);
     }
 
     public function publish()
     {
-        $this->workflow()->transitContext($this, self::PUBLISHED);
+        $this->workflow()->transitContext(self::TRANSITION_PUBLISH, $this);
     }
 
     public function archive()
     {
-        $this->workflow()->transitContext($this, self::ARCHIVED);
+        $this->workflow()->transitContext(self::TRANSITION_ARCHIVE, $this);
     }
 
     public function delete()
     {
-        $this->workflow()->transitContext($this, self::DELETED);
+        $this->workflow()->transitContext(self::TRANSITION_DELETE, $this);
     }
 
     /**
@@ -118,25 +125,28 @@ class Post implements StateContext
 
     public function getCurrentState()
     {
-        return $this->workflow()->state($this->state);
+        return $this->workflow()->getState($this->state, self::ALIAS);
     }
 
     public function contextAlias()
     {
-        return 'post';
+        return self::ALIAS;
     }
 
     /**
      * @return StateMachine
      */
-    private function workflow()
+    public static function workflow()
     {
-        return StateMachine::create($this)
-            ->whitelist(self::DRAFT, [self::PUBLISHED, self::DELETED])
-            ->whitelist(self::PUBLISHED, [self::DRAFT, self::ARCHIVED])
-            ->whitelist(self::ARCHIVED, [self::DRAFT, self::DELETED])
-            ->addAttribute(self::ATTRIBUTE_CLOSED, [self::ARCHIVED, self::DELETED])
-            ->addAttributes(self::PUBLISHED, [self::ATTRIBUTE_ACTIVE])
+        return StateMachine::create()
+            ->oneToOne(self::ALIAS, self::TRANSITION_PUBLISH, self::DRAFT, self::PUBLISHED)
+            ->oneToOne(self::ALIAS, self::TRANSITION_DUMP, self::DRAFT, self::DELETED)
+            ->oneToOne(self::ALIAS, self::TRANSITION_ARCHIVE, self::PUBLISHED, self::ARCHIVED)
+            ->oneToOne(self::ALIAS, self::TRANSITION_UNPUBLISH, self::PUBLISHED, self::DRAFT)
+            ->oneToOne(self::ALIAS, self::TRANSITION_UNARCHIVE, self::ARCHIVED, self::DRAFT)
+            ->oneToOne(self::ALIAS, self::TRANSITION_DELETE, self::ARCHIVED, self::DELETED)
+            ->addAttribute(self::ALIAS, self::PUBLISHED, self::ATTRIBUTE_ACTIVE)
+            ->addAttribute(self::ALIAS, [self::ARCHIVED, self::DELETED], self::ATTRIBUTE_CLOSED)
             // deleted post cannot have transitions
             ;
     }

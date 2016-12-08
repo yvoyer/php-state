@@ -18,5 +18,19 @@ interface FailureHandler
      * @param StateContext $context
      * @param StateTransition $transition
      */
-    public function handleNotAllowedTransition(StateContext $context, StateTransition $transition);
+    public function handleTransitionNotAllowed(StateContext $context, StateTransition $transition);
+
+    /**
+     * Launched when a no transition are found for the context and state.
+     *
+     * @param string $name
+     * @param string $context
+     */
+    public function handleStateNotFound($name, $context);
+
+    /**
+     * @param string $name The transition name
+     * @param string $context The context alias
+     */
+    public function handleTransitionNotFound($name, $context);
 }

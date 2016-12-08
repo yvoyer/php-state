@@ -15,18 +15,26 @@ final class StringState implements State
     /**
      * @var string
      */
-    private $id;
+    private $name;
 
     /**
      * @var StateAttribute[]
      */
     private $attributes = [];
 
-    public function __construct($id)
+    /**
+     * @param string $name
+     * @param StateAttribute[] $attributes
+     */
+    public function __construct($name, array $attributes = [])
     {
-        Assert::string($id, "The status was expected to be a string, '%s' given.");
+        Assert::string($name, "The status was expected to be a string, '%s' given.");
+        Assert::allIsInstanceOf($attributes, StateAttribute::class);
 
-        $this->id = $id;
+        $this->name = $name;
+        foreach ($attributes as $attribute) {
+            $this->attributes[$attribute->name()] = $attribute;
+        }
     }
 
     /**
@@ -36,7 +44,7 @@ final class StringState implements State
      */
     public function name()
     {
-        return $this->id;
+        return $this->name;
     }
 
     /**
@@ -46,15 +54,17 @@ final class StringState implements State
      */
     public function matchState(State $state)
     {
-        return $state instanceof $this && $this->id === $state->id;
+        return $state->name() === $this->name();
     }
 
     /**
      * @param StateAttribute $attribute
+     *
+     * @return State
      */
     public function addAttribute(StateAttribute $attribute)
     {
-        $this->attributes[$attribute->name()] = $attribute;
+        return new self($this->name(), array_merge($this->attributes, [$attribute]));
     }
 
     /**

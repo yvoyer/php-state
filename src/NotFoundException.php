@@ -21,17 +21,4 @@ final class NotFoundException extends \Exception
             sprintf("The state '%s' could not be found for context '%s'.", $state, $contextAlias)
         );
     }
-
-    /**
-     * @param string $name
-     * @param string $contextAlias
-     *
-     * @return NotFoundException
-     */
-    public static function transitionNotFound($name, $contextAlias)
-    {
-        return new self(
-            sprintf("The transition '%s' could not be found for context '%s'.", $name, $contextAlias)
-        );
-    }
 }

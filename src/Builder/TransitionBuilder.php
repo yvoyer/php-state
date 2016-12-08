@@ -8,7 +8,7 @@
 namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateTransition;
-use Star\Component\State\FromToStateTransition;
+use Star\Component\State\OneToOneTransition;
 use Star\Component\State\StringState;
 
 final class TransitionBuilder
@@ -22,6 +22,6 @@ final class TransitionBuilder
      */
     public function createTransition($name, $from, $to)
     {
-        return new FromToStateTransition($name, new StringState($from), new StringState($to));
+        return new OneToOneTransition($name, new StringState($from), new StringState($to));
     }
 }

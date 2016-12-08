@@ -27,6 +27,8 @@ interface State
 
     /**
      * @param StateAttribute $attribute
+     *
+     * @return State
      */
     public function addAttribute(StateAttribute $attribute);
 

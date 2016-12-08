@@ -15,11 +15,11 @@ interface StateTransition
     public function name();
 
     /**
-     * @param State $from
+     * @param StateContext $context
      *
      * @return bool
      */
-    public function hasChanged(State $from);
+    public function changeIsRequired(StateContext $context);
 
     /**
      * @param StateContext $context
@@ -32,4 +32,10 @@ interface StateTransition
      * @param StateContext $context
      */
     public function applyStateChange(StateContext $context);
+
+    /**
+     * @param string $context
+     * @param TransitionRegistry $registry
+     */
+    public function register($context, TransitionRegistry $registry);
 }

@@ -46,4 +46,26 @@ final class StateEventStore
      * Event: ContextTransitionWasSuccessful
      */
     const CUSTOM_EVENT_AFTER = 'star_state.after.%s.%s';
+
+    /**
+     * @param string $name
+     * @param string $context
+     *
+     * @return string
+     */
+    public static function preTransitionEvent($name, $context)
+    {
+        return sprintf(self::CUSTOM_EVENT_BEFORE, $context, $name);
+    }
+
+    /**
+     * @param string $name
+     * @param string $context
+     *
+     * @return string
+     */
+    public static function postTransitionEvent($name, $context)
+    {
+        return sprintf(self::CUSTOM_EVENT_AFTER, $context, $name);
+    }
 }

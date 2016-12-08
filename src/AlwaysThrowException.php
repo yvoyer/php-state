@@ -19,10 +19,6 @@ final class AlwaysThrowException implements FailureHandler
      */
     public function __construct($exceptionClass = null)
     {
-        if (! $exceptionClass) {
-            $exceptionClass = InvalidStateTransitionException::class;
-        }
-
         $this->exceptionClass = $exceptionClass;
     }
 
@@ -32,10 +28,46 @@ final class AlwaysThrowException implements FailureHandler
      * @param StateContext $context
      * @param StateTransition $transition
      */
-    public function handleNotAllowedTransition(StateContext $context, StateTransition $transition)
+    public function handleTransitionNotAllowed(StateContext $context, StateTransition $transition)
     {
-        throw new $this->exceptionClass(
+        $exceptionClass = $this->exceptionClass;
+        if (! $this->exceptionClass) {
+            $exceptionClass = InvalidStateTransitionException::class;
+        }
+
+        throw new $exceptionClass(
             "The transition '{$transition->name()}' is not allowed on context '{$context->contextAlias()}'."
         );
+    }
+
+    /**
+     * Launched when a no transition are found for the context and state.
+     *
+     * @param string $name
+     * @param string $context
+     */
+    public function handleStateNotFound($name, $context)
+    {
+        $exceptionClass = $this->exceptionClass;
+        if (! $this->exceptionClass) {
+            $exceptionClass = NotFoundException::class;
+        }
+
+        throw new $exceptionClass(sprintf("The state '%s' could not be found for context '%s'.", $name, $context));
+    }
+
+    /**
+     * @param string $name The transition name
+     * @param string $context The context alias
+     * @throws NotFoundException
+     */
+    public function handleTransitionNotFound($name, $context)
+    {
+        $exceptionClass = $this->exceptionClass;
+        if (! $this->exceptionClass) {
+            $exceptionClass = NotFoundException::class;
+        }
+
+        throw new $exceptionClass(sprintf("The transition '%s' could not be found for context '%s'.", $name, $context));
     }
 }

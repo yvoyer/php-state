@@ -11,6 +11,9 @@ use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 
+/**
+ * Example of usage when using self contained workflow creation.
+ */
 class Post implements StateContext
 {
     const DRAFT = 'draft';

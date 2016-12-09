@@ -67,13 +67,27 @@ final class OneToOneTransition implements StateTransition
         return $this->from->matchState($context->getCurrentState());
     }
 
+	/**
+	 * @param StateContext $context
+	 */
+	public function beforeStateChange(StateContext $context) {
+		throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+	}
+
     /**
      * @param StateContext $context
      */
-    public function applyStateChange(StateContext $context)
+    public function onStateChange(StateContext $context)
     {
         $context->setState($this->to);
     }
+
+	/**
+	 * @param StateContext $context
+	 */
+	public function afterStateChange(StateContext $context) {
+		throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+	}
 
     /**
      * @param string $context

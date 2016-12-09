@@ -64,13 +64,27 @@ final class OneToManyTransition implements StateTransition
         throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
     }
 
+	/**
+	 * @param StateContext $context
+	 */
+	public function beforeStateChange(StateContext $context) {
+		throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+	}
+
     /**
      * @param StateContext $context
      */
-    public function applyStateChange(StateContext $context)
+    public function onStateChange(StateContext $context)
     {
         throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
     }
+
+	/**
+	 * @param StateContext $context
+	 */
+	public function afterStateChange(StateContext $context) {
+		throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+	}
 
     /**
      * @param string $context

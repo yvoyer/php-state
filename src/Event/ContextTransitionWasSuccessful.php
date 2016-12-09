@@ -7,7 +7,6 @@
 
 namespace Star\Component\State\Event;
 
-use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -27,7 +26,7 @@ final class ContextTransitionWasSuccessful extends Event
     }
 
     /**
-     * @return State
+     * @return StateContext
      */
     public function context()
     {

@@ -69,7 +69,7 @@ final class StateMachine
             new TransitionWasRequested($transition)
         );
 
-        $transition->applyStateChange($context);
+        $transition->onStateChange($context);
 
         $this->dispatcher->dispatch(
             StateEventStore::AFTER_TRANSITION,

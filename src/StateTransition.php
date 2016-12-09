@@ -28,14 +28,24 @@ interface StateTransition
      */
     public function isAllowed(StateContext $context);
 
-    /**
-     * @param StateContext $context
-     */
-    public function applyStateChange(StateContext $context);
+	/**
+	 * @param string $context
+	 * @param TransitionRegistry $registry
+	 */
+	public function register($context, TransitionRegistry $registry);
 
-    /**
-     * @param string $context
-     * @param TransitionRegistry $registry
-     */
-    public function register($context, TransitionRegistry $registry);
+	/**
+	 * @param StateContext $context
+	 */
+	public function beforeStateChange(StateContext $context);
+
+	/**
+	 * @param StateContext $context
+	 */
+	public function onStateChange(StateContext $context);
+
+	/**
+	 * @param StateContext $context
+	 */
+	public function afterStateChange(StateContext $context);
 }

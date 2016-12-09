@@ -32,8 +32,16 @@ final class StateEventStore
      * is transitioned to the stop transition ("started" to "stopped").
      *
      * Event: ContextTransitionWasRequested
+     *
+     * @param string $name
+     * @param string $context
+     *
+     * @return string
      */
-    const CUSTOM_EVENT_BEFORE = 'star_state.before.%s.%s';
+    public static function preTransitionEvent($name, $context)
+    {
+        return sprintf('star_state.before.%s.%s', $context, $name);
+    }
 
     /**
      * This is the format for the after transition, of a specific transition.
@@ -44,21 +52,7 @@ final class StateEventStore
      * is transitioned to the stop transition ("started" to "stopped").
      *
      * Event: ContextTransitionWasSuccessful
-     */
-    const CUSTOM_EVENT_AFTER = 'star_state.after.%s.%s';
-
-    /**
-     * @param string $name
-     * @param string $context
      *
-     * @return string
-     */
-    public static function preTransitionEvent($name, $context)
-    {
-        return sprintf(self::CUSTOM_EVENT_BEFORE, $context, $name);
-    }
-
-    /**
      * @param string $name
      * @param string $context
      *
@@ -66,6 +60,6 @@ final class StateEventStore
      */
     public static function postTransitionEvent($name, $context)
     {
-        return sprintf(self::CUSTOM_EVENT_AFTER, $context, $name);
+        return sprintf('star_state.after.%s.%s', $context, $name);
     }
 }

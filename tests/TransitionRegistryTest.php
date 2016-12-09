@@ -48,6 +48,26 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new StringState('to'), $this->registry->getState('to', 'context'));
     }
 
+    public function test_it_should_add_multiple_states()
+    {
+        $this->registry->addTransition(
+            'c1',
+            new OneToManyTransition(
+                't1',
+                new StringState('s1'),
+                [
+                    new StringState('s2'),
+                    new StringState('s3'),
+                    new StringState('s4')
+                ]
+            )
+        );
+        $this->assertTrue($this->registry->hasState('s1', 'c1'));
+        $this->assertTrue($this->registry->hasState('s2', 'c1'));
+        $this->assertTrue($this->registry->hasState('s3', 'c1'));
+        $this->assertTrue($this->registry->hasState('s4', 'c1'));
+    }
+
 //    /**
 //     * @expectedException        \Star\Component\State\NotFoundException
 //     * @expectedExceptionMessage The transition 'not-found' could not be found for context 'context'.

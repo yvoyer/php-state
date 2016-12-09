@@ -23,7 +23,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_allow_from_draft_to_draft()
     {
         $post = Post::draft();
-        $post->drop();
+        $post->dump();
         $this->assertPostIsDraft($post);
     }
 
@@ -73,7 +73,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_allow_from_publish_to_draft()
     {
         $post = Post::published();
-        $post->drop();
+        $post->dump();
         $this->assertPostIsDraft($post);
     }
 
@@ -124,7 +124,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_allow_from_archived_to_draft()
     {
         $post = Post::archived();
-        $post->drop();
+        $post->dump();
         $this->assertPostIsDraft($post);
     }
 
@@ -176,7 +176,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_not_allow_from_deleted_to_draft()
     {
         $post = Post::deleted();
-        $post->drop();
+        $post->dump();
     }
 
     /**
@@ -226,7 +226,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
      */
     private function assertPostIsDraft(Post $post)
     {
-        $this->assertTrue($post->isDraft());
+        $this->assertTrue($post->isDraft(), 'Post should be draft');
         $this->assertFalse($post->isPublished());
         $this->assertFalse($post->isArchived());
         $this->assertFalse($post->isDeleted());
@@ -238,7 +238,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     private function assertPostIsPublished(Post $post)
     {
         $this->assertFalse($post->isDraft());
-        $this->assertTrue($post->isPublished());
+        $this->assertTrue($post->isPublished(), 'Post should be published');
         $this->assertFalse($post->isArchived());
         $this->assertFalse($post->isDeleted());
     }
@@ -250,7 +250,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertFalse($post->isDraft());
         $this->assertFalse($post->isPublished());
-        $this->assertTrue($post->isArchived());
+        $this->assertTrue($post->isArchived(), 'Post should be archived');
         $this->assertFalse($post->isDeleted());
     }
 
@@ -262,6 +262,6 @@ final class PostTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($post->isDraft());
         $this->assertFalse($post->isPublished());
         $this->assertFalse($post->isArchived());
-        $this->assertTrue($post->isDeleted());
+        $this->assertTrue($post->isDeleted(), 'Post should be deleted');
     }
 }

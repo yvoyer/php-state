@@ -9,146 +9,138 @@ namespace Star\Component\State;
 
 use Star\Component\State\Event\ContextTransitionWasRequested;
 use Star\Component\State\Event\ContextTransitionWasSuccessful;
+use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
-use Star\Component\State\Example\Post;
-use Star\Component\State\Example\PostSubscriber;
 
 final class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException        \Star\Component\State\NotFoundException
-     * @expectedExceptionMessage The transition 'not-configured' could not be found for context 'post'.
+     * @expectedExceptionMessage The transition 'not-configured' could not be found for context 'context'.
      */
     public function test_it_should_not_allow_to_transition_to_a_not_configured_transition()
     {
-        $context = Post::draft();
-        $machine = Post::workflow($context);
-        $machine->transitContext('not-configured', $context);
+        $machine = StateMachine::create();
+        $machine->transitContext('not-configured', TestContext::fromString());
     }
 
     /**
      * @expectedException        \RuntimeException
-     * @expectedExceptionMessage The transition 'invalid' could not be found for context 'post'.
+     * @expectedExceptionMessage The transition 'invalid' could not be found for context 'context'.
      * @depends test_it_should_not_allow_to_transition_to_a_not_configured_transition
      */
     public function test_it_should_allow_to_change_exception_type_when_transition_not_found()
     {
-        $machine = Post::workflow()
+        $machine = StateMachine::create()
             ->useFailureHandler(new AlwaysThrowException('\RuntimeException'));
 
-        $machine->transitContext('invalid', Post::draft());
+        $machine->transitContext('invalid', TestContext::fromString());
     }
 
     public function test_it_should_transition_from_one_state_to_the_other()
     {
-        $context = Post::draft();
-        $machine = Post::workflow($context);
+        $context = TestContext::fromString();
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'from', 'to')
+        ;
 
-        $this->assertSame(Post::DRAFT, $context->getCurrentState()->name());
-        $machine->transitContext(Post::TRANSITION_PUBLISH, $context);
-        $this->assertSame(Post::PUBLISHED, $context->getCurrentState()->name());
+        $this->assertSame('from', $context->getCurrentState()->name());
+        $machine->transitContext('transition', $context);
+        $this->assertSame('to', $context->getCurrentState()->name());
     }
 
     public function test_it_should_trigger_an_event_before_any_transition()
     {
-        $subscriber = new PostSubscriber();
-        $context = Post::draft();
-        $machine = Post::workflow($context)
-            ->addSubscriber($subscriber)
-        ;
-        $this->assertFalse($subscriber->beforeTransition);
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'from', 'to')
+            ->addSubscriber($subscriber = new TestSubscriber());
+        $this->assertNull($subscriber->beforeEvent);
 
-        $machine->transitContext(Post::TRANSITION_PUBLISH, $context);
+        $machine->transitContext('transition', TestContext::fromString());
 
-        $event = $subscriber->beforeTransition;
+        $event = $subscriber->beforeEvent;
         $this->assertInstanceOf(TransitionWasRequested::class, $event);
         $this->assertInstanceOf(StateTransition::class, $event->transition());
     }
 
     public function test_it_should_trigger_an_event_after_any_transition()
     {
-        $subscriber = new PostSubscriber();
-        $context = Post::draft();
-        $machine = Post::workflow($context)
-            ->addSubscriber($subscriber)
-        ;
-        $this->assertFalse($subscriber->afterTransition);
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'from', 'to')
+            ->addSubscriber($subscriber = new TestSubscriber());
+        $this->assertNull($subscriber->afterEvent);
 
-        $machine->transitContext(Post::TRANSITION_PUBLISH, $context);
+        $machine->transitContext('transition', TestContext::fromString());
 
-        $event = $subscriber->afterTransition;
+        $event = $subscriber->afterEvent;
         $this->assertInstanceOf(TransitionWasSuccessful::class, $event);
         $this->assertInstanceOf(StateTransition::class, $event->transition());
     }
 
     public function test_it_should_trigger_a_custom_event_before_a_specific_transition()
     {
-        $subscriber = new PostSubscriber();
-        $context = Post::draft();
-        $machine = Post::workflow($context)
-            ->addSubscriber($subscriber)
-        ;
-        $this->assertFalse($subscriber->preSpecificTransition);
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'from', 'to')
+            ->addSubscriber($subscriber = new TestSubscriber());
+        $this->assertNull($subscriber->beforeContextEvent);
 
-        $machine->transitContext(Post::TRANSITION_PUBLISH, $context);
+        $machine->transitContext('transition', TestContext::fromString());
 
-        $event = $subscriber->preSpecificTransition;
+        $event = $subscriber->beforeContextEvent;
         $this->assertInstanceOf(ContextTransitionWasRequested::class, $event);
-        $this->assertEquals($context, $event->context());
+        $this->assertEquals(TestContext::fromString('to'), $event->context());
     }
 
     public function test_it_should_trigger_a_custom_event_after_a_specific_transition()
     {
-        $subscriber = new PostSubscriber();
-        $context = Post::draft();
-        $machine = Post::workflow($context)
-            ->addSubscriber($subscriber)
-        ;
-        $this->assertFalse($subscriber->postSpecificTransition);
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'from', 'to')
+            ->addSubscriber($subscriber = new TestSubscriber());
+        $this->assertNull($subscriber->afterContextEvent);
 
-        $machine->transitContext(Post::TRANSITION_PUBLISH, $context);
+        $machine->transitContext('transition', TestContext::fromString());
 
-        $event = $subscriber->postSpecificTransition;
+        $event = $subscriber->afterContextEvent;
         $this->assertInstanceOf(ContextTransitionWasSuccessful::class, $event);
-        $this->assertEquals($context, $event->context());
+        $this->assertEquals(TestContext::fromString('to'), $event->context());
     }
 
     public function test_it_should_not_trigger_changes_when_no_change_of_state()
     {
-        $subscriber = new PostSubscriber();
-        $context = Post::published();
-        $machine = Post::workflow($context)
-            ->addSubscriber($subscriber);
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'from', 'to')
+            ->addSubscriber($subscriber = new TestSubscriber());
 
-        $this->assertFalse($subscriber->beforeTransition);
-        $machine->transitContext(Post::TRANSITION_PUBLISH, $context);
-        $this->assertFalse($subscriber->beforeTransition);
+        $this->assertNull($subscriber->beforeEvent);
+        $machine->transitContext('transition', TestContext::fromString('to'));
+        $this->assertNull($subscriber->beforeEvent);
     }
 
     /**
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'publish' is not allowed on context 'post'.
+     * @expectedExceptionMessage The transition 'transition' is not allowed on context 'context'.
      */
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
-        $machine = Post::workflow()
-            ->useFailureHandler(new AlwaysThrowException());
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'to', 'to');
 
-        $machine->transitContext('publish', Post::deleted());
+        $machine->transitContext('transition', TestContext::fromString());
     }
 
     /**
      * @expectedException        \RuntimeException
-     * @expectedExceptionMessage The transition 'publish' is not allowed on context 'post'.
+     * @expectedExceptionMessage The transition 'transition' is not allowed on context 'context'.
      * @depends test_it_should_throw_exception_when_transition_not_allowed
      */
     public function test_it_should_allow_to_change_exception_type_when_transition_not_allowed()
     {
-        $machine = Post::workflow()
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'to', 'to')
             ->useFailureHandler(new AlwaysThrowException(\RuntimeException::class));
 
-        $machine->transitContext('publish', Post::deleted());
+        $machine->transitContext('transition', TestContext::fromString());
     }
 
     /**
@@ -183,35 +175,40 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function test_state_can_have_attribute()
     {
-        $machine = Post::workflow()
-            ->addAttribute(Post::ALIAS, Post::PUBLISHED, Post::ATTRIBUTE_ACTIVE)
+        $machine = StateMachine::create()
+            ->oneToOne('context', 'transition', 'from', 'to')
+            ->addAttribute('context', 'from', 'attribute')
         ;
 
-        $this->assertTrue($machine->hasAttribute(Post::ATTRIBUTE_ACTIVE, Post::published()));
-        $this->assertFalse($machine->hasAttribute(Post::ATTRIBUTE_ACTIVE, Post::deleted()));
+        $this->assertTrue($machine->hasAttribute('attribute', TestContext::fromString('from')));
+        $this->assertFalse($machine->hasAttribute('attribute', TestContext::fromString('to')));
     }
 
     /**
      * @expectedException        \Star\Component\State\NotFoundException
-     * @expectedExceptionMessage The state 'invalid' could not be found for context 'post'.
+     * @expectedExceptionMessage The state 'invalid' could not be found for context 'context'.
      */
     public function test_it_should_throw_exception_when_state_not_found()
     {
-        Post::workflow()->addAttribute(Post::ALIAS, 'invalid', 'attribute');
+        StateMachine::create()->addAttribute('context', 'invalid', 'attribute');
     }
 
     public function test_it_should_allow_to_define_one_to_many_states_transition()
     {
-        $this->markTestIncomplete('TODO');
-        $machine = Post::workflow()
-            ->oneToMany('name', 'first', ['second', 'third', 'fourth'])
+        $machine = StateMachine::create()
+            ->oneToMany('context', 'transition', 's1', ['s2', 's3'])
         ;
+        $context = TestContext::fromString('s1');
+
+        $this->assertTrue($machine->isState('s1', $context));
+        $machine->transitContext('transition', $context);
+        $this->assertTrue($machine->isState('s1', $context));
     }
 
     public function test_it_should_allow_to_define_many_to_many_states_transition()
     {
         $this->markTestIncomplete('TODO');
-        $machine = Post::workflow()
+        $machine = StateMachine::create()
             ->manyToMany('name', 'first', ['second', 'third', 'fourth'])
         ;
     }
@@ -219,8 +216,61 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_allow_to_disallow_transition()
     {
         $this->markTestIncomplete('TODO');
-        $machine = Post::workflow()
+        $machine = StateMachine::create()
             ->disallow('name', 'first', ['second', 'third', 'fourth'])
         ;
+    }
+}
+
+final class TestSubscriber implements EventSubscriber
+{
+    /**
+     * @var TransitionWasRequested|null
+     */
+    public $beforeEvent;
+
+    /**
+     * @var TransitionWasSuccessful|null
+     */
+    public $afterEvent;
+
+    /**
+     * @var ContextTransitionWasRequested|null
+     */
+    public $beforeContextEvent;
+
+    /**
+     * @var ContextTransitionWasSuccessful|null
+     */
+    public $afterContextEvent;
+
+    public function onBeforeTransition(TransitionWasRequested $event)
+    {
+        $this->beforeEvent = $event;
+    }
+
+    public function onAfterTransition(TransitionWasSuccessful $event)
+    {
+        $this->afterEvent = $event;
+    }
+
+    public function onBeforeContext(ContextTransitionWasRequested $event)
+    {
+        $this->beforeContextEvent = $event;
+    }
+
+    public function onAfterContext(ContextTransitionWasSuccessful $event)
+    {
+        $this->afterContextEvent = $event;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            StateEventStore::BEFORE_TRANSITION => 'onBeforeTransition',
+            StateEventStore::AFTER_TRANSITION => 'onAfterTransition',
+            StateEventStore::preTransitionEvent('transition', 'context') => 'onBeforeContext',
+            StateEventStore::postTransitionEvent('transition', 'context') => 'onAfterContext',
+        ];
     }
 }

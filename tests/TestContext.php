@@ -17,11 +17,11 @@ final class TestContext implements StateContext
     private $current;
 
     /**
-     * @param $initial
+     * @param string $initial
      */
-    private function __construct(State $initial)
+    private function __construct($initial)
     {
-        $this->current = $initial->name();
+        $this->current = $initial;
     }
 
     public function setState(State $state)
@@ -34,9 +34,9 @@ final class TestContext implements StateContext
         return new StringState($this->current);
     }
 
-    public static function fromString($state)
+    public static function fromString($state = 'from')
     {
-        return new self(new StringState($state));
+        return new self($state);
     }
 
     /**

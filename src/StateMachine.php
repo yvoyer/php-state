@@ -152,6 +152,33 @@ final class StateMachine
     }
 
     /**
+     * @param string $context
+     * @param string $name
+     * @param string $from
+     * @param string[] $tos
+     *
+     * @return StateMachine
+     */
+    public function oneToMany($context, $name, $from, array $tos)
+    {
+        $this->registry->addTransition(
+            $context,
+            new OneToManyTransition(
+                $name,
+                new StringState($from),
+                array_map(
+                    function($to) {
+                        return new StringState($to);
+                    },
+                    $tos
+                )
+            )
+        );
+
+        return $this;
+    }
+
+    /**
      * @param string $name
      * @param string $context
      *

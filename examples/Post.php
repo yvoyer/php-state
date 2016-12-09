@@ -66,7 +66,7 @@ class Post implements StateContext
         return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE, $this);
     }
 
-    public function drop()
+    public function dump()
     {
         $this->workflow()->transitContext(self::TRANSITION_DUMP, $this);
     }
@@ -139,14 +139,17 @@ class Post implements StateContext
     public static function workflow()
     {
         return StateMachine::create()
+//            ->oneToOne(self::ALIAS, self::TRANSITION_ARCHIVE, self::DRAFT, self::ARCHIVED)
+//            ->oneToOne(self::ALIAS, self::TRANSITION_DUMP, self::DRAFT, self::DRAFT)
             ->oneToOne(self::ALIAS, self::TRANSITION_PUBLISH, self::DRAFT, self::PUBLISHED)
             ->oneToOne(self::ALIAS, self::TRANSITION_DUMP, self::DRAFT, self::DELETED)
             ->oneToOne(self::ALIAS, self::TRANSITION_ARCHIVE, self::PUBLISHED, self::ARCHIVED)
-            ->oneToOne(self::ALIAS, self::TRANSITION_UNPUBLISH, self::PUBLISHED, self::DRAFT)
-            ->oneToOne(self::ALIAS, self::TRANSITION_UNARCHIVE, self::ARCHIVED, self::DRAFT)
+//            ->oneToOne(self::ALIAS, self::TRANSITION_UNPUBLISH, self::PUBLISHED, self::DRAFT)
+//            ->oneToOne(self::ALIAS, self::TRANSITION_UNARCHIVE, self::ARCHIVED, self::DRAFT)
+//            ->oneToOne(self::ALIAS, self::TRANSITION_DELETE, self::DRAFT, self::DELETED)
             ->oneToOne(self::ALIAS, self::TRANSITION_DELETE, self::ARCHIVED, self::DELETED)
-            ->addAttribute(self::ALIAS, self::PUBLISHED, self::ATTRIBUTE_ACTIVE)
-            ->addAttribute(self::ALIAS, [self::ARCHIVED, self::DELETED], self::ATTRIBUTE_CLOSED)
+//            ->addAttribute(self::ALIAS, self::PUBLISHED, self::ATTRIBUTE_ACTIVE)
+//            ->addAttribute(self::ALIAS, [self::ARCHIVED, self::DELETED], self::ATTRIBUTE_CLOSED)
             // deleted post cannot have transitions
             ;
     }

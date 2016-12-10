@@ -1,20 +1,41 @@
 <?php
 /**
- * This file is part of the status project.
+ * This file is part of the php-state project.
  *
- * (c) Yannick Voyer (http://github.com/yvoyer)
+ * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
  */
 
 namespace Star\Component\State;
 
-/**
- * Class State
- *
- * @author  Yannick Voyer (http://github.com/yvoyer)
- *
- * @package Star\Component\State
- */
+use Star\Component\State\Attribute\StateAttribute;
+
 interface State
 {
-    const INTERFACE_STATE = __CLASS__;
+    /**
+     * The string value of the state
+     *
+     * @return string
+     */
+    public function name();
+
+    /**
+     * @param State $state
+     *
+     * @return bool
+     */
+    public function matchState(State $state);
+
+    /**
+     * @param StateAttribute $attribute
+     *
+     * @return State
+     */
+    public function addAttribute(StateAttribute $attribute);
+
+    /**
+     * @param string $attribute
+     *
+     * @return bool
+     */
+    public function hasAttribute($attribute);
 }

@@ -8,10 +8,6 @@
         convertErrorsToExceptions   = "true"
         convertNoticesToExceptions  = "true"
         convertWarningsToExceptions = "true"
-        forceCoversAnnotation       = "false"
-        processIsolation            = "false"
-        stopOnFailure               = "false"
-        syntaxCheck                 = "false"
         bootstrap                   = "vendor/autoload.php" >
 
     <testsuites>
@@ -25,9 +21,4 @@
             <directory>src</directory>
         </whitelist>
     </filter>
-
-    <!-- Enable the coverage -->
-    <!-- <logging>
-         <log type="coverage-html" target="/tmp/coverage/state.local" charset="UTF-8"/>
-    </logging> -->
 </phpunit>

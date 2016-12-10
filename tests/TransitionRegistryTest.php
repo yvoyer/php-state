@@ -62,10 +62,14 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
                 ]
             )
         );
+
         $this->assertTrue($this->registry->hasState('s1', 'c1'));
         $this->assertTrue($this->registry->hasState('s2', 'c1'));
         $this->assertTrue($this->registry->hasState('s3', 'c1'));
         $this->assertTrue($this->registry->hasState('s4', 'c1'));
+        $this->registry->getTransition('t1', 'c1');
+        $this->registry->getTransition('t1', 'c1');
+        $this->registry->getTransition('t1', 'c1');
     }
 
 //    /**

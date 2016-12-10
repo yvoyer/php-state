@@ -202,7 +202,7 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($machine->isState('s1', $context));
         $machine->transitContext('transition', $context);
-        $this->assertTrue($machine->isState('s1', $context));
+        $this->assertTrue($machine->isState('s2', $context));
     }
 
     public function test_it_should_allow_to_define_many_to_many_states_transition()

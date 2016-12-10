@@ -161,19 +161,9 @@ final class StateMachine
      */
     public function oneToMany($context, $name, $from, array $tos)
     {
-        $this->registry->addTransition(
-            $context,
-            new OneToManyTransition(
-                $name,
-                new StringState($from),
-                array_map(
-                    function($to) {
-                        return new StringState($to);
-                    },
-                    $tos
-                )
-            )
-        );
+        foreach ($tos as $to) {
+            $this->oneToOne($context, $name, $from, $to);
+        }
 
         return $this;
     }

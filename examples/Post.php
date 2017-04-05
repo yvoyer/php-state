@@ -7,6 +7,7 @@
 
 namespace Star\Component\State\Example;
 
+use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
@@ -26,7 +27,7 @@ class Post implements StateContext
     const TRANSITION_PUBLISH = 'publish';
     const ALIAS = 'post';
     const TRANSITION_DELETE = 'delete';
-    const TRANSITION_DUMP = 'dump';
+    const TRANSITION_TO_DRAFT = 'to_draft';
     const TRANSITION_ARCHIVE = 'archive';
     const TRANSITION_UNPUBLISH = 'unPublish';
     const TRANSITION_UNARCHIVE = 'unArchive';
@@ -43,12 +44,12 @@ class Post implements StateContext
 
     public function isDraft()
     {
-        return $this->workflow()->isState(self::DRAFT, $this);
+        return $this->workflow()->is(self::DRAFT, $this);
     }
 
     public function isPublished()
     {
-        return $this->workflow()->isState(self::PUBLISHED, $this);
+        return $this->workflow()->is(self::PUBLISHED, $this);
     }
 
     public function isArchived()
@@ -69,9 +70,9 @@ class Post implements StateContext
         return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE, $this);
     }
 
-    public function dump()
+    public function moveToDraft()
     {
-        $this->workflow()->transitContext(self::TRANSITION_DUMP, $this);
+        $this->workflow()->transitContext(self::TRANSITION_TO_DRAFT, $this);
     }
 
     public function publish()
@@ -126,34 +127,19 @@ class Post implements StateContext
         $this->state = $state->name();
     }
 
-    public function getCurrentState()
-    {
-        return $this->workflow()->getState($this->state, self::ALIAS);
-    }
-
-    public function contextAlias()
-    {
-        return self::ALIAS;
-    }
-
     /**
      * @return StateMachine
      */
-    public static function workflow()
+    private function workflow()
     {
-        return StateMachine::create()
-//            ->oneToOne(self::ALIAS, self::TRANSITION_ARCHIVE, self::DRAFT, self::ARCHIVED)
-//            ->oneToOne(self::ALIAS, self::TRANSITION_DUMP, self::DRAFT, self::DRAFT)
-            ->oneToOne(self::ALIAS, self::TRANSITION_PUBLISH, self::DRAFT, self::PUBLISHED)
-            ->oneToOne(self::ALIAS, self::TRANSITION_DUMP, self::DRAFT, self::DELETED)
-            ->oneToOne(self::ALIAS, self::TRANSITION_ARCHIVE, self::PUBLISHED, self::ARCHIVED)
-//            ->oneToOne(self::ALIAS, self::TRANSITION_UNPUBLISH, self::PUBLISHED, self::DRAFT)
-//            ->oneToOne(self::ALIAS, self::TRANSITION_UNARCHIVE, self::ARCHIVED, self::DRAFT)
-//            ->oneToOne(self::ALIAS, self::TRANSITION_DELETE, self::DRAFT, self::DELETED)
-            ->oneToOne(self::ALIAS, self::TRANSITION_DELETE, self::ARCHIVED, self::DELETED)
-//            ->addAttribute(self::ALIAS, self::PUBLISHED, self::ATTRIBUTE_ACTIVE)
-//            ->addAttribute(self::ALIAS, [self::ARCHIVED, self::DELETED], self::ATTRIBUTE_CLOSED)
-            // deleted post cannot have transitions
-            ;
+        return StateBuilder::build()
+	        ->allowTransition(self::TRANSITION_PUBLISH, self::DRAFT, self::PUBLISHED)
+	        ->allowTransition(self::TRANSITION_TO_DRAFT, self::PUBLISHED, self::DRAFT)
+	        ->create($this->state);
+//            ->oneToOne(self::ALIAS, self::TRANSITION_PUBLISH, self::DRAFT, self::PUBLISHED)
+  //          ->oneToOne(self::ALIAS, self::TRANSITION_DUMP, self::DRAFT, self::DELETED)
+    //        ->oneToOne(self::ALIAS, self::TRANSITION_ARCHIVE, self::PUBLISHED, self::ARCHIVED)
+       //     ->oneToOne(self::ALIAS, self::TRANSITION_DELETE, self::ARCHIVED, self::DELETED)
+         //   ;
     }
 }

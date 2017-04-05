@@ -24,13 +24,25 @@ interface FailureHandler
      * Launched when a no transition are found for the context and state.
      *
      * @param string $name
-     * @param string $context
      */
-    public function handleStateNotFound($name, $context);
+    public function handleStateNotFound($name);
 
     /**
      * @param string $name The transition name
-     * @param string $context The context alias
      */
-    public function handleTransitionNotFound($name, $context);
+    public function handleTransitionNotFound($name);
+
+	/**
+	 * Launched when a state is already registered.
+	 *
+	 * @param string $name
+	 */
+	public function onStateAlreadyRegistered($name);
+
+	/**
+	 * Launched when a transition is already registered.
+	 *
+	 * @param string $name
+	 */
+	public function onTransitionAlreadyRegistered($name);
 }

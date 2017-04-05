@@ -9,8 +9,6 @@ namespace Star\Component\State;
 
 final class TestContext implements StateContext
 {
-    const  ALIAS = 'context';
-
     /**
      * @var string
      */
@@ -29,21 +27,8 @@ final class TestContext implements StateContext
         $this->current = $state->name();
     }
 
-    public function getCurrentState()
-    {
-        return new StringState($this->current);
-    }
-
     public static function fromString($state = 'from')
     {
         return new self($state);
-    }
-
-    /**
-     * @return string
-     */
-    public function contextAlias()
-    {
-        return self::ALIAS;
     }
 }

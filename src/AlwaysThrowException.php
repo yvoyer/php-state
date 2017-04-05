@@ -19,6 +19,10 @@ final class AlwaysThrowException implements FailureHandler
      */
     public function __construct($exceptionClass = null)
     {
+	    if (! $exceptionClass) {
+		    $exceptionClass = NotFoundException::class;
+	    }
+
         $this->exceptionClass = $exceptionClass;
     }
 
@@ -30,13 +34,12 @@ final class AlwaysThrowException implements FailureHandler
      */
     public function handleTransitionNotAllowed(StateContext $context, StateTransition $transition)
     {
-        $exceptionClass = $this->exceptionClass;
-        if (! $this->exceptionClass) {
-            $exceptionClass = InvalidStateTransitionException::class;
-        }
-
-        throw new $exceptionClass(
-            "The transition '{$transition->name()}' is not allowed on context '{$context->contextAlias()}'."
+        throw $this->generateException(
+	        sprintf(
+		        "The transition '%s' is not allowed when context '%s' is in state XXX(pass machine to get curtrent.",
+		        $transition->name(),
+		        get_class($context)
+	        )
         );
     }
 
@@ -44,30 +47,41 @@ final class AlwaysThrowException implements FailureHandler
      * Launched when a no transition are found for the context and state.
      *
      * @param string $name
-     * @param string $context
      */
-    public function handleStateNotFound($name, $context)
+    public function handleStateNotFound($name)
     {
-        $exceptionClass = $this->exceptionClass;
-        if (! $this->exceptionClass) {
-            $exceptionClass = NotFoundException::class;
-        }
-
-        throw new $exceptionClass(sprintf("The state '%s' could not be found for context '%s'.", $name, $context));
+        throw $this->generateException(sprintf("The state '%s' could not be found.", $name));
     }
 
     /**
      * @param string $name The transition name
-     * @param string $context The context alias
      * @throws NotFoundException
      */
-    public function handleTransitionNotFound($name, $context)
+    public function handleTransitionNotFound($name)
     {
-        $exceptionClass = $this->exceptionClass;
-        if (! $this->exceptionClass) {
-            $exceptionClass = NotFoundException::class;
-        }
-
-        throw new $exceptionClass(sprintf("The transition '%s' could not be found for context '%s'.", $name, $context));
+        throw $this->generateException(sprintf("The transition '%s' could not be found.", $name));
     }
+
+	/**
+	 * Launched when a state is already registered
+	 *
+	 * @param string $name
+	 */
+	public function onStateAlreadyRegistered($name) {
+		throw $this->generateException(sprintf("The state '%s' is already registered.", $name));
+	}
+
+	/**
+	 * Launched when a transition is already registered.
+	 *
+	 * @param string $name
+	 */
+	public function onTransitionAlreadyRegistered($name) {
+		throw $this->generateException(sprintf("The transition '%s' is already registered.", $name));
+	}
+
+	private function generateException($message)
+	{
+		return new $this->exceptionClass($message);
+	}
 }

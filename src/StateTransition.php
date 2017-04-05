@@ -22,17 +22,17 @@ interface StateTransition
     public function changeIsRequired(StateContext $context);
 
     /**
+     * @param StateMachine $machine
      * @param StateContext $context
      *
      * @return bool
      */
-    public function isAllowed(StateContext $context);
+    public function isAllowed(StateMachine $machine, StateContext $context);
 
 	/**
-	 * @param string $context
 	 * @param TransitionRegistry $registry
 	 */
-	public function register($context, TransitionRegistry $registry);
+	public function onRegister(TransitionRegistry $registry);
 
 	/**
 	 * @param StateContext $context

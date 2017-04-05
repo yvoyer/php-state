@@ -12,20 +12,23 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_post_should_be_draft()
     {
         $post = Post::draft();
-        $this->assertPostIsDraft($post);
-
-        return $post;
+	    $this->assertTrue($post->isDraft());
+	    $this->assertFalse($post->isPublished());
     }
 
-    /**
-     * @depends test_post_should_be_draft
-     */
-    public function test_it_should_allow_from_draft_to_draft()
-    {
-        $post = Post::draft();
-        $post->dump();
-        $this->assertPostIsDraft($post);
-    }
+	/**
+	 * @depends test_post_should_be_draft
+	 *
+	 * @expectedException        \Star\Component\State\InvalidStateTransitionException
+	 * @expectedExceptionMessage The transition from 'draft' to 'draft' is not allowed.
+	 */
+	public function test_it_should_not_allow_from_draft_to_draft()
+	{
+		$post = Post::draft();
+		$this->assertTrue($post->isDraft());
+
+		$post->moveToDraft();
+	}
 
     /**
      * @depends test_post_should_be_draft
@@ -33,22 +36,42 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_allow_from_draft_to_published()
     {
         $post = Post::draft();
+	    $this->assertTrue($post->isDraft());
+
         $post->publish();
-        $this->assertPostIsPublished($post);
+
+	    $this->assertFalse($post->isDraft());
+	    $this->assertTrue($post->isPublished());
     }
+
+	/**
+	 * @depends test_post_should_be_draft
+	 *
+	 * @expectedException        \Star\Component\State\InvalidStateTransitionException
+	 * @expectedExceptionMessage The transition from 'published' to 'published' is not allowed.
+	 */
+	public function test_it_should_not_allow_from_published_to_published()
+	{
+		$post = Post::published();
+		$this->assertTrue($post->isPublished());
+
+		$post->moveToDraft();
+	}
 
     /**
      * @depends test_post_should_be_draft
-     *
-     * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition from 'draft' to 'archived' is not allowed.
      */
-    public function test_it_should_not_allow_from_draft_to_archived()
+    public function test_it_should_allow_from_published_to_draft()
     {
-        $post = Post::draft();
-        $post->archive();
+        $post = Post::published();
+	    $this->assertTrue($post->isPublished());
+
+        $post->moveToDraft();
+
+	    $this->assertTrue($post->isDraft());
     }
 
+###### todo
     /**
      * @depends test_post_should_be_draft
      */
@@ -221,47 +244,47 @@ final class PostTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(Post::deleted()->isActive());
     }
 
-    /**
-     * @param Post $post
-     */
-    private function assertPostIsDraft(Post $post)
-    {
-        $this->assertTrue($post->isDraft(), 'Post should be draft');
-        $this->assertFalse($post->isPublished());
-        $this->assertFalse($post->isArchived());
-        $this->assertFalse($post->isDeleted());
-    }
-
-    /**
-     * @param Post $post
-     */
-    private function assertPostIsPublished(Post $post)
-    {
-        $this->assertFalse($post->isDraft());
-        $this->assertTrue($post->isPublished(), 'Post should be published');
-        $this->assertFalse($post->isArchived());
-        $this->assertFalse($post->isDeleted());
-    }
-
-    /**
-     * @param Post $post
-     */
-    private function assertPostIsArchived(Post $post)
-    {
-        $this->assertFalse($post->isDraft());
-        $this->assertFalse($post->isPublished());
-        $this->assertTrue($post->isArchived(), 'Post should be archived');
-        $this->assertFalse($post->isDeleted());
-    }
-
-    /**
-     * @param Post $post
-     */
-    private function assertPostIsDeleted(Post $post)
-    {
-        $this->assertFalse($post->isDraft());
-        $this->assertFalse($post->isPublished());
-        $this->assertFalse($post->isArchived());
-        $this->assertTrue($post->isDeleted(), 'Post should be deleted');
-    }
+//    /**
+//     * @param Post $post
+//     */
+//    private function assertPostIsDraft(Post $post)
+//    {
+//        $this->assertTrue($post->isDraft(), 'Post should be draft');
+//        $this->assertFalse($post->isPublished());
+//        $this->assertFalse($post->isArchived());
+//        $this->assertFalse($post->isDeleted());
+//    }
+//
+//    /**
+//     * @param Post $post
+//     */
+//    private function assertPostIsPublished(Post $post)
+//    {
+//        $this->assertFalse($post->isDraft());
+//        $this->assertTrue($post->isPublished(), 'Post should be published');
+//        $this->assertFalse($post->isArchived());
+//        $this->assertFalse($post->isDeleted());
+//    }
+//
+//    /**
+//     * @param Post $post
+//     */
+//    private function assertPostIsArchived(Post $post)
+//    {
+//        $this->assertFalse($post->isDraft());
+//        $this->assertFalse($post->isPublished());
+//        $this->assertTrue($post->isArchived(), 'Post should be archived');
+//        $this->assertFalse($post->isDeleted());
+//    }
+//
+//    /**
+//     * @param Post $post
+//     */
+//    private function assertPostIsDeleted(Post $post)
+//    {
+//        $this->assertFalse($post->isDraft());
+//        $this->assertFalse($post->isPublished());
+//        $this->assertFalse($post->isArchived());
+//        $this->assertTrue($post->isDeleted(), 'Post should be deleted');
+//    }
 }

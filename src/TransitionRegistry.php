@@ -8,7 +8,6 @@
 namespace Star\Component\State;
 
 use Star\Component\State\Attribute\StateAttribute;
-use Webmozart\Assert\Assert;
 
 final class TransitionRegistry
 {
@@ -33,38 +32,33 @@ final class TransitionRegistry
     }
 
     /**
-     * @param string $context
      * @param StateTransition $transition
      */
-    public function addTransition($context, StateTransition $transition)
+    public function addTransition(StateTransition $transition)
     {
-        $name = $transition->name();
-        $this->assertTransitionNameIsValid($name);
-        $this->assertContextNameIsValid($context);
+	    if (isset($this->transitions[$transition->name()])) {
+		    $this->failureHandler->onTransitionAlreadyRegistered($transition->name());
+	    }
 
-        $this->transitions[$context][$name] = $transition;
-        $transition->register($context, $this);
+        $this->transitions[$transition->name()] = $transition;
+        $transition->onRegister($this);
     }
 
     /**
      * @param string $name The transition name
-     * @param string $context The context alias
      *
      * @return StateTransition
      * @throws NotFoundException
      */
-    public function getTransition($name, $context)
+    public function getTransition($name)
     {
-        $this->assertTransitionNameIsValid($name);
-        $this->assertContextNameIsValid($context);
-
         $transition = null;
-        if (isset($this->transitions[$context][$name])) {
-            $transition = $this->transitions[$context][$name];
+        if (isset($this->transitions[$name])) {
+            $transition = $this->transitions[$name];
         }
 
         if (! $transition) {
-            $this->failureHandler->handleTransitionNotFound($name, $context);
+            $this->failureHandler->handleTransitionNotFound($name);
         }
 
         return $transition;
@@ -72,43 +66,30 @@ final class TransitionRegistry
 
     /**
      * @param string $name
-     * @param string $context
-     *
-     * @return bool
-     */
-    public function hasState($name, $context)
-    {
-        $this->assertStateNameIsValid($name);
-        $this->assertContextNameIsValid($context);
-
-        return isset($this->states[$context][$name]);
-    }
-
-    /**
-     * @param string $name
-     * @param string $context
      *
      * @return State
      */
-    public function getState($name, $context)
+    public function getState($name)
     {
-        $this->assertStateNameIsValid($name);
-        $this->assertContextNameIsValid($context);
-        if (! $this->hasState($name, $context)) {
-            $this->failureHandler->handleStateNotFound($name, $context);
+        if (! isset($this->states[$name])) {
+            $this->failureHandler->handleStateNotFound($name);
         }
 
-        return $this->states[$context][$name];
+        return $this->states[$name];
     }
 
     /**
      * @param State $state
-     * @param string $context
      */
-    public function addState(State $state, $context)
+    public function addState(State $state)
     {
-        $this->assertContextNameIsValid($context);
-        $this->states[$context][$state->name()] = $state;
+	    if (! isset($this->states[$state->name()])) {
+		    $this->states[$state->name()] = $state;
+	    }
+
+	    if (! $state->matchState($this->getState($state->name()))) {
+		    $this->failureHandler->onStateAlreadyRegistered($state->name());
+	    }
     }
 
     /**
@@ -128,29 +109,5 @@ final class TransitionRegistry
     public function useFailureHandler(FailureHandler $handler)
     {
         $this->failureHandler = $handler;
-    }
-
-    /**
-     * @param string $name
-     */
-    private function assertTransitionNameIsValid($name)
-    {
-        Assert::string($name, "The transition name must be a string value, '%s' given.");
-    }
-
-    /**
-     * @param string $name
-     */
-    private function assertStateNameIsValid($name)
-    {
-        Assert::string($name, "The state name must be a string value, '%s' given.");
-    }
-
-    /**
-     * @param $context
-     */
-    private function assertContextNameIsValid($context)
-    {
-        Assert::string($context, "The context must be a string value, '%s' given.");
     }
 }

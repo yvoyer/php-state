@@ -4,6 +4,7 @@ namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateMachine;
 use Star\Component\State\AllowedTransition;
+use Star\Component\State\StringState;
 use Star\Component\State\TransitionRegistry;
 
 /**
@@ -27,7 +28,7 @@ final class StateBuilder {
 	 * @return StateBuilder
 	 */
 	public function allowTransition($name, $from, $to) {
-		$this->registry->addTransition(new AllowedTransition($name, $from, $to));
+		$this->registry->addTransition(new AllowedTransition($name, new StringState($from), new StringState($to)));
 
 		return $this;
 	}

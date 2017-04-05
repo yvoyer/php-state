@@ -65,7 +65,7 @@ final class StateMachine
 //        }
 
         if (! $transition->isAllowed($this, $context)) {
-            $this->failureHandler->handleTransitionNotAllowed($context, $transition);
+            $this->failureHandler->handleTransitionNotAllowed($context, $transition, $this->current);
         }
 
         // custom event for transition

@@ -20,7 +20,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
 	 * @depends test_post_should_be_draft
 	 *
 	 * @expectedException        \Star\Component\State\InvalidStateTransitionException
-	 * @expectedExceptionMessage The transition from 'draft' to 'draft' is not allowed.
+	 * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'Star\Component\State\Example\Post' is in state 'draft'.
 	 */
 	public function test_it_should_not_allow_from_draft_to_draft()
 	{
@@ -48,14 +48,14 @@ final class PostTest extends \PHPUnit_Framework_TestCase
 	 * @depends test_post_should_be_draft
 	 *
 	 * @expectedException        \Star\Component\State\InvalidStateTransitionException
-	 * @expectedExceptionMessage The transition from 'published' to 'published' is not allowed.
+	 * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'Star\Component\State\Example\Post' is in state 'published'.
 	 */
 	public function test_it_should_not_allow_from_published_to_published()
 	{
 		$post = Post::published();
 		$this->assertTrue($post->isPublished());
 
-		$post->moveToDraft();
+		$post->published();
 	}
 
     /**
@@ -194,7 +194,7 @@ final class PostTest extends \PHPUnit_Framework_TestCase
      * @depends test_post_should_be_deleted
      *
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition from 'deleted' to 'draft' is not allowed.
+     * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'Star\Component\State\Example\Post' is in state 'draft'.
      */
     public function test_it_should_not_allow_from_deleted_to_draft()
     {

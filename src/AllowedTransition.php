@@ -11,24 +11,22 @@ final class AllowedTransition implements StateTransition {
 	private $name;
 
 	/**
-	 * @var string
+	 * @var State
 	 */
 	private $from;
 
 	/**
-	 * @var string
+	 * @var State
 	 */
 	private $to;
 
 	/**
 	 * @param string $name
-	 * @param string $from
-	 * @param string $to
+	 * @param State $from
+	 * @param State $to
 	 */
-	public function __construct($name, $from, $to) {
+	public function __construct($name, State $from, State $to) {
 		Assert::string($name, 'Transition name should be string, "%s" given.');
-		Assert::string($from, 'Transition from state should be string, "%s" given.');
-		Assert::string($to, 'Transition to state should be string, "%s" given.');
 		$this->name = $name;
 		$this->from = $from;
 		$this->to = $to;
@@ -64,8 +62,8 @@ final class AllowedTransition implements StateTransition {
 	 * @param TransitionRegistry $registry
 	 */
 	public function onRegister(TransitionRegistry $registry) {
-		$registry->addState(new StringState($this->from));
-		$registry->addState(new StringState($this->to));
+		$registry->addState($this->from);
+		$registry->addState($this->to);
 	}
 
 	/**
@@ -79,7 +77,7 @@ final class AllowedTransition implements StateTransition {
 	 * @param StateContext $context
 	 */
 	public function onStateChange(StateContext $context) {
-		throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+		$context->setState($this->to);
 	}
 
 	/**

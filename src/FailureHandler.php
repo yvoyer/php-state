@@ -12,20 +12,25 @@ namespace Star\Component\State;
  */
 interface FailureHandler
 {
-    /**
-     * Launched when a not allowed transition is detected.
-     *
-     * @param StateContext $context
-     * @param StateTransition $transition
-     */
-    public function handleTransitionNotAllowed(StateContext $context, StateTransition $transition);
+	/**
+	 * Launched when a not allowed transition is detected.
+	 *
+	 * @param StateContext $context
+	 * @param StateTransition $transition
+	 * @param State $state
+	 */
+	public function handleTransitionNotAllowed(
+		StateContext $context,
+		StateTransition $transition,
+		State $state
+	);
 
     /**
      * Launched when a no transition are found for the context and state.
      *
      * @param string $name
      */
-    public function handleStateNotFound($name);
+	public function handleStateNotFound($name);
 
     /**
      * @param string $name The transition name

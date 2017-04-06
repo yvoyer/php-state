@@ -1,7 +1,12 @@
 <?php
 
-namespace Star\Component\State;
+namespace Star\Component\State\Transitions;
 
+use Star\Component\State\State;
+use Star\Component\State\StateContext;
+use Star\Component\State\StateMachine;
+use Star\Component\State\StateTransition;
+use Star\Component\State\TransitionRegistry;
 use Webmozart\Assert\Assert;
 
 final class AllowedTransition implements StateTransition {
@@ -55,7 +60,7 @@ final class AllowedTransition implements StateTransition {
 	 * @return bool
 	 */
 	public function isAllowed(StateMachine $machine, StateContext $context) {
-		return $machine->is($this->from, $context);
+		return $machine->isInState($this->from->name(), $context);
 	}
 
 	/**

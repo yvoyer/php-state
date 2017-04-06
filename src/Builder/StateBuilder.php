@@ -3,9 +3,8 @@
 namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateMachine;
-use Star\Component\State\AllowedTransition;
-use Star\Component\State\StringState;
 use Star\Component\State\TransitionRegistry;
+use Star\Component\State\Transitions\AllowedTransition;
 
 /**
  * Tool to build the StateMachine.

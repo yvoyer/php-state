@@ -22,11 +22,6 @@ final class StateMachine
     private $dispatcher;
 
     /**
-     * @var FailureHandler
-     */
-    private $failureHandler;
-
-    /**
      * @var TransitionRegistry
      */
     private $registry;
@@ -34,38 +29,35 @@ final class StateMachine
 	/**
 	 * @var State
 	 */
-	private $current;
+	private $currentState;
 
 	/**
-	 * @param string $current
+	 * @param string $currentState
 	 * @param TransitionRegistry|null $registry
 	 */
-    public function __construct($current, TransitionRegistry $registry = null)
+    public function __construct($currentState, TransitionRegistry $registry = null)
     {
 	    if (! $registry) {
 		    $registry = new TransitionRegistry();
 	    }
+
         $this->dispatcher = new EventDispatcher();
-        $this->failureHandler = new AlwaysThrowException();
         $this->registry = $registry;
-	    $this->current = $this->registry->getState($current);
+	    $this->currentState = $this->registry->getState($currentState);
     }
 
-    /**
-     * @param string $name
-     * @param StateContext $context
-     */
+	/**
+	 * @param string $name The transition name
+	 * @param StateContext $context
+	 * @throws InvalidStateTransitionException
+	 * @throws NotFoundException
+	 */
     public function transitContext($name, StateContext $context)
     {
-//        $this->registry->useFailureHandler($this->failureHandler);
         $transition = $this->registry->getTransition($name);
 
-//        if (! $transition->changeIsRequired($context)) {
-//            return; // no changes detected, do not trigger transition
-//        }
-
         if (! $transition->isAllowed($this, $context)) {
-            $this->failureHandler->handleTransitionNotAllowed($context, $transition, $this->current);
+	        throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
         }
 
         // custom event for transition
@@ -94,26 +86,25 @@ final class StateMachine
     }
 
 	/**
-	 * @param string $transitionName
-	 * @param StateContext $context
-	 *
-	 * @return bool
-	 */
-	private function isAllowed($transitionName, StateContext $context)
-	{
-		$transition = $this->registry->getTransition($transitionName);
-
-		return $transition->isAllowed($context);
-	}
-
-	/**
 	 * @param string $stateName
 	 * @param StateContext $context
 	 *
 	 * @return bool
 	 */
-	public function is($stateName, StateContext $context)
+	public function isInState($stateName, StateContext $context)
 	{
-		return $this->current->matchState($this->registry->getState($stateName));
+		// todo use reflexion to check if the state is valid ?
+		// todo use closure to return current state?
+		return $this->currentState->matchState($this->registry->getState($stateName));
+	}
+
+	/**
+	 * @param string $attribute
+	 *
+	 * @return bool
+	 */
+	public function hasAttribute($attribute)
+	{
+		return false;
 	}
 }

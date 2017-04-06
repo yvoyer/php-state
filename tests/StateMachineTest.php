@@ -12,46 +12,62 @@ use Star\Component\State\Event\ContextTransitionWasSuccessful;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
+use Star\Component\State\States\StringState;
+use Star\Component\State\Transitions\AllowedTransition;
 
 final class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
-    /**
+	/**
+	 * @var TransitionRegistry
+	 */
+	private $registry;
+
+	/**
+	 * @var StateMachine
+	 */
+	private $machine;
+
+	/**
+	 * @var StateContext
+	 */
+	private $context;
+
+	public function setUp() {
+		$this->context = new TestContext('current');
+		$this->registry = new TransitionRegistry();
+		$this->registry->addState(new StringState('current'));
+		$this->machine = new StateMachine('current', $this->registry);
+	}
+
+	/**
      * @expectedException        \Star\Component\State\NotFoundException
-     * @expectedExceptionMessage The transition 'not-configured' could not be found for context 'context'.
+     * @expectedExceptionMessage The transition 'not-configured' could not be found.
      */
     public function test_it_should_not_allow_to_transition_to_a_not_configured_transition()
     {
-        $machine = StateMachine::create();
-        $machine->transitContext('not-configured', TestContext::fromString());
-    }
-
-    /**
-     * @expectedException        \RuntimeException
-     * @expectedExceptionMessage The transition 'invalid' could not be found for context 'context'.
-     * @depends test_it_should_not_allow_to_transition_to_a_not_configured_transition
-     */
-    public function test_it_should_allow_to_change_exception_type_when_transition_not_found()
-    {
-        $machine = StateMachine::create()
-            ->useFailureHandler(new AlwaysThrowException('\RuntimeException'));
-
-        $machine->transitContext('invalid', TestContext::fromString());
+	    $this->machine->transitContext('not-configured', $this->context);
     }
 
     public function test_it_should_transition_from_one_state_to_the_other()
     {
-        $context = TestContext::fromString();
-        $machine = StateMachine::create()
-            ->oneToOne('context', 'transition', 'from', 'to')
-        ;
+	    $this->registry->addTransition(
+		    new AllowedTransition(
+			    'name',
+			    new StringState('current'),
+			    new StringState('next')
+		    )
+	    );
+        $this->assertTrue($this->machine->isInState('current', $this->context));
 
-        $this->assertSame('from', $context->getCurrentState()->name());
-        $machine->transitContext('transition', $context);
-        $this->assertSame('to', $context->getCurrentState()->name());
+	    $this->machine->transitContext('name', $this->context);
+
+	    $this->assertFalse($this->machine->isInState('current', $this->context));
+	    $this->assertTrue($this->machine->isInState('next', $this->context));
     }
 
     public function test_it_should_trigger_an_event_before_any_transition()
     {
+	    $this->markTestIncomplete('TODO');
         $machine = StateMachine::create()
             ->oneToOne('context', 'transition', 'from', 'to')
             ->addSubscriber($subscriber = new TestSubscriber());
@@ -66,6 +82,7 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_trigger_an_event_after_any_transition()
     {
+	    $this->markTestIncomplete('TODO');
         $machine = StateMachine::create()
             ->oneToOne('context', 'transition', 'from', 'to')
             ->addSubscriber($subscriber = new TestSubscriber());
@@ -80,6 +97,7 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_trigger_a_custom_event_before_a_specific_transition()
     {
+	    $this->markTestIncomplete('TODO');
         $machine = StateMachine::create()
             ->oneToOne('context', 'transition', 'from', 'to')
             ->addSubscriber($subscriber = new TestSubscriber());
@@ -94,6 +112,7 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_trigger_a_custom_event_after_a_specific_transition()
     {
+	    $this->markTestIncomplete('TODO');
         $machine = StateMachine::create()
             ->oneToOne('context', 'transition', 'from', 'to')
             ->addSubscriber($subscriber = new TestSubscriber());
@@ -108,6 +127,7 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_not_trigger_changes_when_no_change_of_state()
     {
+	    $this->markTestIncomplete('TODO');
         $machine = StateMachine::create()
             ->oneToOne('context', 'transition', 'from', 'to')
             ->addSubscriber($subscriber = new TestSubscriber());
@@ -123,58 +143,16 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
      */
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
+	    $this->markTestIncomplete('TODO');
         $machine = StateMachine::create()
             ->oneToOne('context', 'transition', 'to', 'to');
 
         $machine->transitContext('transition', TestContext::fromString());
     }
 
-    /**
-     * @expectedException        \RuntimeException
-     * @expectedExceptionMessage The transition 'transition' is not allowed on context 'context'.
-     * @depends test_it_should_throw_exception_when_transition_not_allowed
-     */
-    public function test_it_should_allow_to_change_exception_type_when_transition_not_allowed()
-    {
-        $machine = StateMachine::create()
-            ->oneToOne('context', 'transition', 'to', 'to')
-            ->useFailureHandler(new AlwaysThrowException(\RuntimeException::class));
-
-        $machine->transitContext('transition', TestContext::fromString());
-    }
-
-    /**
-     * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage The status was expected to be a string, 'integer' given.
-     */
-    public function test_it_should_throw_exception_when_not_supported_from_state_is_given()
-    {
-        $machine = StateMachine::create();
-        $machine->oneToOne('test', 'name', 213, 'string');
-    }
-
-    /**
-     * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage The status was expected to be a string, 'integer' given.
-     */
-    public function test_it_should_throw_exception_when_not_supported_to_state_is_given()
-    {
-        $machine = StateMachine::create();
-        $machine->oneToOne('test', 'name', 'string', 213);
-    }
-
-    /**
-     * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage The transition's name must be a string, got 'integer'.
-     */
-    public function test_it_should_throw_exception_when_not_supported_contet_name_is_given()
-    {
-        $machine = StateMachine::create();
-        $machine->oneToOne('test', 213, 'string', 'string');
-    }
-
     public function test_state_can_have_attribute()
     {
+	    $this->markTestIncomplete('TODO');
         $machine = StateMachine::create()
             ->oneToOne('context', 'transition', 'from', 'to')
             ->addAttribute('context', 'from', 'attribute')
@@ -182,43 +160,6 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($machine->hasAttribute('attribute', TestContext::fromString('from')));
         $this->assertFalse($machine->hasAttribute('attribute', TestContext::fromString('to')));
-    }
-
-    /**
-     * @expectedException        \Star\Component\State\NotFoundException
-     * @expectedExceptionMessage The state 'invalid' could not be found for context 'context'.
-     */
-    public function test_it_should_throw_exception_when_state_not_found()
-    {
-        StateMachine::create()->addAttribute('context', 'invalid', 'attribute');
-    }
-
-    public function test_it_should_allow_to_define_one_to_many_states_transition()
-    {
-        $machine = StateMachine::create()
-            ->oneToMany('context', 'transition', 's1', ['s2', 's3'])
-        ;
-        $context = TestContext::fromString('s1');
-
-        $this->assertTrue($machine->isState('s1', $context));
-        $machine->transitContext('transition', $context);
-        $this->assertTrue($machine->isState('s1', $context));
-    }
-
-    public function test_it_should_allow_to_define_many_to_many_states_transition()
-    {
-        $this->markTestIncomplete('TODO');
-        $machine = StateMachine::create()
-            ->manyToMany('name', 'first', ['second', 'third', 'fourth'])
-        ;
-    }
-
-    public function test_it_should_allow_to_disallow_transition()
-    {
-        $this->markTestIncomplete('TODO');
-        $machine = StateMachine::create()
-            ->disallow('name', 'first', ['second', 'third', 'fourth'])
-        ;
     }
 }
 

@@ -8,6 +8,7 @@
 namespace Star\Component\State;
 
 use Star\Component\State\Attribute\StateAttribute;
+use Webmozart\Assert\Assert;
 
 final class TransitionRegistry
 {
@@ -22,22 +23,12 @@ final class TransitionRegistry
     private $states = [];
 
     /**
-     * @var FailureHandler
-     */
-    private $failureHandler;
-
-    public function __construct()
-    {
-        $this->failureHandler = new AlwaysThrowException();
-    }
-
-    /**
      * @param StateTransition $transition
      */
     public function addTransition(StateTransition $transition)
     {
 	    if (isset($this->transitions[$transition->name()])) {
-		    $this->failureHandler->onTransitionAlreadyRegistered($transition->name());
+		    throw DuplicateEntryException::duplicateTransition($transition);
 	    }
 
         $this->transitions[$transition->name()] = $transition;
@@ -52,27 +43,29 @@ final class TransitionRegistry
      */
     public function getTransition($name)
     {
+	    Assert::string($name);
         $transition = null;
         if (isset($this->transitions[$name])) {
             $transition = $this->transitions[$name];
         }
 
         if (! $transition) {
-            $this->failureHandler->handleTransitionNotFound($name);
+	        throw NotFoundException::transitionNotFound($name);
         }
 
         return $transition;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return State
-     */
+	/**
+	 * @param string $name
+	 * @return State
+	 * @throws NotFoundException
+	 */
     public function getState($name)
     {
+	    Assert::string($name);
         if (! isset($this->states[$name])) {
-            $this->failureHandler->handleStateNotFound($name);
+	        throw NotFoundException::stateNotFound($name);
         }
 
         return $this->states[$name];
@@ -88,7 +81,7 @@ final class TransitionRegistry
 	    }
 
 	    if (! $state->matchState($this->getState($state->name()))) {
-		    $this->failureHandler->onStateAlreadyRegistered($state->name());
+		    throw DuplicateEntryException::duplicateState($state);
 	    }
     }
 
@@ -101,13 +94,5 @@ final class TransitionRegistry
     {
         $state = $this->getState($state, $context);
         $this->addState($state->addAttribute($attribute), $context);
-    }
-
-    /**
-     * @param FailureHandler $handler
-     */
-    public function useFailureHandler(FailureHandler $handler)
-    {
-        $this->failureHandler = $handler;
     }
 }

@@ -5,9 +5,11 @@
  * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
  */
 
-namespace Star\Component\State;
+namespace Star\Component\State\States;
 
-use Star\Component\State\Attribute\StateAttribute;
+use Star\Component\State\Attributes\StringAttribute;
+use Star\Component\State\State;
+use Star\Component\State\StateAttribute;
 use Webmozart\Assert\Assert;
 
 final class StringState implements State
@@ -29,11 +31,9 @@ final class StringState implements State
     public function __construct($name, array $attributes = [])
     {
         Assert::string($name, "The status was expected to be a string, '%s' given.");
-        Assert::allIsInstanceOf($attributes, StateAttribute::class);
-
         $this->name = $name;
-        foreach ($attributes as $attribute) {
-            $this->attributes[$attribute->name()] = $attribute;
+        foreach ($attributes as $key => $value) {
+            $this->addAttribute(new StringAttribute($key, $value));
         }
     }
 
@@ -54,17 +54,22 @@ final class StringState implements State
      */
     public function matchState(State $state)
     {
-        return $state->name() === $this->name();
-    }
+	    if (! $state instanceof $this) {
+		    return false;
+	    }
 
-    /**
-     * @param StateAttribute $attribute
-     *
-     * @return State
-     */
-    public function addAttribute(StateAttribute $attribute)
-    {
-        return new self($this->name(), array_merge($this->attributes, [$attribute]));
+	    if ($state->name() !== $this->name()) {
+		    return false;
+	    }
+
+	    if (
+		    count(array_diff($state->attributes, $this->attributes)) > 0
+		    || count(array_diff($this->attributes, $state->attributes)) > 0
+	    ) {
+		    return false;
+	    }
+
+        return true;
     }
 
     /**
@@ -76,4 +81,14 @@ final class StringState implements State
     {
         return isset($this->attributes[$attribute]);
     }
+
+	/**
+	 * @param StateAttribute $attribute
+	 *
+	 * @return State
+	 */
+	private function addAttribute(StateAttribute $attribute)
+	{
+		$this->attributes[$this->name()] = $attribute;
+	}
 }

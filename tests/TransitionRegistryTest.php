@@ -7,6 +7,9 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\States\StringState;
+use Star\Component\State\Transitions\AllowedTransition;
+
 final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -39,7 +42,13 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_add_transition()
     {
-        $this->registry->addTransition(new AllowedTransition('name', 'from', 'to'));
+        $this->registry->addTransition(
+	        new AllowedTransition(
+		        'name',
+		        new StringState('from'),
+		        new StringState('to')
+	        )
+        );
         $transition = $this->registry->getTransition('name');
         $this->assertInstanceOf(StateTransition::class, $transition);
         $this->assertSame('name', $transition->name());
@@ -51,22 +60,46 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
     }
 
 	/**
-	 * @expectedException        \Star\Component\State\NotFoundException
-	 * @expectedExceptionMessage The state 'from' is already registered.
+	 * @expectedException        \Star\Component\State\DuplicateEntryException
+	 * @expectedExceptionMessage The state "from" is already registered, maybe there is a mismatch with the attributes.
 	 */
 	public function test_it_should_throw_exception_when_duplicate_state_is_registered()
 	{
-		$this->registry->addState(new StringState('from'));
-		$this->registry->addState(new StringState('from'));
+		$stateOne = new StringState('from');
+		$stateTwo = new StringState('from', ['attr' => 'val']);
+		$this->assertFalse($stateOne->matchState($stateTwo));
+		$this->registry->addState($stateOne);
+		$this->registry->addState($stateTwo);
+	}
+
+	public function test_it_should_not_generate_error_when_state_is_same()
+	{
+		$stateOne = new StringState('from');
+		$stateTwo = new StringState('from');
+		$this->assertTrue($stateOne->matchState($stateTwo));
+		$this->registry->addState($stateOne);
+		$this->registry->addState($stateTwo);
 	}
 
 	/**
-	 * @expectedException        \Star\Component\State\NotFoundException
+	 * @expectedException        \Star\Component\State\DuplicateEntryException
 	 * @expectedExceptionMessage The transition 'duplicate' is already registered.
 	 */
 	public function test_it_should_throw_exception_when_duplicate_transition_is_registered()
 	{
-		$this->registry->addTransition(new AllowedTransition('duplicate', 'from', 'to'));
-		$this->registry->addTransition(new AllowedTransition('duplicate', 'from', 'to'));
+		$this->registry->addTransition(
+			new AllowedTransition(
+				'duplicate',
+				new StringState('from'),
+				new StringState('to')
+			)
+		);
+		$this->registry->addTransition(
+			new AllowedTransition(
+				'duplicate',
+				new StringState('from'),
+				new StringState('to')
+			)
+		);
 	}
 }

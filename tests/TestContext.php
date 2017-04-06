@@ -17,7 +17,7 @@ final class TestContext implements StateContext
     /**
      * @param string $initial
      */
-    private function __construct($initial)
+    public function __construct($initial)
     {
         $this->current = $initial;
     }
@@ -25,10 +25,5 @@ final class TestContext implements StateContext
     public function setState(State $state)
     {
         $this->current = $state->name();
-    }
-
-    public static function fromString($state = 'from')
-    {
-        return new self($state);
     }
 }

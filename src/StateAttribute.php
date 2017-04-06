@@ -5,7 +5,7 @@
  * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
  */
 
-namespace Star\Component\State\Attribute;
+namespace Star\Component\State;
 
 interface StateAttribute
 {

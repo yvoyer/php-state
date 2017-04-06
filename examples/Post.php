@@ -17,20 +17,18 @@ use Star\Component\State\StateMachine;
  */
 class Post implements StateContext
 {
-    const DRAFT = 'draft';
-    const PUBLISHED = 'published';
-    const ARCHIVED = 'archived';
-    const DELETED = 'deleted';
+	const ALIAS = 'post';
 
-    const ATTRIBUTE_ACTIVE = 'active';
-    const ATTRIBUTE_CLOSED = 'closed';
-    const TRANSITION_PUBLISH = 'publish';
-    const ALIAS = 'post';
-    const TRANSITION_DELETE = 'delete';
+    const STATE_DRAFT = 'drafted';
+	const STATE_PUBLISHED = 'published';
+	const STATE_ARCHIVED = 'archived';
+
+	const TRANSITION_PUBLISH = 'publish';
     const TRANSITION_TO_DRAFT = 'to_draft';
     const TRANSITION_ARCHIVE = 'archive';
-    const TRANSITION_UNPUBLISH = 'unPublish';
-    const TRANSITION_UNARCHIVE = 'unArchive';
+
+	const ATTRIBUTE_ACTIVE = 'active';
+	const ATTRIBUTE_CLOSED = 'closed';
 
     /**
      * @var string
@@ -44,30 +42,25 @@ class Post implements StateContext
 
     public function isDraft()
     {
-        return $this->workflow()->is(self::DRAFT, $this);
+        return $this->workflow()->isInState(self::STATE_DRAFT, $this);
     }
 
     public function isPublished()
     {
-        return $this->workflow()->is(self::PUBLISHED, $this);
+        return $this->workflow()->isInState(self::STATE_PUBLISHED, $this);
     }
 
-    public function isArchived()
-    {
-        return $this->workflow()->isState(self::ARCHIVED, $this);
-    }
+	public function isArchived()
+	{
+		return $this->workflow()->isInState(self::STATE_ARCHIVED, $this);
+	}
 
-    public function isDeleted()
-    {
-        return $this->workflow()->isState(self::DELETED, $this);
-    }
-
-    /**
+	/**
      * Tests the attribute of the state. This is not a specific state, but an attribute of a state.
      */
     public function isActive()
     {
-        return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE, $this);
+        return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE);
     }
 
     public function moveToDraft()
@@ -80,22 +73,12 @@ class Post implements StateContext
         $this->workflow()->transitContext(self::TRANSITION_PUBLISH, $this);
     }
 
-    public function archive()
-    {
-        $this->workflow()->transitContext(self::TRANSITION_ARCHIVE, $this);
-    }
-
-    public function delete()
-    {
-        $this->workflow()->transitContext(self::TRANSITION_DELETE, $this);
-    }
-
     /**
      * @return Post
      */
-    public static function draft()
+    public static function drafted()
     {
-        return new self(self::DRAFT);
+        return new self(self::STATE_DRAFT);
     }
 
     /**
@@ -103,24 +86,16 @@ class Post implements StateContext
      */
     public static function published()
     {
-        return new self(self::PUBLISHED);
+        return new self(self::STATE_PUBLISHED);
     }
 
-    /**
-     * @return Post
-     */
-    public static function archived()
-    {
-        return new self(self::ARCHIVED);
-    }
-
-    /**
-     * @return Post
-     */
-    public static function deleted()
-    {
-        return new self(self::DELETED);
-    }
+	/**
+	 * @return Post
+	 */
+	public static function archived()
+	{
+		return new self(self::STATE_ARCHIVED);
+	}
 
     public function setState(State $state)
     {
@@ -133,13 +108,8 @@ class Post implements StateContext
     private function workflow()
     {
         return StateBuilder::build()
-	        ->allowTransition(self::TRANSITION_PUBLISH, self::DRAFT, self::PUBLISHED)
-	        ->allowTransition(self::TRANSITION_TO_DRAFT, self::PUBLISHED, self::DRAFT)
+	        ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
+	        ->allowTransition(self::TRANSITION_TO_DRAFT, self::STATE_PUBLISHED, self::STATE_DRAFT)
 	        ->create($this->state);
-//            ->oneToOne(self::ALIAS, self::TRANSITION_PUBLISH, self::DRAFT, self::PUBLISHED)
-  //          ->oneToOne(self::ALIAS, self::TRANSITION_DUMP, self::DRAFT, self::DELETED)
-    //        ->oneToOne(self::ALIAS, self::TRANSITION_ARCHIVE, self::PUBLISHED, self::ARCHIVED)
-       //     ->oneToOne(self::ALIAS, self::TRANSITION_DELETE, self::ARCHIVED, self::DELETED)
-         //   ;
     }
 }

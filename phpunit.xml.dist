@@ -14,6 +14,10 @@
         <testsuite name="main">
             <directory>tests</directory>
         </testsuite>
+
+        <testsuite name="examples">
+            <directory>examples</directory>
+        </testsuite>
     </testsuites>
 
     <filter>

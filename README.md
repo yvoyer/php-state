@@ -12,38 +12,48 @@ Given you have a `Post` implementation that can have multiple states:
 * **Draft**: The post is visible only to the creator and moderators
 * **Published**: The post is visible to all users
 * **Archived**: The post is visible only to the creator
-* **Deleted**: The post is not visible to anyone.
 
 The post's allowed workflow should be as follow:
 
-    +-----------++------------+------------+------------+------------+
-    | from / to ||    draft   | published  |  archived  |   deleted  |
-    +===========++============+============+============+============+
-    | draft     ||     N/A    |   allowed  | disallowed |   allowed  |
-    +-----------++------------+------------+------------+------------+
-    | published || allowed    |   N/A      |   allowed  | disallowed |
-    +-----------++------------+------------+------------+------------+
-    | archived  || allowed    | disallowed |    N/A     |   allowed  |
-    +-----------++------------+------------+------------+------------+
-    | deleted   || disallowed | disallowed | disallowed |     N/A    |
-    +-----------++------------+------------+------------+------------+
+    +-----------++------------+------------+------------+
+    | from / to ||    draft   | published  |  archived  |
+    +===========++============+============+============+
+    | draft     || disallowed |   allowed  | disallowed |
+    +-----------++------------+------------+------------+
+    | published || disallowed | disallowed |   allowed  | 
+    +-----------++------------+------------+------------+
+    | archived  || disallowed | disallowed | disallowed |
+    +-----------++------------+------------+------------+
+
+Many states may be considered to have a specific meaning, using attributes:
+
+    +-----------++------------+------------+
+    | from / to || is_active  | is_closed  |
+    +===========++============+============+
+    | draft     ||   false    |   true     |
+    +-----------++------------+------------+
+    | published ||   true     |   false    |
+    +-----------++------------+------------+
+    | archived  ||   false    |   true     |   
+    +-----------++------------+------------+
 
 You can setup your `Post` object using the following configuration:
 
 ```php
 // Post
-/**
- * @return StateMachine
- */
-private function workflow()
-{
-    return StateMachine::create($this)
-        ->whitelist(self::DRAFT, [self::PUBLISHED, self::DELETED])
-        ->whitelist(self::PUBLISHED, [self::DRAFT, self::ARCHIVED])
-        ->whitelist(self::ARCHIVED, [self::DRAFT, self::DELETED])
-        // deleted post cannot have transitions
-    ;
-}
+    /**
+     * @return StateMachine
+     */
+    private function workflow()
+    {
+        return StateBuilder::build()
+            ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
+            ->allowTransition(self::TRANSITION_TO_DRAFT, self::STATE_PUBLISHED, self::STATE_DRAFT)
+            ->allowTransition(self::TRANSITION_ARCHIVE, self::STATE_PUBLISHED, self::STATE_ARCHIVED)
+            ->addAttribute(self::ATTRIBUTE_ACTIVE, self::STATE_PUBLISHED)
+            ->addAttribute(self::ATTRIBUTE_CLOSED, [self::STATE_ARCHIVED, self::STATE_DRAFT])
+            ->create($this->state);
+    }
 
 ``` 
 
@@ -70,7 +80,9 @@ Using composer, add the following require in your `composer.json`.
     }
 ```
 
-## Events
+## Events (Experimental)
+
+**Note: Events are experimental, the API may be subject to changes, or removed.**
 
 The state machine has an internal event handling systems.
 
@@ -81,14 +93,3 @@ Subscribers that listens to these events will have their configured callback(s) 
 
 * `StateEventStore::BEFORE_TRANSITION`: This event is performed before any transition on the context.
 * `StateEventStore::AFTER_TRANSITION`: This event is performed after any transition is executed on the context.
-
-In order to have more fine grained listening, Subscribers can also choose which transition to listen to
-by using specifics transition events. These specifics events are dynamically configured using this format:
-
-* `star_state.before.{context_alias}.{transition_name}`: Triggers before the context's new state is set.
-* `star_state.after.{context_alias}.{transition_name}`: Triggers after the context's new state was set.
- 
-* **{context_alias}**: All context classes must implement the `Star\Component\State\StateContext` interface. Doing so,
- you will need to define the alias for your context, that will be used for the custom events.
-* **{transition_name}**: This is the string representation given by the`Star\Component\State\Transition::name()`.
-

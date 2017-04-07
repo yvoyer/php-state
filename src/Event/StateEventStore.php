@@ -7,6 +7,9 @@
 
 namespace Star\Component\State\Event;
 
+/**
+ * @experimental
+ */
 final class StateEventStore
 {
     /**

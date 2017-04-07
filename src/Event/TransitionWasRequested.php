@@ -10,6 +10,9 @@ namespace Star\Component\State\Event;
 use Star\Component\State\StateTransition;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * @experimental
+ */
 final class TransitionWasRequested extends Event
 {
     /**

@@ -7,9 +7,7 @@
 
 namespace Star\Component\State\States;
 
-use Star\Component\State\Attributes\StringAttribute;
 use Star\Component\State\State;
-use Star\Component\State\StateAttribute;
 use Webmozart\Assert\Assert;
 
 final class StringState implements State
@@ -20,21 +18,20 @@ final class StringState implements State
     private $name;
 
     /**
-     * @var StateAttribute[]
+     * @var string[]
      */
     private $attributes = [];
 
     /**
      * @param string $name
-     * @param StateAttribute[] $attributes
+     * @param string[] $attributes
      */
     public function __construct($name, array $attributes = [])
     {
-        Assert::string($name, "The status was expected to be a string, '%s' given.");
+        Assert::string($name, 'The state was expected to be a string, "%s" given.');
+        Assert::allString($attributes, 'The state attributes must be strings, "" given.');
         $this->name = $name;
-        foreach ($attributes as $key => $value) {
-            $this->addAttribute(new StringAttribute($key, $value));
-        }
+        $this->attributes = array_values(array_unique($attributes));
     }
 
     /**
@@ -42,7 +39,7 @@ final class StringState implements State
      *
      * @return string
      */
-    public function name()
+    public function toString()
     {
         return $this->name;
     }
@@ -54,22 +51,15 @@ final class StringState implements State
      */
     public function matchState(State $state)
     {
-	    if (! $state instanceof $this) {
-		    return false;
-	    }
+        if (! $state instanceof $this) {
+            return false;
+        }
 
-	    if ($state->name() !== $this->name()) {
-		    return false;
-	    }
+        if ($state->toString() !== $this->toString()) {
+            return false;
+        }
 
-	    if (
-		    count(array_diff($state->attributes, $this->attributes)) > 0
-		    || count(array_diff($this->attributes, $state->attributes)) > 0
-	    ) {
-		    return false;
-	    }
-
-        return true;
+        return count(array_diff($state->attributes, $this->attributes)) === 0;
     }
 
     /**
@@ -79,16 +69,6 @@ final class StringState implements State
      */
     public function hasAttribute($attribute)
     {
-        return isset($this->attributes[$attribute]);
+        return false !== array_search($attribute, $this->attributes);
     }
-
-	/**
-	 * @param StateAttribute $attribute
-	 *
-	 * @return State
-	 */
-	private function addAttribute(StateAttribute $attribute)
-	{
-		$this->attributes[$this->name()] = $attribute;
-	}
 }

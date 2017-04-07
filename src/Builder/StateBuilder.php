@@ -3,49 +3,56 @@
 namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateMachine;
+use Star\Component\State\States\StringState;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\AllowedTransition;
 
 /**
  * Tool to build the StateMachine.
  */
-final class StateBuilder {
-	/**
-	 * @var TransitionRegistry
-	 */
-	private $registry;
+final class StateBuilder
+{
+    /**
+     * @var TransitionRegistry
+     */
+    private $registry;
 
-	private function __construct() {
-		$this->registry = new TransitionRegistry();
-	}
+    private function __construct()
+    {
+        $this->registry = new TransitionRegistry();
+    }
 
-	/**
-	 * @param string $name
-	 * @param string $from
-	 * @param string $to
-	 *
-	 * @return StateBuilder
-	 */
-	public function allowTransition($name, $from, $to) {
-		$this->registry->addTransition(new AllowedTransition($name, new StringState($from), new StringState($to)));
+    /**
+     * @param string $name
+     * @param string $from
+     * @param string $to
+     *
+     * @return StateBuilder
+     */
+    public function allowTransition($name, $from, $to)
+    {
+        $this->registry->addTransition(
+                new AllowedTransition($name, new StringState($from), new StringState($to))
+        );
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * @param string $currentState
-	 *
-	 * @return StateMachine
-	 */
-	public function create($currentState) {
-		return new StateMachine($currentState, $this->registry);
-	}
+    /**
+     * @param string $currentState
+     *
+     * @return StateMachine
+     */
+    public function create($currentState)
+    {
+        return new StateMachine($currentState, $this->registry);
+    }
 
-	/**
-	 * @return StateBuilder
-	 */
-	public static function build()
-	{
-		return new static();
-	}
+    /**
+     * @return StateBuilder
+     */
+    public static function build()
+    {
+        return new static();
+    }
 }

@@ -99,7 +99,7 @@ class Post implements StateContext
 
     public function setState(State $state)
     {
-        $this->state = $state->name();
+        $this->state = $state->toString();
     }
 
     /**

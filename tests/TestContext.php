@@ -24,6 +24,6 @@ final class TestContext implements StateContext
 
     public function setState(State $state)
     {
-        $this->current = $state->name();
+        $this->current = $state->toString();
     }
 }

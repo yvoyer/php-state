@@ -14,7 +14,7 @@ interface State
      *
      * @return string
      */
-    public function name();
+    public function toString();
 
     /**
      * @param State $state

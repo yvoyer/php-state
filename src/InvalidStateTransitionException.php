@@ -26,7 +26,7 @@ class InvalidStateTransitionException extends \Exception
 				"The transition '%s' is not allowed when context '%s' is in state '%s'.",
 				$transition->name(),
 				get_class($context),
-				$currentState->name()
+				$currentState->toString()
 			)
 		);
 	}

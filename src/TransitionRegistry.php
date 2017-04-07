@@ -7,7 +7,6 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Attribute\StateAttribute;
 use Webmozart\Assert\Assert;
 
 final class TransitionRegistry
@@ -76,23 +75,14 @@ final class TransitionRegistry
      */
     public function addState(State $state)
     {
-	    if (! isset($this->states[$state->name()])) {
-		    $this->states[$state->name()] = $state;
+        $name = $state->toString();
+	    if (! isset($this->states[$name])) {
+		    $this->states[$name] = $state;
 	    }
 
-	    if (! $state->matchState($this->getState($state->name()))) {
+        var_dump($state->matchState($this->states[$name]));
+	    if (! $state->matchState($this->states[$name])) {
 		    throw DuplicateEntryException::duplicateState($state);
 	    }
-    }
-
-    /**
-     * @param string $context
-     * @param string $state
-     * @param StateAttribute $attribute
-     */
-    public function setAttribute($context, $state, StateAttribute $attribute)
-    {
-        $state = $this->getState($state, $context);
-        $this->addState($state->addAttribute($attribute), $context);
     }
 }

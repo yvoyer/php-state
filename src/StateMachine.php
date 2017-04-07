@@ -7,8 +7,6 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Event\ContextTransitionWasRequested;
-use Star\Component\State\Event\ContextTransitionWasSuccessful;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
@@ -26,38 +24,38 @@ final class StateMachine
      */
     private $registry;
 
-	/**
-	 * @var State
-	 */
-	private $currentState;
+    /**
+     * @var State
+     */
+    private $currentState;
 
-	/**
-	 * @param string $currentState
-	 * @param TransitionRegistry|null $registry
-	 */
+    /**
+     * @param string $currentState
+     * @param TransitionRegistry|null $registry
+     */
     public function __construct($currentState, TransitionRegistry $registry = null)
     {
-	    if (! $registry) {
-		    $registry = new TransitionRegistry();
-	    }
+        if (! $registry) {
+            $registry = new TransitionRegistry();
+        }
 
         $this->dispatcher = new EventDispatcher();
         $this->registry = $registry;
-	    $this->currentState = $this->registry->getState($currentState);
+        $this->setCurrentState($this->registry->getState($currentState));
     }
 
-	/**
-	 * @param string $name The transition name
-	 * @param StateContext $context
-	 * @throws InvalidStateTransitionException
-	 * @throws NotFoundException
-	 */
+    /**
+     * @param string $name The transition name
+     * @param StateContext $context
+     * @throws InvalidStateTransitionException
+     * @throws NotFoundException
+     */
     public function transitContext($name, StateContext $context)
     {
         $transition = $this->registry->getTransition($name);
 
         if (! $transition->isAllowed($this, $context)) {
-	        throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
+            throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
         }
 
         // custom event for transition
@@ -65,19 +63,19 @@ final class StateMachine
 //            StateEventStore::preTransitionEvent($transition->name(), $context->contextAlias()),
 //            new ContextTransitionWasRequested($context)
 //        );
-//
-//        $this->dispatcher->dispatch(
-//            StateEventStore::BEFORE_TRANSITION,
-//            new TransitionWasRequested($transition)
-//        );
 
-        $transition->onStateChange($context);
+        $this->dispatcher->dispatch(
+            StateEventStore::BEFORE_TRANSITION,
+            new TransitionWasRequested($transition)
+        );
 
-//        $this->dispatcher->dispatch(
-//            StateEventStore::AFTER_TRANSITION,
-//            new TransitionWasSuccessful($transition)
-//        );
-//
+        $transition->onStateChange($context, $this);
+
+        $this->dispatcher->dispatch(
+            StateEventStore::AFTER_TRANSITION,
+            new TransitionWasSuccessful($transition)
+        );
+
         // custom event for transition
 //        $this->dispatcher->dispatch(
 //            StateEventStore::postTransitionEvent($transition->name(), $context->contextAlias()),
@@ -85,26 +83,44 @@ final class StateMachine
 //        );
     }
 
-	/**
-	 * @param string $stateName
-	 * @param StateContext $context
-	 *
-	 * @return bool
-	 */
-	public function isInState($stateName, StateContext $context)
-	{
-		// todo use reflexion to check if the state is valid ?
-		// todo use closure to return current state?
-		return $this->currentState->matchState($this->registry->getState($stateName));
-	}
+    /**
+     * @param string $stateName
+     * @param StateContext $context
+     *
+     * @return bool
+     */
+    public function isInState($stateName, StateContext $context)
+    {
+        // todo use reflexion to check if the state is valid ?
+        // todo use closure to return current state?
+        return $this->currentState->matchState($this->registry->getState($stateName));
+    }
+
+    /**
+     * @param string $attribute
+     *
+     * @return bool
+     */
+    public function hasAttribute($attribute)
+    {
+        return false;
+    }
+
+    /**
+     * @param State $state
+     * @internal Internal to the StateMachine service. You should not base your logic on this.
+     */
+    public function setCurrentState(State $state)
+    {
+        $this->currentState = $state;
+    }
 
 	/**
-	 * @param string $attribute
-	 *
-	 * @return bool
+	 * @param string $event
+	 * @param \Closure $listener
 	 */
-	public function hasAttribute($attribute)
+	public function addListener($event, \Closure $listener)
 	{
-		return false;
+		$this->dispatcher->addListener($event, $listener);
 	}
 }

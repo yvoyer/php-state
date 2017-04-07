@@ -8,7 +8,7 @@
 namespace Star\Component\State;
 
 use Star\Component\State\States\StringState;
-use Star\Component\State\Transitions\AllowedTransition;
+use Star\Component\State\Transitions\FromToTransition;
 
 final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
 {
@@ -43,7 +43,7 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_add_transition()
     {
         $this->registry->addTransition(
-            new AllowedTransition(
+            new FromToTransition(
                 'name',
                 new StringState('from'),
                 new StringState('to')
@@ -51,7 +51,7 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
         );
         $transition = $this->registry->getTransition('name');
         $this->assertInstanceOf(StateTransition::class, $transition);
-        $this->assertSame('name', $transition->name());
+        $this->assertSame('name', $transition->getName());
     }
 
     public function test_it_should_contain_the_states() {
@@ -88,14 +88,14 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_throw_exception_when_duplicate_transition_is_registered()
     {
         $this->registry->addTransition(
-            new AllowedTransition(
+            new FromToTransition(
                 'duplicate',
                 new StringState('from'),
                 new StringState('to')
             )
         );
         $this->registry->addTransition(
-            new AllowedTransition(
+            new FromToTransition(
                 'duplicate',
                 new StringState('from'),
                 new StringState('to')

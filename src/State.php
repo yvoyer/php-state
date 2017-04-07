@@ -14,7 +14,7 @@ interface State
      *
      * @return string
      */
-    public function toString();
+    public function getName();
 
     /**
      * @param State $state
@@ -29,4 +29,9 @@ interface State
      * @return bool
      */
     public function hasAttribute($attribute);
+
+    /**
+     * @param string $attribute
+     */
+    public function addAttribute($attribute);
 }

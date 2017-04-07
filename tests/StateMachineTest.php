@@ -11,7 +11,7 @@ use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\States\StringState;
-use Star\Component\State\Transitions\AllowedTransition;
+use Star\Component\State\Transitions\FromToTransition;
 
 final class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
@@ -33,12 +33,12 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
     public function setUp() {
         $this->context = new TestContext('current');
         $this->registry = new TransitionRegistry();
-        $this->registry->addState(new StringState('current'));
+        $this->registry->addState($current = new StringState('current', ['exists']));
         $this->machine = new StateMachine('current', $this->registry);
         $this->registry->addTransition(
-            new AllowedTransition(
+            new FromToTransition(
                 'name',
-                new StringState('current'),
+                $current,
                 new StringState('next')
             )
         );
@@ -55,11 +55,11 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_transition_from_one_state_to_the_other()
     {
-        $this->assertTrue($this->machine->isInState('current', $this->context));
+        $this->assertTrue($this->machine->isInState('current'));
 
         $this->assertSame('next', $this->machine->transitContext('name', $this->context));
 
-        $this->assertFalse($this->machine->isInState('current', $this->context));
+        $this->assertFalse($this->machine->isInState('current'));
     }
 
     public function test_it_should_trigger_an_event_before_any_transition()
@@ -104,20 +104,24 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'transition' is not allowed on context 'context'.
+     * @expectedExceptionMessage The transition 'transition' is not allowed when context 'Star\Component\State\TestContext' is in state 'current'.
      */
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
-        $this->assertFalse($this->machine->isInState('not-allowed', $this->context));
-        $this->machine->transitContext('not-allowed', $this->context);
+        $transition = new FromToTransition(
+            'transition',
+            new StringState('not-allowed'),
+            new StringState('not-allowed')
+        );
+        $this->registry->addTransition($transition);
+        $this->assertFalse($this->machine->isInState('not-allowed'));
+
+        $this->machine->transitContext($transition->getName(), $this->context);
     }
 
     public function test_state_can_have_attribute()
     {
         $this->assertFalse($this->machine->hasAttribute('not-exists'));
-
-        $this->registry->addState(new StringState('name', ['not-exists']));
-
-        $this->assertFalse($this->machine->hasAttribute('not-exists'));
+        $this->assertTrue($this->machine->hasAttribute('exists'));
     }
 }

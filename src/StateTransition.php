@@ -12,22 +12,14 @@ interface StateTransition
     /**
      * @return string
      */
-    public function name();
-
-    /**
-     * @param StateContext $context
-     *
-     * @return bool
-     */
-    public function changeIsRequired(StateContext $context);
+    public function getName();
 
     /**
      * @param StateMachine $machine
-     * @param StateContext $context
      *
      * @return bool
      */
-    public function isAllowed(StateMachine $machine, StateContext $context);
+    public function isAllowed(StateMachine $machine);
 
     /**
      * @param TransitionRegistry $registry

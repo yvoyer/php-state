@@ -39,7 +39,7 @@ final class StringState implements State
      *
      * @return string
      */
-    public function toString()
+    public function getName()
     {
         return $this->name;
     }
@@ -55,7 +55,11 @@ final class StringState implements State
             return false;
         }
 
-        if ($state->toString() !== $this->toString()) {
+        if ($state->toString() !== $this->getName()) {
+            return false;
+        }
+
+        if (count($state->attributes) !== count($this->attributes)) {
             return false;
         }
 
@@ -70,5 +74,14 @@ final class StringState implements State
     public function hasAttribute($attribute)
     {
         return false !== array_search($attribute, $this->attributes);
+    }
+
+    /**
+     * @param string $attribute
+     */
+    public function addAttribute($attribute)
+    {
+        $this->attributes[] = $attribute;
+        $this->attributes = array_unique($this->attributes);
     }
 }

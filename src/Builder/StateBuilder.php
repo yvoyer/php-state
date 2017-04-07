@@ -5,7 +5,7 @@ namespace Star\Component\State\Builder;
 use Star\Component\State\StateMachine;
 use Star\Component\State\States\StringState;
 use Star\Component\State\TransitionRegistry;
-use Star\Component\State\Transitions\AllowedTransition;
+use Star\Component\State\Transitions\FromToTransition;
 
 /**
  * Tool to build the StateMachine.
@@ -32,8 +32,25 @@ final class StateBuilder
     public function allowTransition($name, $from, $to)
     {
         $this->registry->addTransition(
-                new AllowedTransition($name, new StringState($from), new StringState($to))
+            new FromToTransition($name, new StringState($from), new StringState($to))
         );
+
+        return $this;
+    }
+
+    /**
+     * @param string $attribute The attribute
+     * @param string|string[] $states The list of states that this attribute applies to
+     *
+     * @return StateBuilder
+     */
+    public function addAttribute($attribute, $states)
+    {
+        $states = (array) $states;
+        foreach ($states as $stateName) {
+            $state = $this->registry->getState($stateName);
+            $state->addAttribute($attribute);
+        }
 
         return $this;
     }

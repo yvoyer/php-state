@@ -11,7 +11,7 @@ final class DuplicateEntryException extends \LogicException {
     public static function duplicateTransition(StateTransition $transition)
     {
         return new self(
-            sprintf("The transition '%s' is already registered.", $transition->name())
+            sprintf("The transition '%s' is already registered.", $transition->getName())
         );
     }
 
@@ -25,7 +25,7 @@ final class DuplicateEntryException extends \LogicException {
         return new self(
             sprintf(
                 'The state "%s" is already registered, maybe there is a mismatch with the attributes.',
-                $state->toString()
+                $state->getName()
             )
         );
     }

@@ -9,7 +9,7 @@ use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionRegistry;
 use Webmozart\Assert\Assert;
 
-final class AllowedTransition implements StateTransition
+final class FromToTransition implements StateTransition
 {
     /**
      * @var string
@@ -42,30 +42,19 @@ final class AllowedTransition implements StateTransition
     /**
      * @return string
      */
-    public function name()
+    public function getName()
     {
         return $this->name;
     }
 
     /**
-     * @param StateContext $context
-     *
-     * @return bool
-     */
-    public function changeIsRequired(StateContext $context)
-    {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
-    }
-
-    /**
      * @param StateMachine $machine
-     * @param StateContext $context
      *
      * @return bool
      */
-    public function isAllowed(StateMachine $machine, StateContext $context)
+    public function isAllowed(StateMachine $machine)
     {
-        return $machine->isInState($this->from->toString(), $context);
+        return $machine->isInState($this->from->getName());
     }
 
     /**
@@ -82,7 +71,6 @@ final class AllowedTransition implements StateTransition
      */
     public function beforeStateChange(StateContext $context)
     {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
     }
 
     /**
@@ -99,6 +87,5 @@ final class AllowedTransition implements StateTransition
      */
     public function afterStateChange(StateContext $context)
     {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
     }
 }

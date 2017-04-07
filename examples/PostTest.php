@@ -172,5 +172,10 @@ final class PostTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertFalse(Post::drafted()->isActive());
         $this->assertTrue(Post::published()->isActive());
+        $this->assertFalse(Post::archived()->isActive());
+
+        $this->assertTrue(Post::drafted()->isClosed());
+        $this->assertFalse(Post::published()->isClosed());
+        $this->assertTrue(Post::archived()->isClosed());
     }
 }

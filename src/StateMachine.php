@@ -47,8 +47,8 @@ final class StateMachine
     /**
      * @param string $name The transition name
      * @param StateContext $context
-	 *
-	 * @return string The next state to store on your context
+     *
+     * @return string The next state to store on your context
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
@@ -56,7 +56,7 @@ final class StateMachine
     {
         $transition = $this->registry->getTransition($name);
 
-        if (! $transition->isAllowed($this, $context)) {
+        if (! $transition->isAllowed($this)) {
             throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
         }
 
@@ -65,26 +65,25 @@ final class StateMachine
             new TransitionWasRequested($transition)
         );
 
+        $transition->beforeStateChange($context);
         $transition->onStateChange($context, $this);
+        $transition->afterStateChange($context);
 
         $this->dispatcher->dispatch(
             StateEventStore::AFTER_TRANSITION,
             new TransitionWasSuccessful($transition)
         );
 
-		return $this->currentState->toString();
+        return $this->currentState->getName();
     }
 
     /**
      * @param string $stateName
-     * @param StateContext $context
      *
      * @return bool
      */
-    public function isInState($stateName, StateContext $context)
+    public function isInState($stateName)
     {
-        // todo use reflexion to check if the state is valid ?
-        // todo use closure to return current state?
         return $this->currentState->matchState($this->registry->getState($stateName));
     }
 
@@ -95,7 +94,7 @@ final class StateMachine
      */
     public function hasAttribute($attribute)
     {
-        return false;
+        return $this->currentState->hasAttribute($attribute);
     }
 
     /**
@@ -107,12 +106,12 @@ final class StateMachine
         $this->currentState = $state;
     }
 
-	/**
-	 * @param string $event
-	 * @param \Closure $listener
-	 */
-	public function addListener($event, \Closure $listener)
-	{
-		$this->dispatcher->addListener($event, $listener);
-	}
+    /**
+     * @param string $event
+     * @param \Closure $listener
+     */
+    public function addListener($event, \Closure $listener)
+    {
+        $this->dispatcher->addListener($event, $listener);
+    }
 }

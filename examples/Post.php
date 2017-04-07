@@ -16,18 +16,18 @@ use Star\Component\State\StateMachine;
  */
 class Post implements StateContext
 {
-	const ALIAS = 'post';
+    const ALIAS = 'post';
 
     const STATE_DRAFT = 'drafted';
-	const STATE_PUBLISHED = 'published';
-	const STATE_ARCHIVED = 'archived';
+    const STATE_PUBLISHED = 'published';
+    const STATE_ARCHIVED = 'archived';
 
-	const TRANSITION_PUBLISH = 'publish';
+    const TRANSITION_PUBLISH = 'publish';
     const TRANSITION_TO_DRAFT = 'to_draft';
     const TRANSITION_ARCHIVE = 'archive';
 
-	const ATTRIBUTE_ACTIVE = 'active';
-	const ATTRIBUTE_CLOSED = 'closed';
+    const ATTRIBUTE_ACTIVE = 'active';
+    const ATTRIBUTE_CLOSED = 'closed';
 
     /**
      * @var string
@@ -41,25 +41,27 @@ class Post implements StateContext
 
     public function isDraft()
     {
-        return $this->workflow()->isInState(self::STATE_DRAFT, $this);
+        return $this->workflow()->isInState(self::STATE_DRAFT);
     }
 
     public function isPublished()
     {
-        return $this->workflow()->isInState(self::STATE_PUBLISHED, $this);
+        return $this->workflow()->isInState(self::STATE_PUBLISHED);
     }
 
-	public function isArchived()
-	{
-		return $this->workflow()->isInState(self::STATE_ARCHIVED, $this);
-	}
+    public function isArchived()
+    {
+        return $this->workflow()->isInState(self::STATE_ARCHIVED);
+    }
 
-	/**
-     * Tests the attribute of the state. This is not a specific state, but an attribute of a state.
-     */
     public function isActive()
     {
         return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE);
+    }
+
+    public function isClosed()
+    {
+        return $this->workflow()->hasAttribute(self::ATTRIBUTE_CLOSED);
     }
 
     public function moveToDraft()
@@ -93,13 +95,13 @@ class Post implements StateContext
         return new self(self::STATE_PUBLISHED);
     }
 
-	/**
-	 * @return Post
-	 */
-	public static function archived()
-	{
-		return new self(self::STATE_ARCHIVED);
-	}
+    /**
+     * @return Post
+     */
+    public static function archived()
+    {
+        return new self(self::STATE_ARCHIVED);
+    }
 
     /**
      * @return StateMachine
@@ -107,9 +109,11 @@ class Post implements StateContext
     private function workflow()
     {
         return StateBuilder::build()
-	        ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
-	        ->allowTransition(self::TRANSITION_TO_DRAFT, self::STATE_PUBLISHED, self::STATE_DRAFT)
+            ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
+            ->allowTransition(self::TRANSITION_TO_DRAFT, self::STATE_PUBLISHED, self::STATE_DRAFT)
             ->allowTransition(self::TRANSITION_ARCHIVE, self::STATE_PUBLISHED, self::STATE_ARCHIVED)
-	        ->create($this->state);
+            ->addAttribute(self::ATTRIBUTE_ACTIVE, self::STATE_PUBLISHED)
+            ->addAttribute(self::ATTRIBUTE_CLOSED, [self::STATE_ARCHIVED, self::STATE_DRAFT])
+            ->create($this->state);
     }
 }

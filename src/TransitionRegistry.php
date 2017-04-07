@@ -26,11 +26,11 @@ final class TransitionRegistry
      */
     public function addTransition(StateTransition $transition)
     {
-	    if (isset($this->transitions[$transition->name()])) {
-		    throw DuplicateEntryException::duplicateTransition($transition);
-	    }
+        if (isset($this->transitions[$transition->getName()])) {
+            throw DuplicateEntryException::duplicateTransition($transition);
+        }
 
-        $this->transitions[$transition->name()] = $transition;
+        $this->transitions[$transition->getName()] = $transition;
         $transition->onRegister($this);
     }
 
@@ -42,29 +42,29 @@ final class TransitionRegistry
      */
     public function getTransition($name)
     {
-	    Assert::string($name);
+        Assert::string($name);
         $transition = null;
         if (isset($this->transitions[$name])) {
             $transition = $this->transitions[$name];
         }
 
         if (! $transition) {
-	        throw NotFoundException::transitionNotFound($name);
+            throw NotFoundException::transitionNotFound($name);
         }
 
         return $transition;
     }
 
-	/**
-	 * @param string $name
-	 * @return State
-	 * @throws NotFoundException
-	 */
+    /**
+     * @param string $name
+     * @return State
+     * @throws NotFoundException
+     */
     public function getState($name)
     {
-	    Assert::string($name);
+        Assert::string($name);
         if (! isset($this->states[$name])) {
-	        throw NotFoundException::stateNotFound($name);
+            throw NotFoundException::stateNotFound($name);
         }
 
         return $this->states[$name];
@@ -75,13 +75,13 @@ final class TransitionRegistry
      */
     public function addState(State $state)
     {
-        $name = $state->toString();
-	    if (! isset($this->states[$name])) {
-		    $this->states[$name] = $state;
-	    }
+        $name = $state->getName();
+        if (! isset($this->states[$name])) {
+            $this->states[$name] = $state;
+        }
 
-	    if (! $state->matchState($this->states[$name])) {
-		    throw DuplicateEntryException::duplicateState($state);
-	    }
+        if (! $state->matchState($this->states[$name])) {
+            throw DuplicateEntryException::duplicateState($state);
+        }
     }
 }

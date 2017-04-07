@@ -55,7 +55,7 @@ final class StringState implements State
             return false;
         }
 
-        if ($state->toString() !== $this->getName()) {
+        if ($state->getName() !== $this->getName()) {
             return false;
         }
 

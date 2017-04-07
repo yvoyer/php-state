@@ -47,6 +47,8 @@ final class StateMachine
     /**
      * @param string $name The transition name
      * @param StateContext $context
+	 *
+	 * @return string The next state to store on your context
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
@@ -57,12 +59,6 @@ final class StateMachine
         if (! $transition->isAllowed($this, $context)) {
             throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
         }
-
-        // custom event for transition
-//        $this->dispatcher->dispatch(
-//            StateEventStore::preTransitionEvent($transition->name(), $context->contextAlias()),
-//            new ContextTransitionWasRequested($context)
-//        );
 
         $this->dispatcher->dispatch(
             StateEventStore::BEFORE_TRANSITION,
@@ -76,11 +72,7 @@ final class StateMachine
             new TransitionWasSuccessful($transition)
         );
 
-        // custom event for transition
-//        $this->dispatcher->dispatch(
-//            StateEventStore::postTransitionEvent($transition->name(), $context->contextAlias()),
-//            new ContextTransitionWasSuccessful($context)
-//        );
+		return $this->currentState->toString();
     }
 
     /**

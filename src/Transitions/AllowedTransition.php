@@ -91,7 +91,6 @@ final class AllowedTransition implements StateTransition
      */
     public function onStateChange(StateContext $context, StateMachine $machine)
     {
-        $context->setState($this->to);
         $machine->setCurrentState($this->to);
     }
 

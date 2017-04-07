@@ -9,9 +9,4 @@ namespace Star\Component\State;
 
 interface StateContext
 {
-    /**
-     * @param State $state
-     * @internal Public to be used by the State machine only.
-     */
-    public function setState(State $state);
 }

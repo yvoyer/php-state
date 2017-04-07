@@ -57,10 +57,9 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertTrue($this->machine->isInState('current', $this->context));
 
-        $this->machine->transitContext('name', $this->context);
+        $this->assertSame('next', $this->machine->transitContext('name', $this->context));
 
         $this->assertFalse($this->machine->isInState('current', $this->context));
-        $this->assertTrue($this->machine->isInState('next', $this->context));
     }
 
     public function test_it_should_trigger_an_event_before_any_transition()

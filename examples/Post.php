@@ -8,7 +8,6 @@
 namespace Star\Component\State\Example;
 
 use Star\Component\State\Builder\StateBuilder;
-use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 
@@ -65,12 +64,17 @@ class Post implements StateContext
 
     public function moveToDraft()
     {
-        $this->workflow()->transitContext(self::TRANSITION_TO_DRAFT, $this);
+        $this->state = $this->workflow()->transitContext(self::TRANSITION_TO_DRAFT, $this);
     }
 
     public function publish()
     {
-        $this->workflow()->transitContext(self::TRANSITION_PUBLISH, $this);
+        $this->state = $this->workflow()->transitContext(self::TRANSITION_PUBLISH, $this);
+    }
+
+    public function archive()
+    {
+        $this->state = $this->workflow()->transitContext(self::TRANSITION_ARCHIVE, $this);
     }
 
     /**
@@ -97,11 +101,6 @@ class Post implements StateContext
 		return new self(self::STATE_ARCHIVED);
 	}
 
-    public function setState(State $state)
-    {
-        $this->state = $state->toString();
-    }
-
     /**
      * @return StateMachine
      */
@@ -110,6 +109,7 @@ class Post implements StateContext
         return StateBuilder::build()
 	        ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
 	        ->allowTransition(self::TRANSITION_TO_DRAFT, self::STATE_PUBLISHED, self::STATE_DRAFT)
+            ->allowTransition(self::TRANSITION_ARCHIVE, self::STATE_PUBLISHED, self::STATE_ARCHIVED)
 	        ->create($this->state);
     }
 }

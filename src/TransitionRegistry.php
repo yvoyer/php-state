@@ -80,7 +80,6 @@ final class TransitionRegistry
 		    $this->states[$name] = $state;
 	    }
 
-        var_dump($state->matchState($this->states[$name]));
 	    if (! $state->matchState($this->states[$name])) {
 		    throw DuplicateEntryException::duplicateState($state);
 	    }

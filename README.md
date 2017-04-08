@@ -14,7 +14,7 @@ Using composer, add the following require in your `composer.json`.
 
 ```json 
     "require": {
-        "star/php-state": "~1.0"
+        "star/state-machine": "~1.0"
     }
 ```
 

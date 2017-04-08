@@ -10,6 +10,7 @@ namespace Star\Component\State;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
+use Star\Component\State\Handlers\NullHandler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 final class StateMachine
@@ -45,18 +46,25 @@ final class StateMachine
     }
 
     /**
-     * @param string $name The transition name
+     * @param string $transitionName The transition name
      * @param StateContext $context
+     * @param FailureHandler $handler Gives you the possibility to perform some task when transition not allowed
      *
      * @return string The next state to store on your context
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
-    public function transitContext($name, StateContext $context)
+    public function transitContext($transitionName, StateContext $context, FailureHandler $handler = null)
     {
-        $transition = $this->registry->getTransition($name);
+        if (! $handler) {
+            $handler = new NullHandler();
+        }
+
+        $transition = $this->registry->getTransition($transitionName);
 
         if (! $transition->isAllowed($this)) {
+            $handler->beforeTransitionNotAllowed($transition, $context, $this->currentState);
+            // always throw exception when not allowed
             throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
         }
 

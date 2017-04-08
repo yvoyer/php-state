@@ -2,8 +2,21 @@
 
 [![Build Status](https://travis-ci.org/yvoyer/php-state.svg?branch=master)](https://travis-ci.org/yvoyer/php-state)
 
-This package help you to build a workflow for a designated context, that can be encapsulated in your context.
-With this package, you do not require the logic to be on the application side.
+This package help you to build a workflow for a designated context, that can be encapsulated inside the given context.
+
+It was designed to avoid add a hard dependancy to the package. The library do not require you to implement any method.
+All the code you need to do can be encapsulated inside your context class, and it stays hidden to your other object.
+
+
+## Installation
+
+Using composer, add the following require in your `composer.json`.
+
+```json 
+    "require": {
+        "star/php-state": "~1.0"
+    }
+```
 
 ## Example of usage
 
@@ -15,69 +28,85 @@ Given you have a `Post` implementation that can have multiple states:
 
 The post's allowed workflow should be as follow:
 
-    +-----------++------------+------------+------------+
-    | from / to ||    draft   | published  |  archived  |
-    +===========++============+============+============+
-    | draft     || disallowed |   allowed  | disallowed |
-    +-----------++------------+------------+------------+
-    | published || disallowed | disallowed |   allowed  | 
-    +-----------++------------+------------+------------+
-    | archived  || disallowed | disallowed | disallowed |
-    +-----------++------------+------------+------------+
-
-Many states may be considered to have a specific meaning, using attributes:
-
-    +-----------++------------+------------+
-    | from / to || is_active  | is_closed  |
-    +===========++============+============+
-    | draft     ||   false    |   true     |
-    +-----------++------------+------------+
-    | published ||   true     |   false    |
-    +-----------++------------+------------+
-    | archived  ||   false    |   true     |   
-    +-----------++------------+------------+
+    +------------+------------+------------+------------+
+    | from / to  |    draft   | published  |  archived  |
+    +============+============+============+============+
+    | draft      | disallowed | publish    | disallowed |
+    +------------+------------+------------+------------+
+    | published  | disallowed | disallowed | archive    | 
+    +------------+------------+------------+------------+
+    | archived   | disallowed | to_draft   | disallowed |
+    +------------+------------+------------+------------+
 
 You can setup your `Post` object using the following configuration:
 
 ```php
-// Post
+class Post
+{
+    public function publish()
+    {
+        // set the state to the next one after the transition is done (and if allowed)
+        $this->state = $this->stateMachine()->transitContext("publish", $this);
+    }
     /**
      * @return StateMachine
      */
-    private function workflow()
+    private function stateMachine()
     {
         return StateBuilder::build()
-            ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
-            ->allowTransition(self::TRANSITION_TO_DRAFT, self::STATE_PUBLISHED, self::STATE_DRAFT)
-            ->allowTransition(self::TRANSITION_ARCHIVE, self::STATE_PUBLISHED, self::STATE_ARCHIVED)
-            ->addAttribute(self::ATTRIBUTE_ACTIVE, self::STATE_PUBLISHED)
-            ->addAttribute(self::ATTRIBUTE_CLOSED, [self::STATE_ARCHIVED, self::STATE_DRAFT])
+            ->allowTransition("publish", "draft", "published")
+            ->allowTransition("to_draft", "published", "draft")
+            ->allowTransition("archive", "published", "archived")
+            ->addAttribute("is_active", "published")
+            ->addAttribute("is_closed", ["archived", "drafted"])
             ->create($this->state);
     }
+}
+```
 
-``` 
+## Attributes
 
-### Attributes
- Atributes are used to mark as state as having a certain signification to the context. 
+Attributes are used to mark as state as having a certain signification to the context. 
  
- Ie. Given your state needs to be considered as being valid while another state should not, you just need to add the `is_valid`attribute to the states that needs it. In doing so, you'lol be able to add a method `isValid()` on your context that will be defined as follow:
- 
- ```php
-public function isValid ()
- {
-     return $this->machine()-hasAttribute ();
- }
- $machine
- ```
- 
-## Installation
+Ie. Given your state needs to be considered as being active or closed while another state should not,
+ you just need to add the `is_active` and `is_closed` attributes to the states that needs it.
+In doing so, you'll be able to add methods `isActive()`, `isClosed()` on your context that will be defined as follow:
 
-Using composer, add the following require in your `composer.json`.
+    +-------------------+------------+------------+
+    | state / attribute | is_active  | is_closed  |
+    +===================+============+============+
+    | draft             |   false    |   true     |
+    +-------------------+------------+------------+
+    | published         |   true     |   false    |
+    +-------------------+------------+------------+
+    | archived          |   false    |   true     |   
+    +-------------------+------------+------------+
 
-```json 
-    "require": {
-        "star/php-state": "~1.0"
+```php
+class Post
+{
+    /**
+     * @return StateMachine
+     */
+    private function stateMachine()
+    {
+        return StateBuilder::build()
+            ->allowTransition("publish", "draft", "published")
+            ->allowTransition("to_draft", "published", "draft")
+            ->allowTransition("archive", "published", "archived")
+            ->addAttribute("is_active", "published")
+            ->addAttribute("is_closed", ["archived", "drafted"])
+            ->create($this->state);
     }
+    public function isActive()
+    {
+        return $this->stateMachine()-hasAttribute("is_active");
+    } 
+    public function isClosed()
+    {
+        return $this->stateMachine()-hasAttribute("is_closed");
+    } 
+}
 ```
 
 ## Events (Experimental)

@@ -10,6 +10,7 @@ namespace Star\Component\State;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
+use Star\Component\State\Handlers\ClosureHandler;
 use Star\Component\State\States\StringState;
 use Star\Component\State\Transitions\FromToTransition;
 
@@ -123,5 +124,26 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertFalse($this->machine->hasAttribute('not-exists'));
         $this->assertTrue($this->machine->hasAttribute('exists'));
+    }
+
+    /**
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage The custom handler was triggered.
+     */
+    public function test_it_should_use_supplied_failure_handler_when_transition_not_allowed()
+    {
+        $transition = new FromToTransition(
+            'transition',
+            new StringState('not-allowed'),
+            new StringState('not-allowed')
+        );
+        $this->registry->addTransition($transition);
+        $this->machine->transitContext(
+            'transition',
+            $this->context,
+            new ClosureHandler(function() {
+                throw new \RuntimeException("The custom handler was triggered.");
+            })
+        );
     }
 }

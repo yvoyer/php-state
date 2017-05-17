@@ -7,9 +7,11 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
+use Star\Component\State\Example\CustomState\Door;
 use Star\Component\State\Handlers\ClosureHandler;
 use Star\Component\State\States\StringState;
 use Star\Component\State\Transitions\FromToTransition;
@@ -146,4 +148,22 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
             })
         );
     }
+
+    public function test_it_can_receive_custom_states() {
+        $door = new Door();
+        $this->assertFalse($door->isLocked());
+        $this->assertTrue($door->isUnlocked());
+        $this->assertTrue($door->handleIsTurnable());
+
+        $door->lock();
+        $this->assertTrue($door->isLocked());
+        $this->assertFalse($door->isUnlocked());
+        $this->assertTrue($door->handleIsTurnable());
+
+        $door->unlock();
+        $this->assertFalse($door->isLocked());
+        $this->assertTrue($door->isUnlocked());
+        $this->assertTrue($door->handleIsTurnable());
+    }
 }
+

@@ -2,7 +2,9 @@
 
 namespace Star\Component\State\Builder;
 
+use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
+use Star\Component\State\States\StateMetaData;
 use Star\Component\State\States\StringState;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\FromToTransition;
@@ -53,6 +55,23 @@ final class StateBuilder
         }
 
         return $this;
+    }
+
+    /**
+     * @param StateMetaData $metadata
+     * @param \Closure $callable Callback that initiate the context's state
+     *
+     * @return StateMachine
+     */
+    public function registerCustomState(StateMetaData $metadata, \Closure $callable)
+    {
+//        $this->allowTransition();
+//        $this->addAttribute();
+//        return $this->create();
+        // todo throw exception when class do not implement interface
+        // todo register state/transition/attributes
+
+//        return $this;
     }
 
     /**

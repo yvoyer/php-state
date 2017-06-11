@@ -8,7 +8,10 @@ use Star\Component\State\StateMachine;
 
 final class Door implements StateContext
 {
-    private $status;
+    /**
+     * @var string
+     */
+    private $status = 'unlocked';
 
     public function isLocked()
     {
@@ -22,17 +25,17 @@ final class Door implements StateContext
 
     public function handleIsTurnable()
     {
-        return $this->state()->hasAttribute('turn_handler');
+        return $this->state()->hasAttribute('handle_is_turnable');
     }
 
     public function lock()
     {
-        $this->state()->transitContext('lock', $this);
+        $this->status = $this->state()->transitContext('lock', $this);
     }
 
     public function unlock()
     {
-        $this->state()->transitContext('unlock', $this);
+        $this->status = $this->state()->transitContext('unlock', $this);
     }
 
     /**
@@ -40,11 +43,9 @@ final class Door implements StateContext
      */
     private function state()
     {
-        return StateBuilder::build()->registerCustomState(
-            new DoorStateMetadata(),
-            function ($initialState) {
-                $this->status = $initialState;
-            }
-        );
+        return StateBuilder::build()
+            ->registerCustomState(new DoorCustomState())
+            ->create($this->status)
+        ;
     }
 }

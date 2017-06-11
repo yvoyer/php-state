@@ -62,7 +62,7 @@ final class TransitionRegistry
      */
     public function getState($name)
     {
-        Assert::string($name);
+        Assert::string($name, 'The state name was expected to be a string. Got: %s');
         if (! isset($this->states[$name])) {
             throw NotFoundException::stateNotFound($name);
         }

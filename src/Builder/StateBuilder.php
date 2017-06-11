@@ -2,17 +2,17 @@
 
 namespace Star\Component\State\Builder;
 
-use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
-use Star\Component\State\States\StateMetaData;
+use Star\Component\State\States\CustomStateBuilder;
 use Star\Component\State\States\StringState;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\FromToTransition;
+use Webmozart\Assert\Assert;
 
 /**
  * Tool to build the StateMachine.
  */
-final class StateBuilder
+final class StateBuilder implements TransitionBuilder, AttributeBuilder
 {
     /**
      * @var TransitionRegistry
@@ -58,20 +58,16 @@ final class StateBuilder
     }
 
     /**
-     * @param StateMetaData $metadata
-     * @param \Closure $callable Callback that initiate the context's state
+     * @param CustomStateBuilder $builder
      *
-     * @return StateMachine
+     * @return StateBuilder
      */
-    public function registerCustomState(StateMetaData $metadata, \Closure $callable)
+    public function registerCustomState(CustomStateBuilder $builder)
     {
-//        $this->allowTransition();
-//        $this->addAttribute();
-//        return $this->create();
-        // todo throw exception when class do not implement interface
-        // todo register state/transition/attributes
+        $builder->registerTransitions($this);
+        $builder->registerAttributes($this);
 
-//        return $this;
+        return $this;
     }
 
     /**
@@ -81,6 +77,7 @@ final class StateBuilder
      */
     public function create($currentState)
     {
+        Assert::string($currentState, "The current state name was expected to be a string. Got: %s.");
         return new StateMachine($currentState, $this->registry);
     }
 

@@ -147,3 +147,4 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
         );
     }
 }
+

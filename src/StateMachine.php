@@ -64,6 +64,7 @@ final class StateMachine
 
         if (! $transition->isAllowed($this)) {
             $handler->beforeTransitionNotAllowed($transition, $context, $this->currentState);
+            // todo Trigger event before throwing exception instead of handler
             // always throw exception when not allowed
             throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
         }

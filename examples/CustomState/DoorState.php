@@ -2,23 +2,25 @@
 
 namespace Star\Component\State\Example\CustomState;
 
-abstract class DoorState
+use Star\Component\State\State;
+
+abstract class DoorState implements State
 {
-    public function isLocked()
+    /**
+     * @param State $state
+     *
+     * @return bool
+     */
+    public function matchState(State $state)
     {
-        return false;
+        return $this->getName() === $state->getName();
     }
 
-    public function isUnlocked()
+    /**
+     * @param string $attribute
+     */
+    public function addAttribute($attribute)
     {
-        return false;
-    }
-
-    public function lock(Door $door)
-    {
-    }
-
-    public function unlock(Door $door)
-    {
+        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
     }
 }

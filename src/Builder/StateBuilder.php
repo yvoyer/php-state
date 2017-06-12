@@ -12,7 +12,7 @@ use Webmozart\Assert\Assert;
 /**
  * Tool to build the StateMachine.
  */
-final class StateBuilder implements TransitionBuilder, AttributeBuilder
+final class StateBuilder
 {
     /**
      * @var TransitionRegistry
@@ -64,8 +64,7 @@ final class StateBuilder implements TransitionBuilder, AttributeBuilder
      */
     public function registerCustomState(CustomStateBuilder $builder)
     {
-        $builder->registerTransitions($this);
-        $builder->registerAttributes($this);
+        $builder->registerTransitions($this->registry);
 
         return $this;
     }

@@ -11,31 +11,31 @@ final class Door implements StateContext
     /**
      * @var string
      */
-    private $status = 'unlocked';
+    private $status = DoorCustomState::UNLOCKED;
 
     public function isLocked()
     {
-        return $this->state()->isInState('locked');
+        return $this->state()->isInState(DoorCustomState::LOCKED);
     }
 
     public function isUnlocked()
     {
-        return $this->state()->isInState('unlocked');
+        return $this->state()->isInState(DoorCustomState::UNLOCKED);
     }
 
     public function handleIsTurnable()
     {
-        return $this->state()->hasAttribute('handle_is_turnable');
+        return $this->state()->hasAttribute(DoorCustomState::HANDLE_IS_TURNABLE);
     }
 
     public function lock()
     {
-        $this->status = $this->state()->transitContext('lock', $this);
+        $this->status = $this->state()->transitContext(DoorCustomState::LOCK, $this);
     }
 
     public function unlock()
     {
-        $this->status = $this->state()->transitContext('unlock', $this);
+        $this->status = $this->state()->transitContext(DoorCustomState::UNLOCK, $this);
     }
 
     /**

@@ -3,8 +3,7 @@
 namespace Star\Component\State\Example\CustomState;
 
 use Star\Component\State\States\CustomStateBuilder;
-use Star\Component\State\Builder\AttributeBuilder;
-use Star\Component\State\Builder\TransitionBuilder;
+use Star\Component\State\TransitionRegistry;
 
 /**
  * Transitions
@@ -27,22 +26,22 @@ use Star\Component\State\Builder\TransitionBuilder;
  */
 final class DoorCustomState implements CustomStateBuilder
 {
+    const LOCK = 'lock';
+    const UNLOCK = 'unlock';
+    const LOCKED = 'locked';
+    const UNLOCKED = 'unlocked';
+    const HANDLE_IS_TURNABLE = 'handle_is_turnable';
+
     /**
      * Register your custom states.
      *
-     * @param TransitionBuilder $builder
+     * @param TransitionRegistry $registry
      */
-    public function registerTransitions(TransitionBuilder $builder)
+    public function registerTransitions(TransitionRegistry $registry)
     {
-        $builder->allowTransition('lock', 'unlocked', 'locked');
-        $builder->allowTransition('unlock', 'locked', 'unlocked');
-    }
-
-    /**
-     * @param AttributeBuilder $builder
-     */
-    public function registerAttributes(AttributeBuilder $builder)
-    {
-        $builder->addAttribute('handle_is_turnable', ['locked', 'unlocked']);
+        $registry->addState(new LockedDoor());
+        $registry->addState(new UnlockedDoor());
+        $registry->addTransition(new LockTransition());
+        $registry->addTransition(new UnlockTransition());
     }
 }

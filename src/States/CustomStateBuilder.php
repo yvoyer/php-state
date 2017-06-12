@@ -2,18 +2,12 @@
 
 namespace Star\Component\State\States;
 
-use Star\Component\State\Builder\AttributeBuilder;
-use Star\Component\State\Builder\TransitionBuilder;
+use Star\Component\State\TransitionRegistry;
 
 interface CustomStateBuilder
 {
     /**
-     * @param TransitionBuilder $builder
+     * @param TransitionRegistry $registry
      */
-    public function registerTransitions(TransitionBuilder $builder);
-
-    /**
-     * @param AttributeBuilder $builder
-     */
-    public function registerAttributes(AttributeBuilder $builder);
+    public function registerTransitions(TransitionRegistry $registry);
 }

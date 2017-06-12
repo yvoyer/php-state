@@ -26,7 +26,11 @@ final class CustomStateTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_not_allow_to_transition_from_unlocked_to_unlocked(Door $door)
     {
         $this->assertTrue($door->isUnlocked());
-        $this->assertInvalidTransition('unlock', Door::class, 'unlocked');
+        $this->assertInvalidTransition(
+            DoorCustomState::UNLOCK,
+            Door::class,
+            DoorCustomState::UNLOCKED
+        );
         $door->unlock();
    }
 
@@ -56,7 +60,11 @@ final class CustomStateTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_not_allow_to_transition_from_locked_to_locked(Door $door)
     {
         $this->assertTrue($door->isLocked());
-        $this->assertInvalidTransition('lock', Door::class, 'locked');
+        $this->assertInvalidTransition(
+            DoorCustomState::LOCK,
+            Door::class,
+            DoorCustomState::LOCKED
+        );
         $door->lock();
     }
 
@@ -67,7 +75,7 @@ final class CustomStateTest extends \PHPUnit_Framework_TestCase
      *
      * @depends test_it_should_lock_the_unlocked_door
      */
-    public function test_it_should_unlock_the_lock_door(Door $locked)
+    public function test_it_should_unlock_the_locked_door(Door $locked)
     {
         $locked->unlock();
         $this->assertFalse($locked->isLocked());

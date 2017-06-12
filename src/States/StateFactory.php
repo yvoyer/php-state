@@ -4,7 +4,7 @@ namespace Star\Component\State\States;
 
 use Star\Component\State\TransitionRegistry;
 
-interface CustomStateBuilder
+interface StateFactory
 {
     /**
      * @param TransitionRegistry $registry

@@ -3,7 +3,7 @@
 namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateMachine;
-use Star\Component\State\States\CustomStateBuilder;
+use Star\Component\State\States\StateFactory;
 use Star\Component\State\States\StringState;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\FromToTransition;
@@ -12,7 +12,7 @@ use Webmozart\Assert\Assert;
 /**
  * Tool to build the StateMachine.
  */
-final class StateBuilder
+class StateBuilder
 {
     /**
      * @var TransitionRegistry
@@ -58,18 +58,6 @@ final class StateBuilder
     }
 
     /**
-     * @param CustomStateBuilder $builder
-     *
-     * @return StateBuilder
-     */
-    public function registerCustomState(CustomStateBuilder $builder)
-    {
-        $builder->registerTransitions($this->registry);
-
-        return $this;
-    }
-
-    /**
      * @param string $currentState
      *
      * @return StateMachine
@@ -81,10 +69,22 @@ final class StateBuilder
     }
 
     /**
-     * @return StateBuilder
+     * @return static
      */
     public static function build()
     {
         return new static();
+    }
+
+    /**
+     * @param StateFactory $configuration
+     *
+     * @return static
+     */
+    public static function fromBuilder(StateFactory $configuration) {
+        $builder = new static();
+        $configuration->registerTransitions($builder->registry);
+
+        return $builder;
     }
 }

@@ -14,7 +14,7 @@ final class LockTransition implements StateTransition
      */
     public function getName()
     {
-        return 'lock';
+        return DoorState::LOCK;
     }
 
     /**
@@ -24,7 +24,7 @@ final class LockTransition implements StateTransition
      */
     public function isAllowed(StateMachine $machine)
     {
-        return $machine->isInState(DoorCustomState::UNLOCKED);
+        return $machine->isInState(DoorState::UNLOCKED);
     }
 
     /**
@@ -32,6 +32,8 @@ final class LockTransition implements StateTransition
      */
     public function onRegister(TransitionRegistry $registry)
     {
+        $registry->addState(new LockedDoor());
+        $registry->addState(new UnlockedDoor());
     }
 
     /**

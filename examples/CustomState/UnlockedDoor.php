@@ -11,16 +11,6 @@ final class UnlockedDoor extends DoorState
      */
     public function getName()
     {
-        return DoorCustomState::UNLOCKED;
-    }
-
-    /**
-     * @param string $attribute
-     *
-     * @return bool
-     */
-    public function hasAttribute($attribute)
-    {
-        return $attribute === DoorCustomState::HANDLE_IS_TURNABLE;
+        return DoorState::UNLOCKED;
     }
 }

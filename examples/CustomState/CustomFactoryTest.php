@@ -4,7 +4,7 @@ namespace Star\Component\State\Example\CustomState;
 
 use Star\Component\State\StateAssertion;
 
-final class CustomStateTest extends \PHPUnit_Framework_TestCase
+final class CustomFactoryTest extends \PHPUnit_Framework_TestCase
 {
     use StateAssertion;
 
@@ -27,9 +27,9 @@ final class CustomStateTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertTrue($door->isUnlocked());
         $this->assertInvalidTransition(
-            DoorCustomState::UNLOCK,
+            DoorState::UNLOCK,
             Door::class,
-            DoorCustomState::UNLOCKED
+            DoorState::UNLOCKED
         );
         $door->unlock();
    }
@@ -61,9 +61,9 @@ final class CustomStateTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertTrue($door->isLocked());
         $this->assertInvalidTransition(
-            DoorCustomState::LOCK,
+            DoorState::LOCK,
             Door::class,
-            DoorCustomState::LOCKED
+            DoorState::LOCKED
         );
         $door->lock();
     }

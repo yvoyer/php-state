@@ -40,6 +40,9 @@ The post's allowed workflow should be as follow:
 
 You can setup your `Post` object using the following configuration:
 
+* Using [in-context](https://github.com/yvoyer/php-state/blob/master/examples/Post.php#L109) configuration
+* Using [custom state](https://github.com/yvoyer/php-state/blob/master/examples/CustomState/DoorCustomState.php#L37) builder
+
 ```php
 class Post
 {
@@ -66,7 +69,7 @@ class Post
 
 ## Attributes
 
-Attributes are used to mark as state as having a certain signification to the context. 
+Attributes are used to mark a state as having a certain signification to the context.
  
 Ie. Given your state needs to be considered as being active or closed while another state should not,
  you just need to add the `is_active` and `is_closed` attributes to the states that needs it.
@@ -81,6 +84,9 @@ In doing so, you'll be able to add methods `isActive()`, `isClosed()` on your co
     +-------------------+------------+------------+
     | archived          |   false    |   true     |   
     +-------------------+------------+------------+
+
+* Using [in-context](https://github.com/yvoyer/php-state/blob/master/examples/Post.php#L109) configuration
+* Using [custom state](https://github.com/yvoyer/php-state/blob/master/examples/CustomState/DoorCustomState.php#L46) builder
 
 ```php
 class Post

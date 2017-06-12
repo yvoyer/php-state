@@ -108,6 +108,29 @@ class Post implements StateContext
      */
     private function workflow()
     {
+        /**
+         * Transitions
+         * +------------+------------+------------+------------+
+         * | from / to  |    draft   | published  |  archived  |
+         * +============+============+============+============+
+         * | draft      | disallowed | publish    | disallowed |
+         * +------------+------------+------------+------------+
+         * | published  | disallowed | disallowed | archive    |
+         * +------------+------------+------------+------------+
+         * | archived   | disallowed | to_draft   | disallowed |
+         * +------------+------------+------------+------------+
+         *
+         * Attributes
+         * +-------------------+------------+------------+
+         * | state / attribute | is_active  | is_closed  |
+         * +===================+============+============+
+         * | draft             |   false    |   true     |
+         * +-------------------+------------+------------+
+         * | published         |   true     |   false    |
+         * +-------------------+------------+------------+
+         * | archived          |   false    |   true     |
+         * +-------------------+------------+------------+
+         */
         return StateBuilder::build()
             ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
             ->allowTransition(self::TRANSITION_TO_DRAFT, self::STATE_PUBLISHED, self::STATE_DRAFT)

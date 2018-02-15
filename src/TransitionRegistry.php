@@ -7,9 +7,10 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\States\StringState;
 use Webmozart\Assert\Assert;
 
-final class TransitionRegistry
+final class TransitionRegistry implements StateRegistry
 {
     /**
      * @var StateTransition[]
@@ -72,10 +73,20 @@ final class TransitionRegistry
 
     /**
      * @param State $state
+     * @deprecated todo Will be removed in a later version, use registerState instead
      */
     public function addState(State $state)
     {
-        $name = $state->getName();
+        $state->register($this);
+    }
+
+    /**
+     * @param string $name
+     * @param string[] $attributes
+     */
+    public function registerState($name, array $attributes)
+    {
+        $state = new StringState($name, $attributes);
         if (! isset($this->states[$name])) {
             $this->states[$name] = $state;
         }

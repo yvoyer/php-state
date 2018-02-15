@@ -62,8 +62,8 @@ final class FromToTransition implements StateTransition
      */
     public function onRegister(TransitionRegistry $registry)
     {
-        $registry->addState($this->from);
-        $registry->addState($this->to);
+        $this->from->register($registry);
+        $this->to->register($registry);
     }
 
     /**

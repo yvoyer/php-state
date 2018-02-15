@@ -34,4 +34,9 @@ interface State
      * @param string $attribute
      */
     public function addAttribute($attribute);
+
+    /**
+     * @param StateRegistry $registry
+     */
+    public function register(StateRegistry $registry);
 }

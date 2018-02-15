@@ -7,8 +7,6 @@
 
 namespace Star\Component\State\Example;
 
-use Star\Component\State\InvalidStateTransitionException;
-
 final class PostTest extends \PHPUnit_Framework_TestCase
 {
     public function test_post_should_be_draft()

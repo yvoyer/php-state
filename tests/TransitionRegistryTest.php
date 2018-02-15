@@ -7,6 +7,7 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\States\ArrayState;
 use Star\Component\State\States\StringState;
 use Star\Component\State\Transitions\FromToTransition;
 
@@ -101,5 +102,24 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
                 new StringState('to')
             )
         );
+    }
+
+    public function test_it_should_register_multiple_state_when_transition_has_multiple_source_state()
+    {
+        $this->registry->addTransition(
+            new FromToTransition(
+                'name',
+                new ArrayState(
+                    [
+                        new StringState('from1'),
+                        new StringState('from2'),
+                    ]
+                ),
+                new StringState('to')
+            )
+        );
+        $this->assertInstanceOf(State::class, $this->registry->getState('from1'));
+        $this->assertInstanceOf(State::class, $this->registry->getState('from2'));
+        $this->assertInstanceOf(State::class, $this->registry->getState('to'));
     }
 }

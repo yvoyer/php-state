@@ -41,4 +41,9 @@ interface StateTransition
      * @param StateContext $context
      */
     public function afterStateChange(StateContext $context);
+
+    /**
+     * @param TransitionVisitor $visitor
+     */
+    public function acceptTransitionVisitor(TransitionVisitor $visitor);
 }

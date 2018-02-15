@@ -34,4 +34,19 @@ interface State
      * @param string $attribute
      */
     public function addAttribute($attribute);
+
+    /**
+     * @param StateRegistry $registry
+     */
+    public function register(StateRegistry $registry);
+
+    /**
+     * @param TransitionVisitor $visitor
+     */
+    public function acceptTransitionVisitorFrom(TransitionVisitor $visitor);
+
+    /**
+     * @param TransitionVisitor $visitor
+     */
+    public function acceptTransitionVisitorTo(TransitionVisitor $visitor);
 }

@@ -6,6 +6,7 @@ use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateTransition;
+use Star\Component\State\TransitionVisitor;
 use Star\Component\State\TransitionRegistry;
 use Webmozart\Assert\Assert;
 
@@ -62,8 +63,8 @@ final class FromToTransition implements StateTransition
      */
     public function onRegister(TransitionRegistry $registry)
     {
-        $registry->addState($this->from);
-        $registry->addState($this->to);
+        $this->from->register($registry);
+        $this->to->register($registry);
     }
 
     /**
@@ -87,5 +88,15 @@ final class FromToTransition implements StateTransition
      */
     public function afterStateChange(StateContext $context)
     {
+    }
+
+    /**
+     * @param TransitionVisitor $visitor
+     */
+    public function acceptTransitionVisitor(TransitionVisitor $visitor)
+    {
+        $visitor->visitTransition($this->name);
+        $this->from->acceptTransitionVisitorFrom($visitor);
+        $this->to->acceptTransitionVisitorTo($visitor);
     }
 }

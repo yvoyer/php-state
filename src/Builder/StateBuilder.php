@@ -3,6 +3,7 @@
 namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateMachine;
+use Star\Component\State\States\ArrayState;
 use Star\Component\State\States\StringState;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\FromToTransition;
@@ -24,15 +25,28 @@ final class StateBuilder
 
     /**
      * @param string $name
-     * @param string $from
+     * @param string|string[] $from
      * @param string $to
      *
      * @return StateBuilder
      */
     public function allowTransition($name, $from, $to)
     {
+        if (is_array($from)) {
+            $state = new ArrayState(
+                array_map(
+                    function ($name) {
+                        return new StringState($name);
+                    },
+                    $from
+                )
+            );
+        } else {
+            $state = new StringState($from);
+        }
+
         $this->registry->addTransition(
-            new FromToTransition($name, new StringState($from), new StringState($to))
+            new FromToTransition($name, $state, new StringState($to))
         );
 
         return $this;

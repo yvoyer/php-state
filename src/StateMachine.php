@@ -122,4 +122,12 @@ final class StateMachine
     {
         $this->dispatcher->addListener($event, $listener);
     }
+
+    /**
+     * @param TransitionVisitor $visitor
+     */
+    public function acceptStateVisitor(TransitionVisitor $visitor)
+    {
+        $this->registry->acceptStateVisitor($visitor);
+    }
 }

@@ -80,6 +80,13 @@ final class TransitionRegistry implements StateRegistry
         $state->register($this);
     }
 
+    public function acceptStateVisitor(TransitionVisitor $visitor)
+    {
+        foreach ($this->transitions as $transition) {
+            $transition->acceptTransitionVisitor($visitor);
+        }
+    }
+
     /**
      * @param string $name
      * @param string[] $attributes

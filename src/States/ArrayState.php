@@ -4,6 +4,7 @@ namespace Star\Component\State\States;
 
 use Star\Component\State\State;
 use Star\Component\State\StateRegistry;
+use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
 
 final class ArrayState implements State
@@ -67,6 +68,26 @@ final class ArrayState implements State
     {
         foreach ($this->states as $state) {
             $state->register($registry);
+        }
+    }
+
+    /**
+     * @param TransitionVisitor $visitor
+     */
+    public function acceptTransitionVisitorFrom(TransitionVisitor $visitor)
+    {
+        foreach ($this->states as $state) {
+            $visitor->visitFromState($state);
+        }
+    }
+
+    /**
+     * @param TransitionVisitor $visitor
+     */
+    public function acceptTransitionVisitorTo(TransitionVisitor $visitor)
+    {
+        foreach ($this->states as $state) {
+            $visitor->visitToState($state);
         }
     }
 }

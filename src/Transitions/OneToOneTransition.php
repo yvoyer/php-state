@@ -5,12 +5,12 @@ namespace Star\Component\State\Transitions;
 use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
+use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionVisitor;
-use Star\Component\State\TransitionRegistry;
 use Webmozart\Assert\Assert;
 
-final class FromToTransition implements StateTransition
+final class OneToOneTransition implements StateTransition
 {
     /**
      * @var string
@@ -49,19 +49,19 @@ final class FromToTransition implements StateTransition
     }
 
     /**
-     * @param StateMachine $machine
+     * @param State $from
      *
      * @return bool
      */
-    public function isAllowed(StateMachine $machine)
+    public function isAllowed(State $from)
     {
-        return $machine->isInState($this->from->getName());
+        return $this->from->matchState($from);
     }
 
     /**
-     * @param TransitionRegistry $registry
+     * @param StateRegistry $registry
      */
-    public function onRegister(TransitionRegistry $registry)
+    public function onRegister(StateRegistry $registry)
     {
         $this->from->register($registry);
         $this->to->register($registry);

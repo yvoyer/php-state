@@ -5,7 +5,7 @@ namespace Star\Component\State\Visitor;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\States\ArrayState;
 use Star\Component\State\States\StringState;
-use Star\Component\State\Transitions\FromToTransition;
+use Star\Component\State\Transitions\OneToOneTransition;
 
 final class TransitionDumperTest extends TestCase
 {
@@ -21,7 +21,7 @@ final class TransitionDumperTest extends TestCase
 
     public function test_it_should_return_the_structure_when_one_to_one()
     {
-        $transition = new FromToTransition('t1', new StringState('s1'), new StringState('s2'));
+        $transition = new OneToOneTransition('t1', new StringState('s1'), new StringState('s2'));
         $transition->acceptTransitionVisitor($this->dumper);
         $this->assertEquals(
             [
@@ -40,7 +40,7 @@ final class TransitionDumperTest extends TestCase
 
     public function test_it_should_return_the_structure_when_many_to_one()
     {
-        $transition = new FromToTransition(
+        $transition = new OneToOneTransition(
             't1',
             new ArrayState(
                 [

@@ -9,7 +9,7 @@ namespace Star\Component\State;
 
 use Star\Component\State\States\ArrayState;
 use Star\Component\State\States\StringState;
-use Star\Component\State\Transitions\FromToTransition;
+use Star\Component\State\Transitions\OneToOneTransition;
 
 final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
 {
@@ -44,7 +44,7 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_add_transition()
     {
         $this->registry->addTransition(
-            new FromToTransition(
+            new OneToOneTransition(
                 'name',
                 new StringState('from'),
                 new StringState('to')
@@ -89,14 +89,14 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_throw_exception_when_duplicate_transition_is_registered()
     {
         $this->registry->addTransition(
-            new FromToTransition(
+            new OneToOneTransition(
                 'duplicate',
                 new StringState('from'),
                 new StringState('to')
             )
         );
         $this->registry->addTransition(
-            new FromToTransition(
+            new OneToOneTransition(
                 'duplicate',
                 new StringState('from'),
                 new StringState('to')
@@ -107,7 +107,7 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_register_multiple_state_when_transition_has_multiple_source_state()
     {
         $this->registry->addTransition(
-            new FromToTransition(
+            new OneToOneTransition(
                 'name',
                 new ArrayState(
                     [

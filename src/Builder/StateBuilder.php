@@ -6,7 +6,7 @@ use Star\Component\State\StateMachine;
 use Star\Component\State\States\ArrayState;
 use Star\Component\State\States\StringState;
 use Star\Component\State\TransitionRegistry;
-use Star\Component\State\Transitions\FromToTransition;
+use Star\Component\State\Transitions\OneToOneTransition;
 
 /**
  * Tool to build the StateMachine.
@@ -46,7 +46,7 @@ final class StateBuilder
         }
 
         $this->registry->addTransition(
-            new FromToTransition($name, $state, new StringState($to))
+            new OneToOneTransition($name, $state, new StringState($to))
         );
 
         return $this;

@@ -40,7 +40,13 @@ final class ArrayState implements State
      */
     public function matchState(State $state)
     {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+        foreach ($this->states as $_s) {
+            if ($_s->matchState($state)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

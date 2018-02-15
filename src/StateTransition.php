@@ -15,16 +15,16 @@ interface StateTransition
     public function getName();
 
     /**
-     * @param StateMachine $machine
+     * @param State $from
      *
      * @return bool
      */
-    public function isAllowed(StateMachine $machine);
+    public function isAllowed(State $from);
 
     /**
-     * @param TransitionRegistry $registry
+     * @param StateRegistry $registry
      */
-    public function onRegister(TransitionRegistry $registry);
+    public function onRegister(StateRegistry $registry);
 
     /**
      * @param StateContext $context

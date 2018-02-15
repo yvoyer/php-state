@@ -11,6 +11,7 @@ use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\Handlers\NullHandler;
+use Star\Component\State\Transitions\OneToOneTransition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 final class StateMachine
@@ -62,7 +63,7 @@ final class StateMachine
 
         $transition = $this->registry->getTransition($transitionName);
 
-        if (! $transition->isAllowed($this)) {
+        if (! $transition->isAllowed($this->currentState)) {
             $handler->beforeTransitionNotAllowed($transition, $context, $this->currentState);
             // always throw exception when not allowed
             throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
@@ -83,6 +84,19 @@ final class StateMachine
         );
 
         return $this->currentState->getName();
+    }
+
+    /**
+     * @param $transitionName
+     * @param StateContext $context
+     *
+     * @return $this
+     */
+    public function transit($transitionName, StateContext $context) {
+        // todo make sure its persistable
+        $this->transitContext($transitionName, $context);
+
+        return $this;
     }
 
     /**
@@ -121,6 +135,11 @@ final class StateMachine
     public function addListener($event, \Closure $listener)
     {
         $this->dispatcher->addListener($event, $listener);
+    }
+
+    public function addTransition($name, State $from, State $to)
+    {
+        $this->registry->addTransition(new OneToOneTransition($name, $from, $to));
     }
 
     /**

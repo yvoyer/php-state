@@ -177,23 +177,34 @@ final class ContextUsingCustomMetadataTest extends TestCase {
     }
 }
 
+final class MyStateWorkflow extends StateMetadata
+{
+    protected function initialState()
+    {
+        return 'pending';
+    }
+
+    protected function createMachine(StateBuilder $builder)
+    {
+        $builder->allowTransition('approve', 'pending', 'approved');
+        $builder->allowTransition('discard', 'pending', 'archived');
+        $builder->allowTransition('publish', 'approved', 'published');
+        $builder->allowTransition('remove', 'published', 'approved');
+        $builder->allowTransition('archive', ['approved', 'published'], 'archived');
+        $builder->allowTransition('un-archive', 'archived', 'approved');
+        $builder->allowTransition('re-open', 'archived', 'pending');
+        $builder->addAttribute('is_visible', 'published');
+        $builder->addAttribute('is_draft', ['pending', 'approved']);
+    }
+}
+
 final class ContextStub implements StateContext
 {
     public $state;
 
     public function __construct()
     {
-        $this->state = StateBuilder::build()
-            ->allowTransition('approve', 'pending', 'approved')
-            ->allowTransition('discard', 'pending', 'archived')
-            ->allowTransition('publish', 'approved', 'published')
-            ->allowTransition('remove', 'published', 'approved')
-            ->allowTransition('archive', ['approved', 'published'], 'archived')
-            ->allowTransition('un-archive', 'archived', 'approved')
-            ->allowTransition('re-open', 'archived', 'pending')
-            ->addAttribute('is_visible', 'published')
-            ->addAttribute('is_draft', ['pending', 'approved'])
-            ->create('pending');
+        $this->state = new MyStateWorkflow();
     }
 
     public function publish()
@@ -245,8 +256,4 @@ final class ContextStub implements StateContext
     {
         return $this->state->hasAttribute('is_visible');
     }
-}
-
-final class StateMetadata
-{
 }

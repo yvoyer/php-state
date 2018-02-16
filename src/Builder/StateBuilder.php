@@ -17,7 +17,7 @@ final class StateBuilder
      */
     private $registry;
 
-    private function __construct()
+    public function __construct()
     {
         $this->registry = new TransitionRegistry();
     }

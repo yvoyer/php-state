@@ -8,8 +8,6 @@
 namespace Star\Component\State\States;
 
 use Star\Component\State\State;
-use Star\Component\State\StateRegistry;
-use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
 
 final class StringState implements State
@@ -73,29 +71,5 @@ final class StringState implements State
     {
         $this->attributes[] = $attribute;
         $this->attributes = array_unique($this->attributes);
-    }
-
-    /**
-     * @param StateRegistry $registry
-     */
-    public function register(StateRegistry $registry)
-    {
-        $registry->registerState($this->name, $this->attributes);
-    }
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitorFrom(TransitionVisitor $visitor)
-    {
-        $visitor->visitFromState($this);
-    }
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitorTo(TransitionVisitor $visitor)
-    {
-        $visitor->visitToState($this);
     }
 }

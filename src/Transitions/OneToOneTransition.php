@@ -67,8 +67,8 @@ final class OneToOneTransition implements StateTransition
      */
     public function onRegister(StateRegistry $registry)
     {
-        $this->from->register($registry);
-        $this->to->register($registry);
+        $registry->registerState($this->from->getName(), []);
+        $registry->registerState($this->to->getName(), []);
     }
 
     /**
@@ -100,7 +100,7 @@ final class OneToOneTransition implements StateTransition
     public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
         $visitor->visitTransition($this->name);
-        $this->from->acceptTransitionVisitorFrom($visitor);
-        $this->to->acceptTransitionVisitorTo($visitor);
+        $visitor->visitFromState($this->from);
+        $visitor->visitToState($this->to);
     }
 }

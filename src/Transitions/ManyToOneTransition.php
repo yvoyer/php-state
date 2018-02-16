@@ -41,7 +41,7 @@ final class ManyToOneTransition implements StateTransition
         $this->name = $name;
         $this->fromStates = array_map(
             function ($fromName) {
-                return new StringState($fromName);
+                return new StringState($fromName);// todo Remove instance from here, use string only
             },
             $fromStates
         );
@@ -79,9 +79,9 @@ final class ManyToOneTransition implements StateTransition
     public function onRegister(StateRegistry $registry)
     {
         foreach ($this->fromStates as $from) {
-            $from->register($registry);
+            $registry->registerState($from->getName(), []);
         }
-        $this->to->register($registry);
+        $registry->registerState($this->to->getName(), []);
     }
 
     /**
@@ -114,8 +114,8 @@ final class ManyToOneTransition implements StateTransition
     {
         $visitor->visitTransition($this->name);
         foreach ($this->fromStates as $state) {
-            $state->acceptTransitionVisitorFrom($visitor);
+            $visitor->visitFromState($state);
         }
-        $this->to->acceptTransitionVisitorTo($visitor);
+        $visitor->visitToState($this->to);
     }
 }

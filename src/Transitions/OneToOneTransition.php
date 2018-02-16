@@ -6,8 +6,8 @@ use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateRegistry;
-use Star\Component\State\States\StringState;
 use Star\Component\State\StateTransition;
+use Star\Component\State\StateVisitor;
 use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
 
@@ -39,8 +39,8 @@ final class OneToOneTransition implements StateTransition
         Assert::string($from);
         Assert::string($to);
         $this->name = $name;
-        $this->from = new StringState($from);
-        $this->to = new StringState($to);
+        $this->from = $from;
+        $this->to = $to;
     }
 
     /**
@@ -59,7 +59,7 @@ final class OneToOneTransition implements StateTransition
     public function isAllowed($from)
     {
         Assert::string($from);
-        return $from === $this->from->getName();
+        return $from === $this->from;
     }
 
     /**
@@ -67,8 +67,8 @@ final class OneToOneTransition implements StateTransition
      */
     public function onRegister(StateRegistry $registry)
     {
-        $registry->registerState($this->from->getName(), []);
-        $registry->registerState($this->to->getName(), []);
+        $registry->registerState($this->from, []);
+        $registry->registerState($this->to, []);
     }
 
     /**
@@ -96,11 +96,21 @@ final class OneToOneTransition implements StateTransition
 
     /**
      * @param TransitionVisitor $visitor
+     * @param StateRegistry $registry
      */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor)
+    public function acceptTransitionVisitor(TransitionVisitor $visitor, StateRegistry $registry)
     {
         $visitor->visitTransition($this->name);
-        $visitor->visitFromState($this->from);
-        $visitor->visitToState($this->to);
+        $visitor->visitFromState($registry->getState($this->from));
+        $visitor->visitToState($registry->getState($this->to));
+    }
+
+    /**
+     * @param StateVisitor $visitor
+     * @param StateRegistry $registry
+     */
+    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
+    {
+        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
     }
 }

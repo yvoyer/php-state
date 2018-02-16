@@ -43,7 +43,7 @@ final class StateMachine
 
         $this->dispatcher = new EventDispatcher();
         $this->registry = $registry;
-        $this->setCurrentState($this->registry->getState($currentState));
+        $this->setCurrentState($currentState);
     }
 
     /**
@@ -121,12 +121,13 @@ final class StateMachine
     }
 
     /**
-     * @param State $state
+     * @param string $state
      * @internal Internal to the StateMachine service. You should not base your logic on this.
      */
-    public function setCurrentState(State $state)
+    public function setCurrentState($state)
     {
-        $this->currentState = $this->registry->getState($state->getName());
+        Assert::string($state);
+        $this->currentState = $this->registry->getState($state);
     }
 
     /**
@@ -141,8 +142,17 @@ final class StateMachine
     /**
      * @param TransitionVisitor $visitor
      */
-    public function acceptStateVisitor(TransitionVisitor $visitor)
+    public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
+        $this->registry->acceptTransitionVisitor($visitor);
+    }
+
+    /**
+     * @param StateVisitor $visitor
+     */
+    public function acceptStateVisitor(StateVisitor $visitor)
+    {
+        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
         $this->registry->acceptStateVisitor($visitor);
     }
 }

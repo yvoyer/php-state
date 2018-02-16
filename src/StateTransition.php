@@ -44,6 +44,13 @@ interface StateTransition
 
     /**
      * @param TransitionVisitor $visitor
+     * @param StateRegistry $registry
      */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor);
+    public function acceptTransitionVisitor(TransitionVisitor $visitor, StateRegistry $registry);
+
+    /**
+     * @param StateVisitor $visitor
+     * @param StateRegistry $registry
+     */
+    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry);
 }

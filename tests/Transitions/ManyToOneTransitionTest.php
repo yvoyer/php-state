@@ -4,6 +4,7 @@ namespace Star\Component\State\Transitions;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\StateRegistry;
+use Star\Component\State\StateVisitor;
 
 final class ManyToOneTransitionTest extends TestCase
 {

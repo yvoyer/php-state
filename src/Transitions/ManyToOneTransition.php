@@ -2,12 +2,11 @@
 
 namespace Star\Component\State\Transitions;
 
-use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateRegistry;
-use Star\Component\State\States\StringState;
 use Star\Component\State\StateTransition;
+use Star\Component\State\StateVisitor;
 use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
 
@@ -19,12 +18,12 @@ final class ManyToOneTransition implements StateTransition
     private $name;
 
     /**
-     * @var State[]
+     * @var string[]
      */
     private $fromStates;
 
     /**
-     * @var State
+     * @var string
      */
     private $to;
 
@@ -39,13 +38,8 @@ final class ManyToOneTransition implements StateTransition
         Assert::allString($fromStates);
         Assert::string($to);
         $this->name = $name;
-        $this->fromStates = array_map(
-            function ($fromName) {
-                return new StringState($fromName);// todo Remove instance from here, use string only
-            },
-            $fromStates
-        );
-        $this->to = new StringState($to);
+        $this->fromStates = $fromStates;
+        $this->to = $to;
     }
 
     /**
@@ -65,7 +59,7 @@ final class ManyToOneTransition implements StateTransition
     {
         Assert::string($state);
         foreach ($this->fromStates as $from) {
-            if ($state === $from->getName()) {
+            if ($state === $from) {
                 return true;
             }
         }
@@ -79,9 +73,9 @@ final class ManyToOneTransition implements StateTransition
     public function onRegister(StateRegistry $registry)
     {
         foreach ($this->fromStates as $from) {
-            $registry->registerState($from->getName(), []);
+            $registry->registerState($from, []);
         }
-        $registry->registerState($this->to->getName(), []);
+        $registry->registerState($this->to, []);
     }
 
     /**
@@ -109,13 +103,29 @@ final class ManyToOneTransition implements StateTransition
 
     /**
      * @param TransitionVisitor $visitor
+     * @param StateRegistry $registry
      */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor)
+    public function acceptTransitionVisitor(TransitionVisitor $visitor, StateRegistry $registry)
     {
         $visitor->visitTransition($this->name);
-        foreach ($this->fromStates as $state) {
-            $visitor->visitFromState($state);
+        foreach ($this->fromStates as $from) {
+            $visitor->visitFromState($registry->getState($from));
         }
-        $visitor->visitToState($this->to);
+
+        $visitor->visitToState($registry->getState($this->to));
+    }
+
+    /**
+     * @param StateVisitor $visitor
+     * @param StateRegistry $registry
+     */
+    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
+    {
+        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+        foreach ($this->fromStates as $from) {
+            $registry->getState($from)->acceptStateVisitor($visitor);
+        }
+
+        $registry->getState($this->to)->acceptStateVisitor($visitor);
     }
 }

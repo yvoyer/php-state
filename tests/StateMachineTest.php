@@ -156,7 +156,7 @@ final class StateMachineTest extends TestCase
         $this->assertTrue($this->machine->isInState('current'));
         $this->assertFalse($this->machine->hasAttribute('attr'));
 
-        $this->machine->setCurrentState(new StringState('new', ['attr']));
+        $this->machine->setCurrentState('new');
 
         $this->assertTrue($this->machine->isInState('new'));
         $this->assertFalse($this->machine->hasAttribute('attr'));

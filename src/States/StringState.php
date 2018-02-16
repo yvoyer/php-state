@@ -8,6 +8,7 @@
 namespace Star\Component\State\States;
 
 use Star\Component\State\State;
+use Star\Component\State\StateVisitor;
 use Webmozart\Assert\Assert;
 
 final class StringState implements State
@@ -71,5 +72,13 @@ final class StringState implements State
     {
         $this->attributes[] = $attribute;
         $this->attributes = array_unique($this->attributes);
+    }
+
+    /**
+     * @param StateVisitor $visitor
+     */
+    public function acceptStateVisitor(StateVisitor $visitor)
+    {
+        $visitor->visitState($this->name, $this->attributes);
     }
 }

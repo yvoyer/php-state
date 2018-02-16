@@ -3,8 +3,8 @@
 namespace Star\Component\State\Visitor;
 
 use PHPUnit\Framework\TestCase;
-use Star\Component\State\Transitions\ManyToOneTransition;
-use Star\Component\State\Transitions\OneToOneTransition;
+use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\StateMachine;
 
 final class TransitionDumperTest extends TestCase
 {
@@ -13,47 +13,64 @@ final class TransitionDumperTest extends TestCase
      */
     private $dumper;
 
+    /**
+     * @var StateMachine
+     */
+    private $machine;
+
     public function setUp()
     {
+        $this->machine = StateBuilder::build()
+            ->allowTransition('t1', 's1', 's2')
+            ->allowTransition('t2', ['s2', 's3'], 's1')
+            ->addAttribute('a1', 's1')
+            ->addAttribute('a2', ['s1', 's2'])
+            ->create('s1');
         $this->dumper = new TransitionDumper();
     }
 
     public function test_it_should_return_the_structure_when_one_to_one()
     {
-        $transition = new OneToOneTransition('t1', 's1', 's2');
-        $transition->acceptTransitionVisitor($this->dumper);
+        $this->machine->acceptTransitionVisitor($this->dumper);
+        $this->assertArrayHasKey('t1', $this->dumper->getStructure());
         $this->assertEquals(
             [
-                't1' => [
-                    'from' => [
-                        's1',
-                    ],
-                    'to' => [
-                        's2',
-                    ],
-                ],
+                'from' => ['s1'],
+                'to' => ['s2'],
             ],
-            $this->dumper->getStructure()
+            $this->dumper->getStructure()['t1']
         );
     }
 
     public function test_it_should_return_the_structure_when_many_to_one()
     {
-        $transition = new ManyToOneTransition('t1', ['s1', 's2'], 's3');
-        $transition->acceptTransitionVisitor($this->dumper);
+        $this->machine->acceptTransitionVisitor($this->dumper);
+        $this->assertArrayHasKey('t2', $this->dumper->getStructure());
         $this->assertEquals(
             [
-                't1' => [
-                    'from' => [
-                        's1',
-                        's2',
-                    ],
-                    'to' => [
-                        's3',
-                    ],
+                'from' => [
+                    's2',
+                    's3',
+                ],
+                'to' => [
+                    's1',
                 ],
             ],
-            $this->dumper->getStructure()
+            $this->dumper->getStructure()['t2']
+        );
+    }
+
+    public function test_it_should_dump_the_attributes()
+    {
+        $this->machine->acceptTransitionVisitor($this->dumper);
+        $this->assertArrayHasKey('attributes', $this->dumper->getStructure());
+        $this->assertEquals(
+            [
+                's1' => ['a1', 'a2'],
+                's2' => ['a2'],
+                's3' => [],
+            ],
+            $this->dumper->getStructure()['attributes']
         );
     }
 }

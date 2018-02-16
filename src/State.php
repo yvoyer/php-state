@@ -32,4 +32,9 @@ interface State
      * @param string[] $attributes
      */
     public function addAttributes(array $attributes);
+
+    /**
+     * @param StateVisitor $visitor
+     */
+    public function acceptStateVisitor(StateVisitor $visitor);
 }

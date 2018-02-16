@@ -7,11 +7,12 @@
 
 namespace Star\Component\State\Example;
 
+use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 
-final class ContextUsingBuilderTest extends \PHPUnit_Framework_TestCase
+final class ContextUsingBuilderTest extends TestCase
 {
     public function test_post_should_be_draft()
     {

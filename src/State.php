@@ -17,13 +17,6 @@ interface State
     public function getName();
 
     /**
-     * @param string $state
-     *
-     * @return bool
-     */
-    public function matchState($state);
-
-    /**
      * @param string $attribute
      *
      * @return bool

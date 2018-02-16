@@ -12,6 +12,7 @@ use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\Handlers\NullHandler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Webmozart\Assert\Assert;
 
 final class StateMachine
 {
@@ -105,7 +106,8 @@ final class StateMachine
      */
     public function isInState($stateName)
     {
-        return $this->currentState->matchState($stateName);
+        Assert::string($stateName);
+        return $this->currentState->getName() === $stateName;
     }
 
     /**

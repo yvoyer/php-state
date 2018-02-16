@@ -15,11 +15,11 @@ interface StateTransition
     public function getName();
 
     /**
-     * @param State $from
+     * @param string $from
      *
      * @return bool
      */
-    public function isAllowed(State $from);
+    public function isAllowed($from);
 
     /**
      * @param StateRegistry $registry

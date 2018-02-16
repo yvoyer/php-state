@@ -4,7 +4,6 @@ namespace Star\Component\State\Transitions;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\StateRegistry;
-use Star\Component\State\States\StringState;
 
 final class ManyToOneTransitionTest extends TestCase
 {
@@ -25,9 +24,9 @@ final class ManyToOneTransitionTest extends TestCase
 
     public function test_it_should_be_allowed_when_from_state_match()
     {
-        $this->assertTrue($this->transition->isAllowed(new StringState('f1')));
-        $this->assertTrue($this->transition->isAllowed(new StringState('f2')));
-        $this->assertFalse($this->transition->isAllowed(new StringState('to')));
+        $this->assertTrue($this->transition->isAllowed('f1'));
+        $this->assertTrue($this->transition->isAllowed('f2'));
+        $this->assertFalse($this->transition->isAllowed('to'));
     }
 
     public function test_it_should_register_the_from_and_to_states()

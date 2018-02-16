@@ -62,7 +62,7 @@ final class StateMachine
 
         $transition = $this->registry->getTransition($transitionName);
 
-        if (! $transition->isAllowed($this->currentState)) {
+        if (! $transition->isAllowed($this->currentState->getName())) {
             $handler->beforeTransitionNotAllowed($transition, $context, $this->currentState);
             // always throw exception when not allowed
             throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
@@ -105,7 +105,7 @@ final class StateMachine
      */
     public function isInState($stateName)
     {
-        return $this->currentState->matchState($this->registry->getState($stateName));
+        return $this->currentState->matchState($stateName);
     }
 
     /**

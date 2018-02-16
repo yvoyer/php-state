@@ -57,14 +57,15 @@ final class ManyToOneTransition implements StateTransition
     }
 
     /**
-     * @param State $state
+     * @param string $state
      *
      * @return bool
      */
-    public function isAllowed(State $state)
+    public function isAllowed($state)
     {
+        Assert::string($state);
         foreach ($this->fromStates as $from) {
-            if ($state->matchState($from)) {
+            if ($state === $from->getName()) {
                 return true;
             }
         }

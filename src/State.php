@@ -17,11 +17,11 @@ interface State
     public function getName();
 
     /**
-     * @param State $state
+     * @param string $state
      *
      * @return bool
      */
-    public function matchState(State $state);
+    public function matchState($state);
 
     /**
      * @param string $attribute

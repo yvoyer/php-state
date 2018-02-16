@@ -47,13 +47,14 @@ final class StringState implements State
     }
 
     /**
-     * @param State $state
+     * @param string $state
      *
      * @return bool
      */
-    public function matchState(State $state)
+    public function matchState($state)
     {
-        return $state->getName() === $this->getName();
+        Assert::string($state);
+        return $state === $this->name;
     }
 
     /**

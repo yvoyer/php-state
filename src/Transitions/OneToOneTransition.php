@@ -52,13 +52,14 @@ final class OneToOneTransition implements StateTransition
     }
 
     /**
-     * @param State $from
+     * @param string $from
      *
      * @return bool
      */
-    public function isAllowed(State $from)
+    public function isAllowed($from)
     {
-        return $from->matchState($this->from);
+        Assert::string($from);
+        return $from === $this->from->getName();
     }
 
     /**

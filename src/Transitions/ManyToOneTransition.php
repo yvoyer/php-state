@@ -19,7 +19,7 @@ final class ManyToOneTransition implements StateTransition
     private $name;
 
     /**
-     * @var State
+     * @var State[]
      */
     private $fromStates;
 

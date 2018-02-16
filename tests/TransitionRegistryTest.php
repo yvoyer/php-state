@@ -53,22 +53,22 @@ final class TransitionRegistryTest extends TestCase
     }
 
     public function test_it_should_contain_the_states() {
-        $this->registry->addState(new StringState('from'));
+        $this->registry->registerState('from');
         $this->assertEquals(new StringState('from'), $this->registry->getState('from'));
     }
 
     public function test_it_should_merge_attributes_when_duplicate_state_is_registered()
     {
-        $this->registry->addState(new StringState('from'));
+        $this->registry->registerState('from');
         $this->assertFalse($this->registry->getState('from')->hasAttribute('attr'));
         $this->assertFalse($this->registry->getState('from')->hasAttribute('other'));
 
-        $this->registry->addState(new StringState('from', ['attr']));
+        $this->registry->registerState('from', ['attr']);
 
         $this->assertTrue($this->registry->getState('from')->hasAttribute('attr'));
         $this->assertFalse($this->registry->getState('from')->hasAttribute('other'));
 
-        $this->registry->addState(new StringState('from', ['other']));
+        $this->registry->registerState('from', ['other']);
 
         $this->assertTrue($this->registry->getState('from')->hasAttribute('attr'));
         $this->assertTrue($this->registry->getState('from')->hasAttribute('other'));
@@ -76,11 +76,8 @@ final class TransitionRegistryTest extends TestCase
 
     public function test_it_should_not_generate_error_when_state_is_same()
     {
-        $stateOne = new StringState('from');
-        $stateTwo = new StringState('from');
-        $this->assertTrue($stateOne->matchState($stateTwo));
-        $this->registry->addState($stateOne);
-        $this->registry->addState($stateTwo);
+        $this->registry->registerState('from');
+        $this->registry->registerState('from');
     }
 
     /**

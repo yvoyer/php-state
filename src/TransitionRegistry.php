@@ -71,15 +71,6 @@ final class TransitionRegistry implements StateRegistry
         return $this->states[$name];
     }
 
-    /**
-     * @param State $state
-     * @deprecated todo Will be removed in a later version, use registerState instead
-     */
-    public function addState(State $state)
-    {
-        $state->register($this);
-    }
-
     public function acceptStateVisitor(TransitionVisitor $visitor)
     {
         foreach ($this->transitions as $transition) {
@@ -91,7 +82,7 @@ final class TransitionRegistry implements StateRegistry
      * @param string $name
      * @param string[] $attributes
      */
-    public function registerState($name, array $attributes)
+    public function registerState($name, array $attributes = [])
     {
         $state = new StringState($name, $attributes);
         if (isset($this->states[$name])) {

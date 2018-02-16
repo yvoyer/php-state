@@ -33,15 +33,10 @@ final class StateMachineTest extends TestCase
      */
     private $context;
 
-    /**
-     * @var State
-     */
-    private $current;
-
     public function setUp() {
         $this->context = new TestContext('current');
         $this->registry = new TransitionRegistry();
-        $this->registry->addState($this->current = new StringState('current', ['exists']));
+        $this->registry->registerState('current', ['exists']);
         $this->machine = new StateMachine('current', $this->registry);
         $this->registry->addTransition(new OneToOneTransition('name', 'current', 'next'));
     }
@@ -145,11 +140,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_allow_transition_when_can_start_from_multiple_states()
     {
         $this->registry->addTransition(
-            new ManyToOneTransition(
-                't',
-                ['other', $this->current->getName()],
-                'to'
-            )
+            new ManyToOneTransition('t', ['other', 'current'], 'to')
         );
         $this->assertInstanceOf(
             StateMachine::class,

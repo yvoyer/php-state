@@ -283,8 +283,8 @@ class Post implements StateContext
             ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
             ->allowTransition(self::TRANSITION_TO_DRAFT, self::STATE_PUBLISHED, self::STATE_DRAFT)
             ->allowTransition(self::TRANSITION_ARCHIVE, self::STATE_PUBLISHED, self::STATE_ARCHIVED)
-//            ->addAttribute(self::ATTRIBUTE_ACTIVE, self::STATE_PUBLISHED)
-//            ->addAttribute(self::ATTRIBUTE_CLOSED, [self::STATE_ARCHIVED, self::STATE_DRAFT])
+            ->addAttribute(self::ATTRIBUTE_ACTIVE, self::STATE_PUBLISHED)
+            ->addAttribute(self::ATTRIBUTE_CLOSED, [self::STATE_ARCHIVED, self::STATE_DRAFT])
             ->create($this->state);
     }
 }

@@ -7,14 +7,16 @@
 
 namespace Star\Component\State;
 
+use PHPUnit\Framework\TestCase;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\Handlers\ClosureHandler;
-use Star\Component\State\States\ArrayState;
 use Star\Component\State\States\StringState;
+use Star\Component\State\Transitions\ManyToOneTransition;
+use Star\Component\State\Transitions\OneToOneTransition;
 
-final class StateMachineTest extends \PHPUnit_Framework_TestCase
+final class StateMachineTest extends TestCase
 {
     /**
      * @var TransitionRegistry
@@ -41,10 +43,12 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->registry = new TransitionRegistry();
         $this->registry->addState($this->current = new StringState('current', ['exists']));
         $this->machine = new StateMachine('current', $this->registry);
-        $this->machine->addTransition(
-            'name',
-            $this->current,
-            new StringState('next')
+        $this->registry->addTransition(
+            new OneToOneTransition(
+                'name',
+                $this->current,
+                new StringState('next')
+            )
         );
     }
 
@@ -112,10 +116,12 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
      */
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
-        $this->machine->addTransition(
-            'transition',
-            new StringState('not-allowed'),
-            new StringState('not-allowed')
+        $this->registry->addTransition(
+            new OneToOneTransition(
+                'transition',
+                new StringState('not-allowed'),
+                new StringState('not-allowed')
+            )
         );
         $this->assertFalse($this->machine->isInState('not-allowed'));
 
@@ -134,10 +140,12 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
      */
     public function test_it_should_use_supplied_failure_handler_when_transition_not_allowed()
     {
-        $this->machine->addTransition(
-            'transition',
-            new StringState('not-allowed'),
-            new StringState('not-allowed')
+        $this->registry->addTransition(
+            new OneToOneTransition(
+                'transition',
+                new StringState('not-allowed'),
+                new StringState('not-allowed')
+            )
         );
         $this->machine->transitContext(
             'transition',
@@ -150,10 +158,12 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_allow_transition_when_can_start_from_multiple_states()
     {
-        $this->machine->addTransition(
-            't',
-            new ArrayState([new StringState('other'), $this->current]),
-            new StringState('to')
+        $this->registry->addTransition(
+            new ManyToOneTransition(
+                't',
+                [new StringState('other'), $this->current],
+                new StringState('to')
+            )
         );
         $this->assertInstanceOf(
             StateMachine::class,
@@ -161,5 +171,23 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertTrue($this->machine->isInState('to'));
+    }
+
+    public function test_it_should_set_current_state_using_registered_state()
+    {
+        $this->registry->addTransition(
+            new OneToOneTransition(
+                'move',
+                new StringState('current'),
+                new StringState('new')
+            )
+        );
+        $this->assertTrue($this->machine->isInState('current'));
+        $this->assertFalse($this->machine->hasAttribute('attr'));
+
+        $this->machine->setCurrentState(new StringState('new', ['attr']));
+
+        $this->assertTrue($this->machine->isInState('new'));
+        $this->assertFalse($this->machine->hasAttribute('attr'));
     }
 }

@@ -36,6 +36,11 @@ interface State
     public function addAttribute($attribute);
 
     /**
+     * @param string[] $attributes
+     */
+    public function addAttributes(array $attributes);
+
+    /**
      * @param StateRegistry $registry
      */
     public function register(StateRegistry $registry);

@@ -29,7 +29,7 @@ final class OneToOneTransition implements StateTransition
 
     /**
      * @param string $name
-     * @param State $from
+     * @param State $from todo Remove State and replace with strings
      * @param State $to
      */
     public function __construct($name, State $from, State $to)
@@ -55,7 +55,7 @@ final class OneToOneTransition implements StateTransition
      */
     public function isAllowed(State $from)
     {
-        return $this->from->matchState($from);
+        return $from->matchState($this->from);
     }
 
     /**

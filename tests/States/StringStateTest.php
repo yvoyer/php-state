@@ -2,9 +2,10 @@
 
 namespace Star\Component\State\States;
 
+use PHPUnit\Framework\TestCase;
 use Star\Component\State\State;
 
-final class StringStateTest extends \PHPUnit_Framework_TestCase
+final class StringStateTest extends TestCase
 {
     public function test_it_should_contains_unique_attribute()
     {
@@ -32,18 +33,26 @@ final class StringStateTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_check_match_with_attributes()
     {
-        $state1 = new StringState('s1', ['attr-1']);
-        $state2 = new StringState('s1', ['attr-2']);
-        $state3 = new StringState('s1', ['attr-2', 'attr-1']);
+        $state1 = new StringState('s1');
+        $state2 = new StringState('s1', ['attr-1']);
+        $state3 = new StringState('s1', ['attr-2']);
+        $state4 = new StringState('s1', ['attr-2', 'attr-1']);
 
         $this->assertTrue($state1->matchState($state1));
-        $this->assertFalse($state1->matchState($state2));
-        $this->assertFalse($state1->matchState($state3));
-        $this->assertFalse($state2->matchState($state1));
+        $this->assertTrue($state1->matchState($state2));
+        $this->assertTrue($state1->matchState($state3));
+        $this->assertTrue($state1->matchState($state4));
+        $this->assertTrue($state2->matchState($state1));
         $this->assertTrue($state2->matchState($state2));
-        $this->assertFalse($state2->matchState($state3));
-        $this->assertFalse($state3->matchState($state1));
-        $this->assertFalse($state3->matchState($state2));
+        $this->assertTrue($state2->matchState($state3));
+        $this->assertTrue($state2->matchState($state4));
+        $this->assertTrue($state3->matchState($state1));
+        $this->assertTrue($state3->matchState($state2));
         $this->assertTrue($state3->matchState($state3));
+        $this->assertTrue($state3->matchState($state4));
+        $this->assertTrue($state4->matchState($state1));
+        $this->assertTrue($state4->matchState($state2));
+        $this->assertTrue($state4->matchState($state3));
+        $this->assertTrue($state4->matchState($state4));
     }
 }

@@ -11,7 +11,6 @@ use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\Handlers\NullHandler;
-use Star\Component\State\Transitions\OneToOneTransition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 final class StateMachine
@@ -125,7 +124,7 @@ final class StateMachine
      */
     public function setCurrentState(State $state)
     {
-        $this->currentState = $state;
+        $this->currentState = $this->registry->getState($state->getName());
     }
 
     /**
@@ -135,11 +134,6 @@ final class StateMachine
     public function addListener($event, \Closure $listener)
     {
         $this->dispatcher->addListener($event, $listener);
-    }
-
-    public function addTransition($name, State $from, State $to)
-    {
-        $this->registry->addTransition(new OneToOneTransition($name, $from, $to));
     }
 
     /**

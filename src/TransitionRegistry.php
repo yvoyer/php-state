@@ -94,12 +94,11 @@ final class TransitionRegistry implements StateRegistry
     public function registerState($name, array $attributes)
     {
         $state = new StringState($name, $attributes);
-        if (! isset($this->states[$name])) {
-            $this->states[$name] = $state;
+        if (isset($this->states[$name])) {
+            $state = $this->getState($name);
+            $state->addAttributes($attributes);
         }
 
-        if (! $state->matchState($this->states[$name])) {
-            throw DuplicateEntryException::duplicateState($state);
-        }
+        $this->states[$name] = $state;
     }
 }

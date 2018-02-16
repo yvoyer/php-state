@@ -7,11 +7,12 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\States\ArrayState;
+use PHPUnit\Framework\TestCase;
 use Star\Component\State\States\StringState;
+use Star\Component\State\Transitions\ManyToOneTransition;
 use Star\Component\State\Transitions\OneToOneTransition;
 
-final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
+final class TransitionRegistryTest extends TestCase
 {
     /**
      * @var TransitionRegistry
@@ -60,17 +61,21 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new StringState('from'), $this->registry->getState('from'));
     }
 
-    /**
-     * @expectedException        \Star\Component\State\DuplicateEntryException
-     * @expectedExceptionMessage The state "from" is already registered, maybe there is a mismatch with the attributes.
-     */
-    public function test_it_should_throw_exception_when_duplicate_state_is_registered()
+    public function test_it_should_merge_attributes_when_duplicate_state_is_registered()
     {
-        $stateOne = new StringState('from');
-        $stateTwo = new StringState('from', ['attr' => 'val']);
-        $this->assertFalse($stateOne->matchState($stateTwo));
-        $this->registry->addState($stateOne);
-        $this->registry->addState($stateTwo);
+        $this->registry->addState(new StringState('from'));
+        $this->assertFalse($this->registry->getState('from')->hasAttribute('attr'));
+        $this->assertFalse($this->registry->getState('from')->hasAttribute('other'));
+
+        $this->registry->addState(new StringState('from', ['attr']));
+
+        $this->assertTrue($this->registry->getState('from')->hasAttribute('attr'));
+        $this->assertFalse($this->registry->getState('from')->hasAttribute('other'));
+
+        $this->registry->addState(new StringState('from', ['other']));
+
+        $this->assertTrue($this->registry->getState('from')->hasAttribute('attr'));
+        $this->assertTrue($this->registry->getState('from')->hasAttribute('other'));
     }
 
     public function test_it_should_not_generate_error_when_state_is_same()
@@ -107,14 +112,12 @@ final class TransitionRegistryTest extends \PHPUnit_Framework_TestCase
     public function test_it_should_register_multiple_state_when_transition_has_multiple_source_state()
     {
         $this->registry->addTransition(
-            new OneToOneTransition(
+            new ManyToOneTransition(
                 'name',
-                new ArrayState(
-                    [
-                        new StringState('from1'),
-                        new StringState('from2'),
-                    ]
-                ),
+                [
+                    new StringState('from1'),
+                    new StringState('from2'),
+                ],
                 new StringState('to')
             )
         );

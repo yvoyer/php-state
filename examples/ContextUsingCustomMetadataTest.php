@@ -191,8 +191,8 @@ final class ContextStub implements StateContext
             ->allowTransition('archive', ['approved', 'published'], 'archived')
             ->allowTransition('un-archive', 'archived', 'approved')
             ->allowTransition('re-open', 'archived', 'pending')
-//            ->addAttribute('is_visible', 'published')
-//            ->addAttribute('is_draft', ['pending', 'approved'])
+            ->addAttribute('is_visible', 'published')
+            ->addAttribute('is_draft', ['pending', 'approved'])
             ->create('pending');
     }
 

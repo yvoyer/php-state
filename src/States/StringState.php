@@ -53,19 +53,7 @@ final class StringState implements State
      */
     public function matchState(State $state)
     {
-        if (! $state instanceof $this) {
-            return false;
-        }
-
-        if ($state->getName() !== $this->getName()) {
-            return false;
-        }
-
-        if (count($state->attributes) !== count($this->attributes)) {
-            return false;
-        }
-
-        return count(array_diff($state->attributes, $this->attributes)) === 0;
+        return $state->getName() === $this->getName();
     }
 
     /**
@@ -76,6 +64,16 @@ final class StringState implements State
     public function hasAttribute($attribute)
     {
         return false !== array_search($attribute, $this->attributes);
+    }
+
+    /**
+     * @param string[] $attributes
+     */
+    public function addAttributes(array $attributes)
+    {
+        foreach ($attributes as $attribute) {
+            $this->addAttribute($attribute);
+        }
     }
 
     /**

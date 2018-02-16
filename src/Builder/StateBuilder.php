@@ -3,9 +3,9 @@
 namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateMachine;
-use Star\Component\State\States\ArrayState;
 use Star\Component\State\States\StringState;
 use Star\Component\State\TransitionRegistry;
+use Star\Component\State\Transitions\ManyToOneTransition;
 use Star\Component\State\Transitions\OneToOneTransition;
 
 /**
@@ -32,22 +32,25 @@ final class StateBuilder
      */
     public function allowTransition($name, $from, $to)
     {
+        $toState = new StringState($to);
         if (is_array($from)) {
-            $state = new ArrayState(
+            $transition = new ManyToOneTransition(
+                $name,
                 array_map(
-                    function ($name) {
-                        return new StringState($name);
+                    function ($_name) {
+                        return new StringState($_name);
                     },
                     $from
-                )
+                ),
+                $toState
             );
         } else {
-            $state = new StringState($from);
+            $transition = new OneToOneTransition(
+                $name, new StringState($from), $toState
+            );
         }
 
-        $this->registry->addTransition(
-            new OneToOneTransition($name, $state, new StringState($to))
-        );
+        $this->registry->addTransition($transition);
 
         return $this;
     }

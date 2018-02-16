@@ -6,7 +6,6 @@ use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateRegistry;
-use Star\Component\State\States\ArrayState;
 use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
@@ -21,7 +20,7 @@ final class ManyToOneTransition implements StateTransition
     /**
      * @var State
      */
-    private $from;
+    private $fromStates;
 
     /**
      * @var State
@@ -30,15 +29,15 @@ final class ManyToOneTransition implements StateTransition
 
     /**
      * @param string $name
-     * @param State[] $from
+     * @param State[] $fromStates
      * @param State $to
      */
-    public function __construct($name, array $from, State $to)
+    public function __construct($name, array $fromStates, State $to)
     {
-        Assert::greaterThanEq(count($from), 1, 'Expected at least %2$s state. Got: %s');
-        Assert::allIsInstanceOf($from, State::class);
+        Assert::greaterThanEq(count($fromStates), 1, 'Expected at least %2$s state. Got: %s');
+        Assert::allIsInstanceOf($fromStates, State::class);
         $this->name = $name;
-        $this->from = new ArrayState($from);
+        $this->fromStates = $fromStates;
         $this->to = $to;
     }
 
@@ -51,13 +50,19 @@ final class ManyToOneTransition implements StateTransition
     }
 
     /**
-     * @param State $from
+     * @param State $state
      *
      * @return bool
      */
-    public function isAllowed(State $from)
+    public function isAllowed(State $state)
     {
-        return $this->from->matchState($from);
+        foreach ($this->fromStates as $from) {
+            if ($state->matchState($from)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -65,7 +70,9 @@ final class ManyToOneTransition implements StateTransition
      */
     public function onRegister(StateRegistry $registry)
     {
-        $this->from->register($registry);
+        foreach ($this->fromStates as $from) {
+            $from->register($registry);
+        }
         $this->to->register($registry);
     }
 
@@ -97,6 +104,10 @@ final class ManyToOneTransition implements StateTransition
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+        $visitor->visitTransition($this->name);
+        foreach ($this->fromStates as $state) {
+            $state->acceptTransitionVisitorFrom($visitor);
+        }
+        $this->to->acceptTransitionVisitorTo($visitor);
     }
 }

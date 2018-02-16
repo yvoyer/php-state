@@ -43,13 +43,7 @@ final class StateMachineTest extends TestCase
         $this->registry = new TransitionRegistry();
         $this->registry->addState($this->current = new StringState('current', ['exists']));
         $this->machine = new StateMachine('current', $this->registry);
-        $this->registry->addTransition(
-            new OneToOneTransition(
-                'name',
-                $this->current,
-                new StringState('next')
-            )
-        );
+        $this->registry->addTransition(new OneToOneTransition('name', 'current', 'next'));
     }
 
     /**
@@ -117,11 +111,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
         $this->registry->addTransition(
-            new OneToOneTransition(
-                'transition',
-                new StringState('not-allowed'),
-                new StringState('not-allowed')
-            )
+            new OneToOneTransition('transition', 'not-allowed', 'not-allowed')
         );
         $this->assertFalse($this->machine->isInState('not-allowed'));
 
@@ -141,11 +131,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_use_supplied_failure_handler_when_transition_not_allowed()
     {
         $this->registry->addTransition(
-            new OneToOneTransition(
-                'transition',
-                new StringState('not-allowed'),
-                new StringState('not-allowed')
-            )
+            new OneToOneTransition('transition', 'not-allowed', 'not-allowed')
         );
         $this->machine->transitContext(
             'transition',
@@ -161,8 +147,8 @@ final class StateMachineTest extends TestCase
         $this->registry->addTransition(
             new ManyToOneTransition(
                 't',
-                [new StringState('other'), $this->current],
-                new StringState('to')
+                ['other', $this->current->getName()],
+                'to'
             )
         );
         $this->assertInstanceOf(
@@ -175,13 +161,7 @@ final class StateMachineTest extends TestCase
 
     public function test_it_should_set_current_state_using_registered_state()
     {
-        $this->registry->addTransition(
-            new OneToOneTransition(
-                'move',
-                new StringState('current'),
-                new StringState('new')
-            )
-        );
+        $this->registry->addTransition(new OneToOneTransition('move', 'current', 'new'));
         $this->assertTrue($this->machine->isInState('current'));
         $this->assertFalse($this->machine->hasAttribute('attr'));
 

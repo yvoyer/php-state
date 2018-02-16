@@ -15,11 +15,7 @@ final class ManyToOneTransitionTest extends TestCase
 
     public function setUp()
     {
-        $this->transition = new ManyToOneTransition(
-            'name',
-            [new StringState('f1'), new StringState('f2')],
-            new StringState('to')
-        );
+        $this->transition = new ManyToOneTransition('name', ['f1', 'f2'], 'to');
     }
 
     public function test_it_should_have_a_name()
@@ -59,15 +55,15 @@ final class ManyToOneTransitionTest extends TestCase
      */
     public function test_it_should_throw_exception_when_no_states_are_provided()
     {
-        new ManyToOneTransition('name', [], new StringState('to'));
+        new ManyToOneTransition('name', [], 'to');
     }
 
     /**
      * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Expected an instance of Star\Component\State\State. Got: array
+     * @expectedExceptionMessage Expected a string. Got: array
      */
     public function test_it_should_throw_exception_when_states_are_not_instances()
     {
-        new ManyToOneTransition('name', [[]], new StringState('to'));
+        new ManyToOneTransition('name', [[]], 'to');
     }
 }

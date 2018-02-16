@@ -45,11 +45,7 @@ final class TransitionRegistryTest extends TestCase
     public function test_it_should_add_transition()
     {
         $this->registry->addTransition(
-            new OneToOneTransition(
-                'name',
-                new StringState('from'),
-                new StringState('to')
-            )
+            new OneToOneTransition('name', 'from', 'to')
         );
         $transition = $this->registry->getTransition('name');
         $this->assertInstanceOf(StateTransition::class, $transition);
@@ -94,32 +90,17 @@ final class TransitionRegistryTest extends TestCase
     public function test_it_should_throw_exception_when_duplicate_transition_is_registered()
     {
         $this->registry->addTransition(
-            new OneToOneTransition(
-                'duplicate',
-                new StringState('from'),
-                new StringState('to')
-            )
+            new OneToOneTransition('duplicate', 'from', 'to')
         );
         $this->registry->addTransition(
-            new OneToOneTransition(
-                'duplicate',
-                new StringState('from'),
-                new StringState('to')
-            )
+            new OneToOneTransition('duplicate', 'from', 'to')
         );
     }
 
     public function test_it_should_register_multiple_state_when_transition_has_multiple_source_state()
     {
         $this->registry->addTransition(
-            new ManyToOneTransition(
-                'name',
-                [
-                    new StringState('from1'),
-                    new StringState('from2'),
-                ],
-                new StringState('to')
-            )
+            new ManyToOneTransition('name', ['from1', 'from2'], 'to')
         );
         $this->assertInstanceOf(State::class, $this->registry->getState('from1'));
         $this->assertInstanceOf(State::class, $this->registry->getState('from2'));

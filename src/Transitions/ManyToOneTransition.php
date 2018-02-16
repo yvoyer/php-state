@@ -6,6 +6,7 @@ use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateRegistry;
+use Star\Component\State\States\StringState;
 use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
@@ -29,16 +30,22 @@ final class ManyToOneTransition implements StateTransition
 
     /**
      * @param string $name
-     * @param State[] $fromStates
-     * @param State $to
+     * @param string[] $fromStates
+     * @param string $to
      */
-    public function __construct($name, array $fromStates, State $to)
+    public function __construct($name, array $fromStates, $to)
     {
         Assert::greaterThanEq(count($fromStates), 1, 'Expected at least %2$s state. Got: %s');
-        Assert::allIsInstanceOf($fromStates, State::class);
+        Assert::allString($fromStates);
+        Assert::string($to);
         $this->name = $name;
-        $this->fromStates = $fromStates;
-        $this->to = $to;
+        $this->fromStates = array_map(
+            function ($fromName) {
+                return new StringState($fromName);
+            },
+            $fromStates
+        );
+        $this->to = new StringState($to);
     }
 
     /**

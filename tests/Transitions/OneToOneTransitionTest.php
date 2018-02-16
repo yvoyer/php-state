@@ -15,11 +15,7 @@ final class OneToOneTransitionTest extends TestCase
 
     public function setUp()
     {
-        $this->transition = new OneToOneTransition(
-            'name',
-            new StringState('from'),
-            new StringState('to')
-        );
+        $this->transition = new OneToOneTransition('name', 'from', 'to');
     }
 
     public function test_it_should_have_a_name()

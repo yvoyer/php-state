@@ -6,6 +6,7 @@ use Star\Component\State\State;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateRegistry;
+use Star\Component\State\States\StringState;
 use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
@@ -29,15 +30,17 @@ final class OneToOneTransition implements StateTransition
 
     /**
      * @param string $name
-     * @param State $from todo Remove State and replace with strings
-     * @param State $to
+     * @param string $from
+     * @param string $to
      */
-    public function __construct($name, State $from, State $to)
+    public function __construct($name, $from, $to)
     {
         Assert::string($name, 'Transition name should be string, "%s" given.');
+        Assert::string($from);
+        Assert::string($to);
         $this->name = $name;
-        $this->from = $from;
-        $this->to = $to;
+        $this->from = new StringState($from);
+        $this->to = new StringState($to);
     }
 
     /**

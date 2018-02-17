@@ -17,11 +17,6 @@ final class OneToOneTransitionTest extends TestCase
         $this->transition = new OneToOneTransition('name', 'from', 'to');
     }
 
-    public function test_it_should_have_a_name()
-    {
-        $this->assertSame('name', $this->transition->getName());
-    }
-
     public function test_it_should_be_allowed_when_from_state_match()
     {
         $this->assertTrue($this->transition->isAllowed('from'));

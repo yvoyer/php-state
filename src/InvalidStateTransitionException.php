@@ -10,23 +10,23 @@ namespace Star\Component\State;
 class InvalidStateTransitionException extends \Exception
 {
     /**
-     * @param StateTransition $transition
+     * @param string $transition
      * @param StateContext $context
-     * @param State $currentState
+     * @param string $currentState
      *
      * @return static
      */
     public static function notAllowedTransition(
-        StateTransition $transition,
+        $transition,
         StateContext $context,
-        State $currentState
+        $currentState
     ) {
         return new static(
             sprintf(
                 "The transition '%s' is not allowed when context '%s' is in state '%s'.",
-                $transition->getName(),
+                $transition,
                 get_class($context),
-                $currentState->getName()
+                $currentState
             )
         );
     }

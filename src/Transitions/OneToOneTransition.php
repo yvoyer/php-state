@@ -44,14 +44,6 @@ final class OneToOneTransition implements StateTransition
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * @param string $from
      *
      * @return bool
@@ -96,13 +88,12 @@ final class OneToOneTransition implements StateTransition
 
     /**
      * @param TransitionVisitor $visitor
-     * @param StateRegistry $registry
      */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor, StateRegistry $registry)
+    public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
         $visitor->visitTransition($this->name);
-        $visitor->visitFromState($registry->getState($this->from));
-        $visitor->visitToState($registry->getState($this->to));
+        $visitor->visitFromState($this->from);
+        $visitor->visitToState($this->to);
     }
 
     /**

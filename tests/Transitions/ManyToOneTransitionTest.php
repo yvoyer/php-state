@@ -4,7 +4,6 @@ namespace Star\Component\State\Transitions;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\StateRegistry;
-use Star\Component\State\StateVisitor;
 
 final class ManyToOneTransitionTest extends TestCase
 {
@@ -16,11 +15,6 @@ final class ManyToOneTransitionTest extends TestCase
     public function setUp()
     {
         $this->transition = new ManyToOneTransition('name', ['f1', 'f2'], 'to');
-    }
-
-    public function test_it_should_have_a_name()
-    {
-        $this->assertSame('name', $this->transition->getName());
     }
 
     public function test_it_should_be_allowed_when_from_state_match()

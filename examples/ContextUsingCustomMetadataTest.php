@@ -39,7 +39,6 @@ final class ContextUsingCustomMetadataTest extends TestCase {
      * * On discard: set discarded by
      * * On post edit: move to pending (Override all rules)
      */
-    // todo implement StateTester (with metadata)
 
     public function test_it_should_allow_to_transit_from_pending_to_approved()
     {

@@ -37,7 +37,7 @@ final class StateBuilder
             $transition = new OneToOneTransition($name, $from, $to);
         }
 
-        $this->registry->addTransition($transition);
+        $this->registry->addTransition($name, $transition);
 
         return $this;
     }

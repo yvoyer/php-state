@@ -27,7 +27,7 @@ final class StateMachine
     private $registry;
 
     /**
-     * @var State
+     * @var string
      */
     private $currentState;
 
@@ -63,15 +63,15 @@ final class StateMachine
 
         $transition = $this->registry->getTransition($transitionName);
 
-        if (! $transition->isAllowed($this->currentState->getName())) {
-            $handler->beforeTransitionNotAllowed($transition, $context, $this->currentState);
+        if (! $transition->isAllowed($this->currentState)) {
+            $handler->beforeTransitionNotAllowed($transitionName, $context, $this->currentState);
             // always throw exception when not allowed
-            throw InvalidStateTransitionException::notAllowedTransition($transition, $context, $this->currentState);
+            throw InvalidStateTransitionException::notAllowedTransition($transitionName, $context, $this->currentState);
         }
 
         $this->dispatcher->dispatch(
             StateEventStore::BEFORE_TRANSITION,
-            new TransitionWasRequested($transition)
+            new TransitionWasRequested($transitionName)
         );
 
         $transition->beforeStateChange($context);
@@ -80,10 +80,10 @@ final class StateMachine
 
         $this->dispatcher->dispatch(
             StateEventStore::AFTER_TRANSITION,
-            new TransitionWasSuccessful($transition)
+            new TransitionWasSuccessful($transitionName)
         );
 
-        return $this->currentState->getName();
+        return $this->currentState;
     }
 
     /**
@@ -107,7 +107,7 @@ final class StateMachine
     public function isInState($stateName)
     {
         Assert::string($stateName);
-        return $this->currentState->getName() === $stateName;
+        return $this->currentState === $stateName;
     }
 
     /**
@@ -117,7 +117,7 @@ final class StateMachine
      */
     public function hasAttribute($attribute)
     {
-        return $this->currentState->hasAttribute($attribute);
+        return $this->registry->getState($this->currentState)->hasAttribute($attribute);
     }
 
     /**
@@ -127,7 +127,7 @@ final class StateMachine
     public function setCurrentState($state)
     {
         Assert::string($state);
-        $this->currentState = $this->registry->getState($state);
+        $this->currentState = $state;
     }
 
     /**

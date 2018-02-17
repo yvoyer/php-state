@@ -10,13 +10,6 @@ namespace Star\Component\State;
 interface State
 {
     /**
-     * The string value of the state
-     *
-     * @return string
-     */
-    public function getName();
-
-    /**
      * @param string $attribute
      *
      * @return bool
@@ -27,11 +20,6 @@ interface State
      * @param string $attribute
      */
     public function addAttribute($attribute);
-
-    /**
-     * @param string[] $attributes
-     */
-    public function addAttributes(array $attributes);
 
     /**
      * @param StateVisitor $visitor

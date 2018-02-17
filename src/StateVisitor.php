@@ -6,7 +6,7 @@ interface StateVisitor
 {
     /**
      * @param string $name
-     * @param array $attributes
+     * @param string[] $attributes
      */
     public function visitState($name, array $attributes);
 }

@@ -10,12 +10,12 @@ interface TransitionVisitor
     public function visitTransition($name);
 
     /**
-     * @param State $state
+     * @param string $state
      */
-    public function visitFromState(State $state);
+    public function visitFromState($state);
 
     /**
-     * @param State $state
+     * @param string $state
      */
-    public function visitToState(State $state);
+    public function visitToState($state);
 }

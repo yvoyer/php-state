@@ -45,11 +45,11 @@ final class TransitionRegistryTest extends TestCase
     public function test_it_should_add_transition()
     {
         $this->registry->addTransition(
-            new OneToOneTransition('name', 'from', 'to')
+            'name',
+            new OneToOneTransition('name','from', 'to')
         );
         $transition = $this->registry->getTransition('name');
         $this->assertInstanceOf(StateTransition::class, $transition);
-        $this->assertSame('name', $transition->getName());
     }
 
     public function test_it_should_contain_the_states() {
@@ -87,17 +87,17 @@ final class TransitionRegistryTest extends TestCase
     public function test_it_should_throw_exception_when_duplicate_transition_is_registered()
     {
         $this->registry->addTransition(
-            new OneToOneTransition('duplicate', 'from', 'to')
+            'duplicate', new OneToOneTransition('duplicate', 'from', 'to')
         );
         $this->registry->addTransition(
-            new OneToOneTransition('duplicate', 'from', 'to')
+            'duplicate', new OneToOneTransition('duplicate', 'from', 'to')
         );
     }
 
     public function test_it_should_register_multiple_state_when_transition_has_multiple_source_state()
     {
         $this->registry->addTransition(
-            new ManyToOneTransition('name', ['from1', 'from2'], 'to')
+            'name', new ManyToOneTransition('name', ['from1', 'from2'], 'to')
         );
         $this->assertInstanceOf(State::class, $this->registry->getState('from1'));
         $this->assertInstanceOf(State::class, $this->registry->getState('from2'));
@@ -111,9 +111,9 @@ final class TransitionRegistryTest extends TestCase
         $transition
             ->expects($this->once())
             ->method('acceptTransitionVisitor')
-            ->with($visitor, $this->registry);
+            ->with($visitor);
 
-        $this->registry->addTransition($transition);
+        $this->registry->addTransition('t', $transition);
         $this->registry->acceptTransitionVisitor($visitor);
     }
 
@@ -126,7 +126,7 @@ final class TransitionRegistryTest extends TestCase
             ->method('acceptStateVisitor')
             ->with($visitor, $this->registry);
 
-        $this->registry->addTransition($transition);
+        $this->registry->addTransition('t', $transition);
         $this->registry->acceptStateVisitor($visitor);
     }
 }

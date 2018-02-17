@@ -36,16 +36,6 @@ final class StringState implements State
     }
 
     /**
-     * The string value of the state
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * @param string $attribute
      *
      * @return bool
@@ -53,16 +43,6 @@ final class StringState implements State
     public function hasAttribute($attribute)
     {
         return false !== array_search($attribute, $this->attributes);
-    }
-
-    /**
-     * @param string[] $attributes
-     */
-    public function addAttributes(array $attributes)
-    {
-        foreach ($attributes as $attribute) {
-            $this->addAttribute($attribute);
-        }
     }
 
     /**

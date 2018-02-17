@@ -10,11 +10,6 @@ namespace Star\Component\State;
 interface StateTransition
 {
     /**
-     * @return string
-     */
-    public function getName();
-
-    /**
      * @param string $from
      *
      * @return bool
@@ -44,9 +39,8 @@ interface StateTransition
 
     /**
      * @param TransitionVisitor $visitor
-     * @param StateRegistry $registry
      */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor, StateRegistry $registry);
+    public function acceptTransitionVisitor(TransitionVisitor $visitor);
 
     /**
      * @param StateVisitor $visitor

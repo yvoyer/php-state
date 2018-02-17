@@ -18,7 +18,7 @@ final class TransitionRegistry implements StateRegistry
     private $transitions = [];
 
     /**
-     * @var StateRegistry
+     * @var State[]
      */
     private $states;
 
@@ -28,15 +28,17 @@ final class TransitionRegistry implements StateRegistry
     }
 
     /**
+     * @param string $name
      * @param StateTransition $transition
      */
-    public function addTransition(StateTransition $transition)
+    public function addTransition($name, StateTransition $transition)
     {
-        if (isset($this->transitions[$transition->getName()])) {
-            throw DuplicateEntryException::duplicateTransition($transition);
+        Assert::string($name);
+        if (isset($this->transitions[$name])) {
+            throw DuplicateEntryException::duplicateTransition($name);
         }
 
-        $this->transitions[$transition->getName()] = $transition;
+        $this->transitions[$name] = $transition;
         $transition->onRegister($this);
     }
 
@@ -82,7 +84,7 @@ final class TransitionRegistry implements StateRegistry
     public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
         foreach ($this->transitions as $transition) {
-            $transition->acceptTransitionVisitor($visitor, $this);
+            $transition->acceptTransitionVisitor($visitor);
         }
     }
 
@@ -105,7 +107,10 @@ final class TransitionRegistry implements StateRegistry
         $state = new StringState($name, $attributes);
         if (isset($this->states[$name])) {
             $state = $this->getState($name);
-            $state->addAttributes($attributes);
+        }
+
+        foreach ($attributes as $attribute) {
+            $state->addAttribute($attribute);
         }
 
         $this->states[$name] = $state;

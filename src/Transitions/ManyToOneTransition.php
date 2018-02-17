@@ -43,14 +43,6 @@ final class ManyToOneTransition implements StateTransition
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * @param string $state
      *
      * @return bool
@@ -103,16 +95,15 @@ final class ManyToOneTransition implements StateTransition
 
     /**
      * @param TransitionVisitor $visitor
-     * @param StateRegistry $registry
      */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor, StateRegistry $registry)
+    public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
         $visitor->visitTransition($this->name);
         foreach ($this->fromStates as $from) {
-            $visitor->visitFromState($registry->getState($from));
+            $visitor->visitFromState($from);
         }
 
-        $visitor->visitToState($registry->getState($this->to));
+        $visitor->visitToState($this->to);
     }
 
     /**

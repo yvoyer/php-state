@@ -7,16 +7,6 @@ use Star\Component\State\Builder\StateBuilder;
 
 final class StateBuilderTest extends TestCase
 {
-    /**
-     * @var StateContext|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $context;
-
-    public function setUp()
-    {
-        $this->context = $this->getMockBuilder(StateContext::class)->getMock();
-    }
-
     public function test_it_should_allow_to_transition_to_next_state_when_multiple_state_have_attribute()
     {
         $machine = StateBuilder::build()
@@ -25,7 +15,7 @@ final class StateBuilderTest extends TestCase
             ->create('from');
 
         $this->assertTrue($machine->isInState('from'));
-        $machine->transit('t1', $this->context);
+        $machine->transit('t1', 'context');
         $this->assertTrue($machine->isInState('to'));
     }
 
@@ -39,7 +29,7 @@ final class StateBuilderTest extends TestCase
         $this->assertTrue($machine->isInState('from'));
         $this->assertTrue($machine->hasAttribute('attr'));
 
-        $machine->transit('t1', $this->context);
+        $machine->transit('t1', 'context');
 
         $this->assertTrue($machine->isInState('to'));
         $this->assertFalse($machine->hasAttribute('attr'));

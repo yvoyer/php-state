@@ -3,7 +3,7 @@
 namespace Star\Component\State\Transitions;
 
 use PHPUnit\Framework\TestCase;
-use Star\Component\State\StateRegistry;
+use Star\Component\State\RegistryBuilder;
 
 final class OneToOneTransitionTest extends TestCase
 {
@@ -14,7 +14,7 @@ final class OneToOneTransitionTest extends TestCase
 
     public function setUp()
     {
-        $this->transition = new OneToOneTransition('name', 'from', 'to');
+        $this->transition = new OneToOneTransition('from', 'to');
     }
 
     public function test_it_should_be_allowed_when_from_state_match()
@@ -25,7 +25,7 @@ final class OneToOneTransitionTest extends TestCase
 
     public function test_it_should_register_the_from_and_to_states()
     {
-        $registry = $this->getMockBuilder(StateRegistry::class)->getMock();
+        $registry = $this->getMockBuilder(RegistryBuilder::class)->getMock();
         $registry
             ->expects($this->at(0))
             ->method('registerState')

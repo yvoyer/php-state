@@ -32,9 +32,9 @@ final class StateBuilder
     public function allowTransition($name, $from, $to)
     {
         if (is_array($from)) {
-            $transition = new ManyToOneTransition($name, $from, $to);
+            $transition = new ManyToOneTransition($from, $to);
         } else {
-            $transition = new OneToOneTransition($name, $from, $to);
+            $transition = new OneToOneTransition($from, $to);
         }
 
         $this->registry->addTransition($name, $transition);

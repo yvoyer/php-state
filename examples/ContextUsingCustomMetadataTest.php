@@ -197,7 +197,7 @@ final class MyStateWorkflow extends StateMetadata
     }
 }
 
-final class ContextStub implements StateContext
+final class ContextStub
 {
     public $state;
 

@@ -119,7 +119,7 @@ The post's allowed workflow should be as follow:
 You can setup your `Post` object using the following configuration:
 
 ```php
-class Post implement StateContext
+class Post
 {
     /**
      * @var string The current state (as a string of your model)
@@ -204,7 +204,7 @@ final class MyStateWorkflow extends StateMetadata
     }
 }
 
-final class MyModel implements StateContext
+final class MyModel
 {
     /**
      * @var MyStateWorkflow

@@ -37,7 +37,7 @@ final class StateMachineTest extends TestCase
         $this->registry = new TransitionRegistry();
         $this->registry->registerState('current', ['exists']);
         $this->machine = new StateMachine('current', $this->registry);
-        $this->registry->addTransition('name', new OneToOneTransition('name', 'current', 'next'));
+        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
     }
 
     /**
@@ -105,7 +105,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
         $this->registry->addTransition(
-            'transition', new OneToOneTransition('transition', 'not-allowed', 'not-allowed')
+            'transition', new OneToOneTransition('not-allowed', 'not-allowed')
         );
         $this->assertFalse($this->machine->isInState('not-allowed'));
 
@@ -125,7 +125,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_use_supplied_failure_handler_when_transition_not_allowed()
     {
         $this->registry->addTransition(
-            'transition', new OneToOneTransition('transition', 'not-allowed', 'not-allowed')
+            'transition', new OneToOneTransition('not-allowed', 'not-allowed')
         );
         $this->machine->transitContext(
             'transition',
@@ -139,7 +139,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_allow_transition_when_can_start_from_multiple_states()
     {
         $this->registry->addTransition(
-            't', new ManyToOneTransition('t', ['other', 'current'], 'to')
+            't', new ManyToOneTransition(['other', 'current'], 'to')
         );
         $this->assertInstanceOf(
             StateMachine::class,
@@ -151,7 +151,7 @@ final class StateMachineTest extends TestCase
 
     public function test_it_should_set_current_state_using_registered_state()
     {
-        $this->registry->addTransition('move', new OneToOneTransition('move', 'current', 'new'));
+        $this->registry->addTransition('move', new OneToOneTransition('current', 'new'));
         $this->assertTrue($this->machine->isInState('current'));
         $this->assertFalse($this->machine->hasAttribute('attr'));
 

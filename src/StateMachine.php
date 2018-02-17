@@ -37,6 +37,7 @@ final class StateMachine
      */
     public function __construct($currentState, StateRegistry $registry = null)
     {
+        Assert::string($currentState);
         if (! $registry) {
             $registry = new TransitionRegistry();
         }
@@ -48,15 +49,16 @@ final class StateMachine
 
     /**
      * @param string $transitionName The transition name
-     * @param StateContext $context
+     * @param mixed $context
      * @param FailureHandler $handler Gives you the possibility to perform some task when transition not allowed
      *
      * @return string The next state to store on your context
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
-    public function transitContext($transitionName, StateContext $context, FailureHandler $handler = null)
+    public function transitContext($transitionName, $context, FailureHandler $handler = null)
     {
+        Assert::string($transitionName);
         if (! $handler) {
             $handler = new NullHandler();
         }
@@ -75,7 +77,7 @@ final class StateMachine
         );
 
         $transition->beforeStateChange($context);
-        $transition->onStateChange($context, $this);
+        $transition->onStateChange($this);
         $transition->afterStateChange($context);
 
         $this->dispatcher->dispatch(
@@ -87,12 +89,13 @@ final class StateMachine
     }
 
     /**
-     * @param $transitionName
-     * @param StateContext $context
+     * @param string $transitionName
+     * @param mixed $context
      *
      * @return $this
      */
-    public function transit($transitionName, StateContext $context) {
+    public function transit($transitionName, $context) {
+        Assert::string($transitionName);
         // todo make sure its persistable
         $this->transitContext($transitionName, $context);
 
@@ -117,6 +120,7 @@ final class StateMachine
      */
     public function hasAttribute($attribute)
     {
+        Assert::string($attribute);
         return $this->registry->getState($this->currentState)->hasAttribute($attribute);
     }
 
@@ -136,6 +140,7 @@ final class StateMachine
      */
     public function addListener($event, \Closure $listener)
     {
+        Assert::string($event);
         $this->dispatcher->addListener($event, $listener);
     }
 

@@ -2,7 +2,7 @@
 
 namespace Star\Component\State\Transitions;
 
-use Star\Component\State\StateContext;
+use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
@@ -12,11 +12,6 @@ use Webmozart\Assert\Assert;
 
 final class ManyToOneTransition implements StateTransition
 {
-    /**
-     * @var string
-     */
-    private $name;
-
     /**
      * @var string[]
      */
@@ -28,16 +23,14 @@ final class ManyToOneTransition implements StateTransition
     private $to;
 
     /**
-     * @param string $name
      * @param string[] $fromStates
      * @param string $to
      */
-    public function __construct($name, array $fromStates, $to)
+    public function __construct(array $fromStates, $to)
     {
         Assert::greaterThanEq(count($fromStates), 1, 'Expected at least %2$s state. Got: %s');
         Assert::allString($fromStates);
         Assert::string($to);
-        $this->name = $name;
         $this->fromStates = $fromStates;
         $this->to = $to;
     }
@@ -50,46 +43,40 @@ final class ManyToOneTransition implements StateTransition
     public function isAllowed($state)
     {
         Assert::string($state);
-        foreach ($this->fromStates as $from) {
-            if ($state === $from) {
-                return true;
-            }
-        }
-
-        return false;
+        return in_array($state, $this->fromStates, true);
     }
 
     /**
-     * @param StateRegistry $registry
+     * @param RegistryBuilder $registry
      */
-    public function onRegister(StateRegistry $registry)
+    public function onRegister(RegistryBuilder $registry)
     {
         foreach ($this->fromStates as $from) {
             $registry->registerState($from, []);
         }
+
         $registry->registerState($this->to, []);
     }
 
     /**
-     * @param StateContext $context
+     * @param mixed $context
      */
-    public function beforeStateChange(StateContext $context)
+    public function beforeStateChange($context)
     {
     }
 
     /**
-     * @param StateContext $context
      * @param StateMachine $machine
      */
-    public function onStateChange(StateContext $context, StateMachine $machine)
+    public function onStateChange(StateMachine $machine)
     {
         $machine->setCurrentState($this->to);
     }
 
     /**
-     * @param StateContext $context
+     * @param mixed $context
      */
-    public function afterStateChange(StateContext $context)
+    public function afterStateChange($context)
     {
     }
 
@@ -98,7 +85,6 @@ final class ManyToOneTransition implements StateTransition
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
-        $visitor->visitTransition($this->name);
         foreach ($this->fromStates as $from) {
             $visitor->visitFromState($from);
         }

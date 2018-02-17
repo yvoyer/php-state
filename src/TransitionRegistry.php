@@ -83,7 +83,8 @@ final class TransitionRegistry implements StateRegistry
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
-        foreach ($this->transitions as $transition) {
+        foreach ($this->transitions as $name => $transition) {
+            $visitor->visitTransition($name);
             $transition->acceptTransitionVisitor($visitor);
         }
     }

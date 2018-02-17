@@ -37,7 +37,7 @@ abstract class StateMetadata
         return $builder->create($this->current);
     }
 
-    final public function transit($name, StateContext $context) {
+    final public function transit($name, $context) {
         return $this->getMachine()->transit($name, $context);
     }
 

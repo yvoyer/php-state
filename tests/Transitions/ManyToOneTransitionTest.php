@@ -3,7 +3,7 @@
 namespace Star\Component\State\Transitions;
 
 use PHPUnit\Framework\TestCase;
-use Star\Component\State\StateRegistry;
+use Star\Component\State\RegistryBuilder;
 
 final class ManyToOneTransitionTest extends TestCase
 {
@@ -14,7 +14,7 @@ final class ManyToOneTransitionTest extends TestCase
 
     public function setUp()
     {
-        $this->transition = new ManyToOneTransition('name', ['f1', 'f2'], 'to');
+        $this->transition = new ManyToOneTransition(['f1', 'f2'], 'to');
     }
 
     public function test_it_should_be_allowed_when_from_state_match()
@@ -26,7 +26,7 @@ final class ManyToOneTransitionTest extends TestCase
 
     public function test_it_should_register_the_from_and_to_states()
     {
-        $registry = $this->getMockBuilder(StateRegistry::class)->getMock();
+        $registry = $this->getMockBuilder(RegistryBuilder::class)->getMock();
         $registry
             ->expects($this->at(0))
             ->method('registerState')
@@ -49,7 +49,7 @@ final class ManyToOneTransitionTest extends TestCase
      */
     public function test_it_should_throw_exception_when_no_states_are_provided()
     {
-        new ManyToOneTransition('name', [], 'to');
+        new ManyToOneTransition([], 'to');
     }
 
     /**
@@ -58,6 +58,6 @@ final class ManyToOneTransitionTest extends TestCase
      */
     public function test_it_should_throw_exception_when_states_are_not_instances()
     {
-        new ManyToOneTransition('name', [[]], 'to');
+        new ManyToOneTransition([[]], 'to');
     }
 }

@@ -9,7 +9,6 @@ namespace Star\Component\State\Example;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
-use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 
 final class ContextUsingBuilderTest extends TestCase
@@ -186,7 +185,7 @@ final class ContextUsingBuilderTest extends TestCase
 /**
  * Example of usage when using self contained workflow creation.
  */
-class Post implements StateContext
+class Post
 {
     const ALIAS = 'post';
 

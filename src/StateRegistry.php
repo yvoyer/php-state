@@ -2,14 +2,8 @@
 
 namespace Star\Component\State;
 
-interface StateRegistry
+interface StateRegistry extends RegistryBuilder
 {
-    /**
-     * @param string $name
-     * @param string[] $attributes
-     */
-    public function registerState($name, array $attributes);
-
     /**
      * @param string $name The transition name
      *

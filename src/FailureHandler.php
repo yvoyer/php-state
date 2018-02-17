@@ -6,8 +6,8 @@ interface FailureHandler
 {
     /**
      * @param string $transition
-     * @param StateContext $context
+     * @param mixed $context
      * @param string $current
      */
-    public function beforeTransitionNotAllowed($transition, StateContext $context, $current);
+    public function beforeTransitionNotAllowed($transition, $context, $current);
 }

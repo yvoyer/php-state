@@ -2,8 +2,8 @@
 
 namespace Star\Component\State\Transitions;
 
+use Star\Component\State\RegistryBuilder;
 use Star\Component\State\State;
-use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
@@ -13,11 +13,6 @@ use Webmozart\Assert\Assert;
 
 final class OneToOneTransition implements StateTransition
 {
-    /**
-     * @var string
-     */
-    private $name;
-
     /**
      * @var State
      */
@@ -29,16 +24,13 @@ final class OneToOneTransition implements StateTransition
     private $to;
 
     /**
-     * @param string $name
      * @param string $from
      * @param string $to
      */
-    public function __construct($name, $from, $to)
+    public function __construct($from, $to)
     {
-        Assert::string($name, 'Transition name should be string, "%s" given.');
         Assert::string($from);
         Assert::string($to);
-        $this->name = $name;
         $this->from = $from;
         $this->to = $to;
     }
@@ -55,34 +47,33 @@ final class OneToOneTransition implements StateTransition
     }
 
     /**
-     * @param StateRegistry $registry
+     * @param RegistryBuilder $registry
      */
-    public function onRegister(StateRegistry $registry)
+    public function onRegister(RegistryBuilder $registry)
     {
         $registry->registerState($this->from, []);
         $registry->registerState($this->to, []);
     }
 
     /**
-     * @param StateContext $context
+     * @param mixed $context
      */
-    public function beforeStateChange(StateContext $context)
+    public function beforeStateChange($context)
     {
     }
 
     /**
-     * @param StateContext $context
      * @param StateMachine $machine
      */
-    public function onStateChange(StateContext $context, StateMachine $machine)
+    public function onStateChange(StateMachine $machine)
     {
         $machine->setCurrentState($this->to);
     }
 
     /**
-     * @param StateContext $context
+     * @param mixed $context
      */
-    public function afterStateChange(StateContext $context)
+    public function afterStateChange($context)
     {
     }
 
@@ -91,7 +82,6 @@ final class OneToOneTransition implements StateTransition
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
-        $visitor->visitTransition($this->name);
         $visitor->visitFromState($this->from);
         $visitor->visitToState($this->to);
     }

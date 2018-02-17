@@ -17,25 +17,24 @@ interface StateTransition
     public function isAllowed($from);
 
     /**
-     * @param StateRegistry $registry
+     * @param RegistryBuilder $registry
      */
-    public function onRegister(StateRegistry $registry);
+    public function onRegister(RegistryBuilder $registry);
 
     /**
-     * @param StateContext $context
+     * @param mixed $context
      */
-    public function beforeStateChange(StateContext $context);
+    public function beforeStateChange($context);
 
     /**
-     * @param StateContext $context
      * @param StateMachine $machine
      */
-    public function onStateChange(StateContext $context, StateMachine $machine);
+    public function onStateChange(StateMachine $machine);
 
     /**
-     * @param StateContext $context
+     * @param mixed $context
      */
-    public function afterStateChange(StateContext $context);
+    public function afterStateChange($context);
 
     /**
      * @param TransitionVisitor $visitor

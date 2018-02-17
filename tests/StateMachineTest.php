@@ -7,14 +7,14 @@
 
 namespace Star\Component\State;
 
+use PHPUnit\Framework\TestCase;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\Handlers\ClosureHandler;
-use Star\Component\State\States\StringState;
-use Star\Component\State\Transitions\FromToTransition;
+use Star\Component\State\Transitions\OneToOneTransition;
 
-final class StateMachineTest extends \PHPUnit_Framework_TestCase
+final class StateMachineTest extends TestCase
 {
     /**
      * @var TransitionRegistry
@@ -27,22 +27,15 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
     private $machine;
 
     /**
-     * @var StateContext
+     * @var TestContext
      */
     private $context;
 
     public function setUp() {
         $this->context = new TestContext('current');
         $this->registry = new TransitionRegistry();
-        $this->registry->addState($current = new StringState('current', ['exists']));
+        $this->registry->registerState('current', ['exists']);
         $this->machine = new StateMachine('current', $this->registry);
-        $this->registry->addTransition(
-            new FromToTransition(
-                'name',
-                $current,
-                new StringState('next')
-            )
-        );
     }
 
     /**
@@ -58,6 +51,7 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertTrue($this->machine->isInState('current'));
 
+        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
         $this->assertSame('next', $this->machine->transitContext('name', $this->context));
 
         $this->assertFalse($this->machine->isInState('current'));
@@ -77,10 +71,11 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertNull($event);
 
+        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
         $this->machine->transitContext('name', $this->context);
 
         $this->assertInstanceOf(TransitionWasRequested::class, $event);
-        $this->assertInstanceOf(StateTransition::class, $event->transition());
+        $this->assertSame('name', $event->transition());
     }
 
     public function test_it_should_trigger_an_event_after_any_transition()
@@ -97,10 +92,11 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertNull($event);
 
+        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
         $this->machine->transitContext('name', $this->context);
 
         $this->assertInstanceOf(TransitionWasSuccessful::class, $event);
-        $this->assertInstanceOf(StateTransition::class, $event->transition());
+        $this->assertSame('name', $event->transition());
     }
 
     /**
@@ -109,15 +105,12 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
      */
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
-        $transition = new FromToTransition(
-            'transition',
-            new StringState('not-allowed'),
-            new StringState('not-allowed')
-        );
-        $this->registry->addTransition($transition);
+        $transition = $this->getMockBuilder(StateTransition::class)->getMock();
+
+        $this->registry->addTransition('transition', $transition);// OneToOneTransition('not-allowed', 'not-allowed')        );
         $this->assertFalse($this->machine->isInState('not-allowed'));
 
-        $this->machine->transitContext($transition->getName(), $this->context);
+        $this->machine->transitContext('transition', $this->context);
     }
 
     public function test_state_can_have_attribute()
@@ -132,12 +125,10 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
      */
     public function test_it_should_use_supplied_failure_handler_when_transition_not_allowed()
     {
-        $transition = new FromToTransition(
+        $this->registry->addTransition(
             'transition',
-            new StringState('not-allowed'),
-            new StringState('not-allowed')
+            $this->getMockBuilder(StateTransition::class)->getMock()
         );
-        $this->registry->addTransition($transition);
         $this->machine->transitContext(
             'transition',
             $this->context,
@@ -145,5 +136,31 @@ final class StateMachineTest extends \PHPUnit_Framework_TestCase
                 throw new \RuntimeException("The custom handler was triggered.");
             })
         );
+    }
+
+    public function test_it_should_visit_the_transitions()
+    {
+        $registry = $this->getMockBuilder(StateRegistry::class)->getMock();
+        $machine = new StateMachine('', $registry);
+        $visitor = $this->getMockBuilder(TransitionVisitor::class)->getMock();
+
+        $registry
+            ->expects($this->once())
+            ->method('acceptTransitionVisitor')
+            ->with($visitor);
+        $machine->acceptTransitionVisitor($visitor);
+    }
+
+    public function test_it_should_visit_the_states()
+    {
+        $registry = $this->getMockBuilder(StateRegistry::class)->getMock();
+        $machine = new StateMachine('', $registry);
+        $visitor = $this->getMockBuilder(StateVisitor::class)->getMock();
+
+        $registry
+            ->expects($this->once())
+            ->method('acceptStateVisitor')
+            ->with($visitor);
+        $machine->acceptStateVisitor($visitor);
     }
 }

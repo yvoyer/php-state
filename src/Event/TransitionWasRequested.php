@@ -7,8 +7,8 @@
 
 namespace Star\Component\State\Event;
 
-use Star\Component\State\StateTransition;
 use Symfony\Component\EventDispatcher\Event;
+use Webmozart\Assert\Assert;
 
 /**
  * @experimental
@@ -16,20 +16,21 @@ use Symfony\Component\EventDispatcher\Event;
 final class TransitionWasRequested extends Event
 {
     /**
-     * @var StateTransition
+     * @var string
      */
     private $transition;
 
     /**
-     * @param StateTransition $transition
+     * @param string $transition
      */
-    public function __construct(StateTransition $transition)
+    public function __construct($transition)
     {
+        Assert::string($transition);
         $this->transition = $transition;
     }
 
     /**
-     * @return StateTransition
+     * @return string
      */
     public function transition()
     {

@@ -8,8 +8,7 @@
 namespace Star\Component\State\States;
 
 use Star\Component\State\State;
-use Star\Component\State\StateRegistry;
-use Star\Component\State\TransitionVisitor;
+use Star\Component\State\StateVisitor;
 use Webmozart\Assert\Assert;
 
 final class StringState implements State
@@ -37,38 +36,6 @@ final class StringState implements State
     }
 
     /**
-     * The string value of the state
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param State $state
-     *
-     * @return bool
-     */
-    public function matchState(State $state)
-    {
-        if (! $state instanceof $this) {
-            return false;
-        }
-
-        if ($state->getName() !== $this->getName()) {
-            return false;
-        }
-
-        if (count($state->attributes) !== count($this->attributes)) {
-            return false;
-        }
-
-        return count(array_diff($state->attributes, $this->attributes)) === 0;
-    }
-
-    /**
      * @param string $attribute
      *
      * @return bool
@@ -88,26 +55,10 @@ final class StringState implements State
     }
 
     /**
-     * @param StateRegistry $registry
+     * @param StateVisitor $visitor
      */
-    public function register(StateRegistry $registry)
+    public function acceptStateVisitor(StateVisitor $visitor)
     {
-        $registry->registerState($this->name, $this->attributes);
-    }
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitorFrom(TransitionVisitor $visitor)
-    {
-        $visitor->visitFromState($this);
-    }
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitorTo(TransitionVisitor $visitor)
-    {
-        $visitor->visitToState($this);
+        $visitor->visitState($this->name, $this->attributes);
     }
 }

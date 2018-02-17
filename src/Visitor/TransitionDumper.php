@@ -2,8 +2,8 @@
 
 namespace Star\Component\State\Visitor;
 
-use Star\Component\State\State;
 use Star\Component\State\TransitionVisitor;
+use Webmozart\Assert\Assert;
 
 final class TransitionDumper implements TransitionVisitor
 {
@@ -30,13 +30,14 @@ final class TransitionDumper implements TransitionVisitor
         $this->currentTransition = $name;
     }
 
-    public function visitFromState(State $state)
+    public function visitFromState($state)
     {
-        $this->structure[$this->currentTransition]['from'][] = $state->getName();
+        Assert::string($state);
+        $this->structure[$this->currentTransition]['from'][] = $state;
     }
 
-    public function visitToState(State $state)
+    public function visitToState($state)
     {
-        $this->structure[$this->currentTransition]['to'][] = $state->getName();
+        $this->structure[$this->currentTransition]['to'][] = $state;
     }
 }

@@ -5,9 +5,9 @@ namespace Star\Component\State;
 interface FailureHandler
 {
     /**
-     * @param StateTransition $transition
-     * @param StateContext $context
-     * @param State $current
+     * @param string $transition
+     * @param mixed $context
+     * @param string $current
      */
-    public function beforeTransitionNotAllowed(StateTransition $transition, StateContext $context, State $current);
+    public function beforeTransitionNotAllowed($transition, $context, $current);
 }

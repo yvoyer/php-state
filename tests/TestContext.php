@@ -7,7 +7,7 @@
 
 namespace Star\Component\State;
 
-final class TestContext implements StateContext
+final class TestContext
 {
     /**
      * @var string

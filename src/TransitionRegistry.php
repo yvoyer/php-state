@@ -23,15 +23,17 @@ final class TransitionRegistry implements StateRegistry
     private $states = [];
 
     /**
+     * @param string $name
      * @param StateTransition $transition
      */
-    public function addTransition(StateTransition $transition)
+    public function addTransition($name, StateTransition $transition)
     {
-        if (isset($this->transitions[$transition->getName()])) {
-            throw DuplicateEntryException::duplicateTransition($transition);
+        Assert::string($name);
+        if (isset($this->transitions[$name])) {
+            throw DuplicateEntryException::duplicateTransition($name);
         }
 
-        $this->transitions[$transition->getName()] = $transition;
+        $this->transitions[$name] = $transition;
         $transition->onRegister($this);
     }
 
@@ -72,18 +74,23 @@ final class TransitionRegistry implements StateRegistry
     }
 
     /**
-     * @param State $state
-     * @deprecated todo Will be removed in a later version, use registerState instead
+     * @param TransitionVisitor $visitor
      */
-    public function addState(State $state)
+    public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
-        $state->register($this);
+        foreach ($this->transitions as $name => $transition) {
+            $visitor->visitTransition($name);
+            $transition->acceptTransitionVisitor($visitor);
+        }
     }
 
-    public function acceptStateVisitor(TransitionVisitor $visitor)
+    /**
+     * @param StateVisitor $visitor
+     */
+    public function acceptStateVisitor(StateVisitor $visitor)
     {
         foreach ($this->transitions as $transition) {
-            $transition->acceptTransitionVisitor($visitor);
+            $transition->acceptStateVisitor($visitor, $this);
         }
     }
 
@@ -91,15 +98,17 @@ final class TransitionRegistry implements StateRegistry
      * @param string $name
      * @param string[] $attributes
      */
-    public function registerState($name, array $attributes)
+    public function registerState($name, array $attributes = [])
     {
         $state = new StringState($name, $attributes);
-        if (! isset($this->states[$name])) {
-            $this->states[$name] = $state;
+        if (isset($this->states[$name])) {
+            $state = $this->getState($name);
         }
 
-        if (! $state->matchState($this->states[$name])) {
-            throw DuplicateEntryException::duplicateState($state);
+        foreach ($attributes as $attribute) {
+            $state->addAttribute($attribute);
         }
+
+        $this->states[$name] = $state;
     }
 }

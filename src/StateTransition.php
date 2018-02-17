@@ -10,40 +10,40 @@ namespace Star\Component\State;
 interface StateTransition
 {
     /**
-     * @return string
-     */
-    public function getName();
-
-    /**
-     * @param StateMachine $machine
+     * @param string $from
      *
      * @return bool
      */
-    public function isAllowed(StateMachine $machine);
+    public function isAllowed($from);
 
     /**
-     * @param TransitionRegistry $registry
+     * @param RegistryBuilder $registry
      */
-    public function onRegister(TransitionRegistry $registry);
+    public function onRegister(RegistryBuilder $registry);
 
     /**
-     * @param StateContext $context
+     * @param mixed $context
      */
-    public function beforeStateChange(StateContext $context);
+    public function beforeStateChange($context);
 
     /**
-     * @param StateContext $context
      * @param StateMachine $machine
      */
-    public function onStateChange(StateContext $context, StateMachine $machine);
+    public function onStateChange(StateMachine $machine);
 
     /**
-     * @param StateContext $context
+     * @param mixed $context
      */
-    public function afterStateChange(StateContext $context);
+    public function afterStateChange($context);
 
     /**
      * @param TransitionVisitor $visitor
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor);
+
+    /**
+     * @param StateVisitor $visitor
+     * @param StateRegistry $registry
+     */
+    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry);
 }

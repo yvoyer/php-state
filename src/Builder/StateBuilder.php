@@ -3,10 +3,11 @@
 namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateMachine;
-use Star\Component\State\States\ArrayState;
-use Star\Component\State\States\StringState;
+use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionRegistry;
-use Star\Component\State\Transitions\FromToTransition;
+use Star\Component\State\Transitions\ManyToOneTransition;
+use Star\Component\State\Transitions\OneToOneTransition;
+use Webmozart\Assert\Assert;
 
 /**
  * Tool to build the StateMachine.
@@ -18,7 +19,7 @@ final class StateBuilder
      */
     private $registry;
 
-    private function __construct()
+    public function __construct()
     {
         $this->registry = new TransitionRegistry();
     }
@@ -33,23 +34,24 @@ final class StateBuilder
     public function allowTransition($name, $from, $to)
     {
         if (is_array($from)) {
-            $state = new ArrayState(
-                array_map(
-                    function ($name) {
-                        return new StringState($name);
-                    },
-                    $from
-                )
-            );
+            $transition = new ManyToOneTransition($from, $to);
         } else {
-            $state = new StringState($from);
+            $transition = new OneToOneTransition($from, $to);
         }
 
-        $this->registry->addTransition(
-            new FromToTransition($name, $state, new StringState($to))
-        );
+        $this->allowCustomTransition($name, $transition);
 
         return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param StateTransition $transition
+     */
+    public function allowCustomTransition($name, StateTransition $transition)
+    {
+        Assert::string($name);
+        $this->registry->addTransition($name, $transition);
     }
 
     /**

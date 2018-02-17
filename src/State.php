@@ -10,20 +10,6 @@ namespace Star\Component\State;
 interface State
 {
     /**
-     * The string value of the state
-     *
-     * @return string
-     */
-    public function getName();
-
-    /**
-     * @param State $state
-     *
-     * @return bool
-     */
-    public function matchState(State $state);
-
-    /**
      * @param string $attribute
      *
      * @return bool
@@ -36,17 +22,7 @@ interface State
     public function addAttribute($attribute);
 
     /**
-     * @param StateRegistry $registry
+     * @param StateVisitor $visitor
      */
-    public function register(StateRegistry $registry);
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitorFrom(TransitionVisitor $visitor);
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitorTo(TransitionVisitor $visitor);
+    public function acceptStateVisitor(StateVisitor $visitor);
 }

@@ -20,12 +20,7 @@ final class TransitionRegistry implements StateRegistry
     /**
      * @var State[]
      */
-    private $states;
-
-    public function __construct()
-    {
-        $this->states = [];
-    }
+    private $states = [];
 
     /**
      * @param string $name

@@ -12,7 +12,6 @@ use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\Handlers\ClosureHandler;
-use Star\Component\State\Transitions\ManyToOneTransition;
 use Star\Component\State\Transitions\OneToOneTransition;
 
 final class StateMachineTest extends TestCase
@@ -37,7 +36,6 @@ final class StateMachineTest extends TestCase
         $this->registry = new TransitionRegistry();
         $this->registry->registerState('current', ['exists']);
         $this->machine = new StateMachine('current', $this->registry);
-        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
     }
 
     /**
@@ -53,6 +51,7 @@ final class StateMachineTest extends TestCase
     {
         $this->assertTrue($this->machine->isInState('current'));
 
+        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
         $this->assertSame('next', $this->machine->transitContext('name', $this->context));
 
         $this->assertFalse($this->machine->isInState('current'));
@@ -72,6 +71,7 @@ final class StateMachineTest extends TestCase
         );
         $this->assertNull($event);
 
+        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
         $this->machine->transitContext('name', $this->context);
 
         $this->assertInstanceOf(TransitionWasRequested::class, $event);
@@ -92,6 +92,7 @@ final class StateMachineTest extends TestCase
         );
         $this->assertNull($event);
 
+        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
         $this->machine->transitContext('name', $this->context);
 
         $this->assertInstanceOf(TransitionWasSuccessful::class, $event);
@@ -104,9 +105,9 @@ final class StateMachineTest extends TestCase
      */
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
-        $this->registry->addTransition(
-            'transition', new OneToOneTransition('not-allowed', 'not-allowed')
-        );
+        $transition = $this->getMockBuilder(StateTransition::class)->getMock();
+
+        $this->registry->addTransition('transition', $transition);// OneToOneTransition('not-allowed', 'not-allowed')        );
         $this->assertFalse($this->machine->isInState('not-allowed'));
 
         $this->machine->transitContext('transition', $this->context);
@@ -125,7 +126,8 @@ final class StateMachineTest extends TestCase
     public function test_it_should_use_supplied_failure_handler_when_transition_not_allowed()
     {
         $this->registry->addTransition(
-            'transition', new OneToOneTransition('not-allowed', 'not-allowed')
+            'transition',
+            $this->getMockBuilder(StateTransition::class)->getMock()
         );
         $this->machine->transitContext(
             'transition',
@@ -134,31 +136,6 @@ final class StateMachineTest extends TestCase
                 throw new \RuntimeException("The custom handler was triggered.");
             })
         );
-    }
-
-    public function test_it_should_allow_transition_when_can_start_from_multiple_states()
-    {
-        $this->registry->addTransition(
-            't', new ManyToOneTransition(['other', 'current'], 'to')
-        );
-        $this->assertInstanceOf(
-            StateMachine::class,
-            $this->machine->transit('t', $this->context)
-        );
-
-        $this->assertTrue($this->machine->isInState('to'));
-    }
-
-    public function test_it_should_set_current_state_using_registered_state()
-    {
-        $this->registry->addTransition('move', new OneToOneTransition('current', 'new'));
-        $this->assertTrue($this->machine->isInState('current'));
-        $this->assertFalse($this->machine->hasAttribute('attr'));
-
-        $this->machine->setCurrentState('new');
-
-        $this->assertTrue($this->machine->isInState('new'));
-        $this->assertFalse($this->machine->hasAttribute('attr'));
     }
 
     public function test_it_should_visit_the_transitions()

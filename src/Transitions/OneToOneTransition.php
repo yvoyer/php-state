@@ -14,12 +14,12 @@ use Webmozart\Assert\Assert;
 final class OneToOneTransition implements StateTransition
 {
     /**
-     * @var State
+     * @var string
      */
     private $from;
 
     /**
-     * @var State
+     * @var string
      */
     private $to;
 

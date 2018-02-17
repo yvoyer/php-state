@@ -198,9 +198,45 @@ final class MyStateWorkflow extends StateMetadata
         $builder->allowTransition('remove', 'published', 'approved');
         $builder->allowTransition('archive', ['approved', 'published'], 'archived');
         $builder->allowTransition('un-archive', 'archived', 'approved');
-        $builder->allowTransition('re-open', 'archived', 'pending');
+        
+        // Custom transition
+        $builder->allowCustomTransition('re-open', new ReOpenTransition());
+
+        // attributes
         $builder->addAttribute('is_visible', 'published');
         $builder->addAttribute('is_draft', ['pending', 'approved']);
+    }
+}
+
+// Custom transition definition
+final class ReOpenTransition implements StateTransition
+{
+    public function isAllowed($from)
+    {
+        return 'archived' === $from;
+    }
+
+    public function onRegister(RegistryBuilder $registry)
+    {
+        $registry->registerState('archived', []);
+        $registry->registerState('pending', []);
+    }
+
+    public function onStateChange(StateMachine $machine)
+    {
+        $machine->setCurrentState('pending');
+    }
+
+    public function acceptTransitionVisitor(TransitionVisitor $visitor)
+    {
+        $visitor->visitFromState('archived');
+        $visitor->visitToState('pending');
+    }
+
+    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
+    {
+        $registry->getState('archived')->acceptStateVisitor($visitor);
+        $registry->getState('pending')->acceptStateVisitor($visitor);
     }
 }
 

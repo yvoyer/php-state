@@ -3,9 +3,11 @@
 namespace Star\Component\State\Builder;
 
 use Star\Component\State\StateMachine;
+use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\ManyToOneTransition;
 use Star\Component\State\Transitions\OneToOneTransition;
+use Webmozart\Assert\Assert;
 
 /**
  * Tool to build the StateMachine.
@@ -37,9 +39,19 @@ final class StateBuilder
             $transition = new OneToOneTransition($from, $to);
         }
 
-        $this->registry->addTransition($name, $transition);
+        $this->allowCustomTransition($name, $transition);
 
         return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param StateTransition $transition
+     */
+    public function allowCustomTransition($name, StateTransition $transition)
+    {
+        Assert::string($name);
+        $this->registry->addTransition($name, $transition);
     }
 
     /**

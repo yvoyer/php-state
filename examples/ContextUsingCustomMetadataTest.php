@@ -191,9 +191,74 @@ final class MyStateWorkflow extends StateMetadata
         $builder->allowTransition('remove', 'published', 'approved');
         $builder->allowTransition('archive', ['approved', 'published'], 'archived');
         $builder->allowTransition('un-archive', 'archived', 'approved');
-        $builder->allowTransition('re-open', 'archived', 'pending');
+        $builder->allowCustomTransition('re-open', new ReOpenTransition());
         $builder->addAttribute('is_visible', 'published');
         $builder->addAttribute('is_draft', ['pending', 'approved']);
+    }
+}
+
+final class ReOpenTransition implements StateTransition
+{
+    /**
+     * @param string $from
+     *
+     * @return bool
+     */
+    public function isAllowed($from)
+    {
+        return 'archived' === $from;
+    }
+
+    /**
+     * @param RegistryBuilder $registry
+     */
+    public function onRegister(RegistryBuilder $registry)
+    {
+        $registry->registerState('archived', []);
+        $registry->registerState('pending', []);
+    }
+
+    /**
+     * @param mixed $context
+     */
+    public function beforeStateChange($context)
+    {
+        // todo add test for change on context
+    }
+
+    /**
+     * @param StateMachine $machine
+     */
+    public function onStateChange(StateMachine $machine)
+    {
+        $machine->setCurrentState('pending');
+    }
+
+    /**
+     * @param mixed $context
+     */
+    public function afterStateChange($context)
+    {
+        // todo add test for change on context
+    }
+
+    /**
+     * @param TransitionVisitor $visitor
+     */
+    public function acceptTransitionVisitor(TransitionVisitor $visitor)
+    {
+        $visitor->visitFromState('archived');
+        $visitor->visitToState('pending');
+    }
+
+    /**
+     * @param StateVisitor $visitor
+     * @param StateRegistry $registry
+     */
+    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
+    {
+        $registry->getState('archived')->acceptStateVisitor($visitor);
+        $registry->getState('pending')->acceptStateVisitor($visitor);
     }
 }
 

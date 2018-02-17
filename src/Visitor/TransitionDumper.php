@@ -3,10 +3,9 @@
 namespace Star\Component\State\Visitor;
 
 use Star\Component\State\State;
-use Star\Component\State\StateVisitor;
 use Star\Component\State\TransitionVisitor;
 
-final class TransitionDumper implements TransitionVisitor, StateVisitor
+final class TransitionDumper implements TransitionVisitor
 {
     /**
      * @var array
@@ -34,17 +33,10 @@ final class TransitionDumper implements TransitionVisitor, StateVisitor
     public function visitFromState(State $state)
     {
         $this->structure[$this->currentTransition]['from'][] = $state->getName();
-        $state->acceptStateVisitor($this);
     }
 
     public function visitToState(State $state)
     {
         $this->structure[$this->currentTransition]['to'][] = $state->getName();
-        $state->acceptStateVisitor($this);
-    }
-
-    public function visitState($name, array $attributes)
-    {
-        $this->structure['attributes'][$name] = $attributes;
     }
 }

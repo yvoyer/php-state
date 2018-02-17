@@ -111,6 +111,7 @@ final class OneToOneTransition implements StateTransition
      */
     public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
     {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+        $registry->getState($this->from)->acceptStateVisitor($visitor);
+        $registry->getState($this->to)->acceptStateVisitor($visitor);
     }
 }

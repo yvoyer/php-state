@@ -7,6 +7,7 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\States\StringState;
 use Webmozart\Assert\Assert;
 
 final class TransitionRegistry implements StateRegistry
@@ -23,7 +24,7 @@ final class TransitionRegistry implements StateRegistry
 
     public function __construct()
     {
-        $this->states = new ArrayRegistry();
+        $this->states = [];
     }
 
     /**
@@ -67,7 +68,12 @@ final class TransitionRegistry implements StateRegistry
      */
     public function getState($name)
     {
-        return $this->states->getState($name);
+        Assert::string($name);
+        if (! isset($this->states[$name])) {
+            throw NotFoundException::stateNotFound($name);
+        }
+
+        return $this->states[$name];
     }
 
     /**
@@ -96,6 +102,12 @@ final class TransitionRegistry implements StateRegistry
      */
     public function registerState($name, array $attributes = [])
     {
-        return $this->states->registerState($name, $attributes);
+        $state = new StringState($name, $attributes);
+        if (isset($this->states[$name])) {
+            $state = $this->getState($name);
+            $state->addAttributes($attributes);
+        }
+
+        $this->states[$name] = $state;
     }
 }

@@ -59,18 +59,4 @@ final class TransitionDumperTest extends TestCase
             $this->dumper->getStructure()['t2']
         );
     }
-
-    public function test_it_should_dump_the_attributes()
-    {
-        $this->machine->acceptTransitionVisitor($this->dumper);
-        $this->assertArrayHasKey('attributes', $this->dumper->getStructure());
-        $this->assertEquals(
-            [
-                's1' => ['a1', 'a2'],
-                's2' => ['a2'],
-                's3' => [],
-            ],
-            $this->dumper->getStructure()['attributes']
-        );
-    }
 }

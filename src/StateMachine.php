@@ -22,7 +22,7 @@ final class StateMachine
     private $dispatcher;
 
     /**
-     * @var TransitionRegistry
+     * @var StateRegistry
      */
     private $registry;
 
@@ -33,9 +33,9 @@ final class StateMachine
 
     /**
      * @param string $currentState
-     * @param TransitionRegistry|null $registry
+     * @param StateRegistry|null $registry
      */
-    public function __construct($currentState, TransitionRegistry $registry = null)
+    public function __construct($currentState, StateRegistry $registry = null)
     {
         if (! $registry) {
             $registry = new TransitionRegistry();
@@ -152,7 +152,6 @@ final class StateMachine
      */
     public function acceptStateVisitor(StateVisitor $visitor)
     {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
         $this->registry->acceptStateVisitor($visitor);
     }
 }

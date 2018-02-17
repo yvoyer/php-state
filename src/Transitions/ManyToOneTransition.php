@@ -121,7 +121,6 @@ final class ManyToOneTransition implements StateTransition
      */
     public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
     {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
         foreach ($this->fromStates as $from) {
             $registry->getState($from)->acceptStateVisitor($visitor);
         }

@@ -103,4 +103,30 @@ final class TransitionRegistryTest extends TestCase
         $this->assertInstanceOf(State::class, $this->registry->getState('from2'));
         $this->assertInstanceOf(State::class, $this->registry->getState('to'));
     }
+
+    public function test_it_should_visit_the_accepting_transition_visitor()
+    {
+        $visitor = $this->getMockBuilder(TransitionVisitor::class)->getMock();
+        $transition = $this->getMockBuilder(StateTransition::class)->getMock();
+        $transition
+            ->expects($this->once())
+            ->method('acceptTransitionVisitor')
+            ->with($visitor, $this->registry);
+
+        $this->registry->addTransition($transition);
+        $this->registry->acceptTransitionVisitor($visitor);
+    }
+
+    public function test_it_should_visit_the_accepting_state_visitor()
+    {
+        $visitor = $this->getMockBuilder(StateVisitor::class)->getMock();
+        $transition = $this->getMockBuilder(StateTransition::class)->getMock();
+        $transition
+            ->expects($this->once())
+            ->method('acceptStateVisitor')
+            ->with($visitor, $this->registry);
+
+        $this->registry->addTransition($transition);
+        $this->registry->acceptStateVisitor($visitor);
+    }
 }

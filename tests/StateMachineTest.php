@@ -161,4 +161,30 @@ final class StateMachineTest extends TestCase
         $this->assertTrue($this->machine->isInState('new'));
         $this->assertFalse($this->machine->hasAttribute('attr'));
     }
+
+    public function test_it_should_visit_the_transitions()
+    {
+        $registry = $this->getMockBuilder(StateRegistry::class)->getMock();
+        $machine = new StateMachine('', $registry);
+        $visitor = $this->getMockBuilder(TransitionVisitor::class)->getMock();
+
+        $registry
+            ->expects($this->once())
+            ->method('acceptTransitionVisitor')
+            ->with($visitor);
+        $machine->acceptTransitionVisitor($visitor);
+    }
+
+    public function test_it_should_visit_the_states()
+    {
+        $registry = $this->getMockBuilder(StateRegistry::class)->getMock();
+        $machine = new StateMachine('', $registry);
+        $visitor = $this->getMockBuilder(StateVisitor::class)->getMock();
+
+        $registry
+            ->expects($this->once())
+            ->method('acceptStateVisitor')
+            ->with($visitor);
+        $machine->acceptStateVisitor($visitor);
+    }
 }

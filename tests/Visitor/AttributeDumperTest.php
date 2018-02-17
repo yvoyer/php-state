@@ -25,7 +25,7 @@ final class AttributeDumperTest extends TestCase
 
     public function test_it_should_dump_the_attributes()
     {
-        $this->machine->acceptTransitionVisitor($dumper = new AttributeDumper());
+        $this->machine->acceptStateVisitor($dumper = new AttributeDumper());
         $this->assertInternalType('array', $dumper->getStructure());
         $this->assertEquals(
             [

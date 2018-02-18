@@ -4,7 +4,7 @@
 
 This package help you to build a workflow for a designated context, that can be encapsulated inside the given context.
 
-It was designed to avoid add a hard dependancy to the package. The library do not require you to implement any method.
+It was designed to avoid add a hard dependency to the package. The library do not require you to implement any method.
 All the code you need to do can be encapsulated inside your context class, and it stays hidden to your other object.
 
 
@@ -23,7 +23,8 @@ Using composer, add the following require in your `composer.json`.
 ## States
 
 A state is just a name in which a context can find itself in. The state is usually kept in a persistence platform, 
-or kept in the model using it. 
+or kept in the model using a [string](https://github.com/yvoyer/php-state/blob/master/examples/ContextUsingBuilderTest.php#240)
+ representation or a [StateMetadata](https://github.com/yvoyer/php-state/blob/master/examples/ContextUsingCustomMetadataTest.php#L179) class.
 
 ## Transitions
 
@@ -32,22 +33,6 @@ have one destination state, since there is no way (yet) for the machine to know 
 
 If no transition has the context's current state as a start start, an exception will be raised, since the transition
 is not allowed.
-
-example:
-
-     +---------------------------------------------------+
-     |                  Transitions                      |
-     +------------+------------+------------+------------+
-     |   State    |            |            |            |
-     | from / to  |    draft   | published  |  archived  |
-     +============+============+============+============+
-     | draft      |     N/A    | publish    |    N/A     |
-     +------------+------------+------------+------------+
-     | published  |     N/A    |     N/A    | archive    | 
-     +------------+------------+------------+------------+
-     | archived   |     N/A    | to_draft   |    N/A     |
-     +------------+------------+------------+------------+
-
 
 ## Attributes
 
@@ -94,7 +79,7 @@ class Post
 }
 ```
 
-## Example of usage
+## Examples of usage
 
 ### Using the builder in your model
 
@@ -106,7 +91,10 @@ Given you have a `Post` implementation that can have multiple states:
 
 The post's allowed workflow should be as follow:
 
+    +---------------------------------------------------+
+    |                  Transitions                      |
     +------------+------------+------------+------------+
+    |   State    |            |            |            |
     | from / to  |    draft   | published  |  archived  |
     +============+============+============+============+
     | draft      |     N/A    | publish    |    N/A     |
@@ -153,9 +141,10 @@ class Post
 If you have multiple models that can have the same workflow, defining a class that wraps the workflow can be done using
 the [StateMetadata](https://github.com/yvoyer/php-state/blob/master/src/StateMetadata.php).
 
-The `StateMetadata` supports the following persistence engine:
+Supports the following persistence engine:
 
-* [Doctrine](https://github.com/doctrine/doctrine2): [Example](https://github.com/yvoyer/php-state/blob/master/examples/DoctrineMappedContextTest.php) of usage.
+* [Doctrine](https://github.com/doctrine/doctrine2): Can be used using `@Embeddable`, see 
+[Example of usage](https://github.com/yvoyer/php-state/blob/master/examples/DoctrineMappedContextTest.php).
 
 ```php
 /**
@@ -210,38 +199,6 @@ final class MyStateWorkflow extends StateMetadata
         // attributes
         $builder->addAttribute('is_visible', 'published');
         $builder->addAttribute('is_draft', ['pending', 'approved']);
-    }
-}
-
-// Custom transition definition
-final class ReOpenTransition implements StateTransition
-{
-    public function isAllowed($from)
-    {
-        return 'archived' === $from;
-    }
-
-    public function onRegister(RegistryBuilder $registry)
-    {
-        $registry->registerState('archived', []);
-        $registry->registerState('pending', []);
-    }
-
-    public function onStateChange(StateMachine $machine)
-    {
-        $machine->setCurrentState('pending');
-    }
-
-    public function acceptTransitionVisitor(TransitionVisitor $visitor)
-    {
-        $visitor->visitFromState('archived');
-        $visitor->visitToState('pending');
-    }
-
-    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
-    {
-        $registry->getState('archived')->acceptStateVisitor($visitor);
-        $registry->getState('pending')->acceptStateVisitor($visitor);
     }
 }
 

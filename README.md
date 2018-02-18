@@ -77,8 +77,8 @@ class Post
     {
         return StateBuilder::build()
             // ... your transitions here
-            ->addAttribute("is_active", "published")
-            ->addAttribute("is_closed", ["archived", "drafted"])
+            ->addAttribute("is_active", "published") // one state only has the attribute
+            ->addAttribute("is_closed", ["archived", "drafted"]) // many states have the attribute
             ->create($this->state);
     }
     
@@ -129,7 +129,7 @@ class Post
     public function publish()
     {
         // set the state to the next one after the transition is done (and if allowed)
-        $this->state = $this->stateMachine()->transitContext("publish", $this);
+        $this->state = $this->stateMachine()->transit("publish", $this);
     }
 
     /**
@@ -152,6 +152,10 @@ class Post
 
 If you have multiple models that can have the same workflow, defining a class that wraps the workflow can be done using
 the [StateMetadata](https://github.com/yvoyer/php-state/blob/master/src/StateMetadata.php).
+
+The `StateMetadata` supports the following persistence engine:
+
+* [Doctrine](https://github.com/doctrine/doctrine2): [Example](https://github.com/yvoyer/php-state/blob/master/examples/DoctrineMappedContextTest.php) of usage.
 
 ```php
 /**
@@ -185,13 +189,14 @@ the [StateMetadata](https://github.com/yvoyer/php-state/blob/master/src/StateMet
  */
 final class MyStateWorkflow extends StateMetadata
 {
-    protected function initialState()
+    protected function __construct()
     {
-        return 'pending';
+        parent::__construct('pending');
     }
     
     protected function createMachine(StateBuilder $builder)
     {
+        // define transitions
         $builder->allowTransition('approve', 'pending', 'approved');
         $builder->allowTransition('discard', 'pending', 'archived');
         $builder->allowTransition('publish', 'approved', 'published');

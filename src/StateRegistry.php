@@ -20,6 +20,13 @@ interface StateRegistry extends RegistryBuilder
     public function getState($name);
 
     /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasState($name);
+
+    /**
      * @param TransitionVisitor $visitor
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor);

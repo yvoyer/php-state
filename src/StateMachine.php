@@ -56,7 +56,7 @@ final class StateMachine
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
-    public function transitContext($transitionName, $context, FailureHandler $handler = null)
+    public function transit($transitionName, $context, FailureHandler $handler = null)
     {
         Assert::string($transitionName);
         if (! $handler) {
@@ -66,6 +66,7 @@ final class StateMachine
         $transition = $this->registry->getTransition($transitionName);
 
         if (! $transition->isAllowed($this->currentState)) {
+            // todo dispatch exception event instead ?
             $handler->beforeTransitionNotAllowed($transitionName, $context, $this->currentState);
             // always throw exception when not allowed
             throw InvalidStateTransitionException::notAllowedTransition($transitionName, $context, $this->currentState);
@@ -89,27 +90,17 @@ final class StateMachine
     }
 
     /**
-     * @param string $transitionName
-     * @param mixed $context
-     *
-     * @return $this
-     */
-    public function transit($transitionName, $context) {
-        Assert::string($transitionName);
-        // todo make sure its persistable
-        $this->transitContext($transitionName, $context);
-
-        return $this;
-    }
-
-    /**
      * @param string $stateName
-     *
      * @return bool
+     * @throws NotFoundException
      */
     public function isInState($stateName)
     {
         Assert::string($stateName);
+        if (! $this->registry->hasState($stateName)) {
+            throw NotFoundException::stateNotFound($stateName);
+        }
+
         return $this->currentState === $stateName;
     }
 

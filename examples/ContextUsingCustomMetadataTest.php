@@ -35,7 +35,7 @@ final class ContextUsingCustomMetadataTest extends TestCase {
      * | archived  |   false  |   false    |
      * +-----------+----------+------------+
      *
-     * * On publish: set publisehd at
+     * * On publish: set published at
      * * On discard: set discarded by
      * * On post edit: move to pending (Override all rules)
      */
@@ -178,12 +178,12 @@ final class ContextUsingCustomMetadataTest extends TestCase {
 
 final class MyStateWorkflow extends StateMetadata
 {
-    protected function initialState()
+    public function __construct()
     {
-        return 'pending';
+        parent::__construct('pending');
     }
 
-    protected function createMachine(StateBuilder $builder)
+    protected function configure(StateBuilder $builder)
     {
         $builder->allowTransition('approve', 'pending', 'approved');
         $builder->allowTransition('discard', 'pending', 'archived');

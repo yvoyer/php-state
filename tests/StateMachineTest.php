@@ -44,7 +44,7 @@ final class StateMachineTest extends TestCase
      */
     public function test_it_should_not_allow_to_transition_to_a_not_configured_transition()
     {
-        $this->machine->transitContext('not-configured', $this->context);
+        $this->machine->transit('not-configured', $this->context);
     }
 
     public function test_it_should_transition_from_one_state_to_the_other()
@@ -52,7 +52,7 @@ final class StateMachineTest extends TestCase
         $this->assertTrue($this->machine->isInState('current'));
 
         $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
-        $this->assertSame('next', $this->machine->transitContext('name', $this->context));
+        $this->assertSame('next', $this->machine->transit('name', $this->context));
 
         $this->assertFalse($this->machine->isInState('current'));
     }
@@ -72,7 +72,7 @@ final class StateMachineTest extends TestCase
         $this->assertNull($event);
 
         $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
-        $this->machine->transitContext('name', $this->context);
+        $this->machine->transit('name', $this->context);
 
         $this->assertInstanceOf(TransitionWasRequested::class, $event);
         $this->assertSame('name', $event->transition());
@@ -93,7 +93,7 @@ final class StateMachineTest extends TestCase
         $this->assertNull($event);
 
         $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
-        $this->machine->transitContext('name', $this->context);
+        $this->machine->transit('name', $this->context);
 
         $this->assertInstanceOf(TransitionWasSuccessful::class, $event);
         $this->assertSame('name', $event->transition());
@@ -107,10 +107,11 @@ final class StateMachineTest extends TestCase
     {
         $transition = $this->getMockBuilder(StateTransition::class)->getMock();
 
-        $this->registry->addTransition('transition', $transition);// OneToOneTransition('not-allowed', 'not-allowed')        );
+        $this->registry->registerState('not-allowed');
+        $this->registry->addTransition('transition', $transition);
         $this->assertFalse($this->machine->isInState('not-allowed'));
 
-        $this->machine->transitContext('transition', $this->context);
+        $this->machine->transit('transition', $this->context);
     }
 
     public function test_state_can_have_attribute()
@@ -129,7 +130,7 @@ final class StateMachineTest extends TestCase
             'transition',
             $this->getMockBuilder(StateTransition::class)->getMock()
         );
-        $this->machine->transitContext(
+        $this->machine->transit(
             'transition',
             $this->context,
             new ClosureHandler(function() {
@@ -162,5 +163,14 @@ final class StateMachineTest extends TestCase
             ->method('acceptStateVisitor')
             ->with($visitor);
         $machine->acceptStateVisitor($visitor);
+    }
+
+    /**
+     * @expectedException        \Star\Component\State\NotFoundException
+     * @expectedExceptionMessage The state 'not-exists' could not be found.
+     */
+    public function test_it_should_throw_exception_when_state_do_not_exists()
+    {
+        $this->machine->isInState('not-exists');
     }
 }

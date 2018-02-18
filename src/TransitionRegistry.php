@@ -66,11 +66,21 @@ final class TransitionRegistry implements StateRegistry
     public function getState($name)
     {
         Assert::string($name);
-        if (! isset($this->states[$name])) {
+        if (! $this->hasState($name)) {
             throw NotFoundException::stateNotFound($name);
         }
 
         return $this->states[$name];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasState($name)
+    {
+        return isset($this->states[$name]);
     }
 
     /**
@@ -101,7 +111,7 @@ final class TransitionRegistry implements StateRegistry
     public function registerState($name, array $attributes = [])
     {
         $state = new StringState($name, $attributes);
-        if (isset($this->states[$name])) {
+        if ($this->hasState($name)) {
             $state = $this->getState($name);
         }
 

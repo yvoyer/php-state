@@ -3,48 +3,66 @@
 namespace Star\Component\State;
 
 use Star\Component\State\Builder\StateBuilder;
+use Webmozart\Assert\Assert;
 
 abstract class StateMetadata
 {
     /**
      * @var string
      */
-    private $current;
+    protected $current;
+
+    /**
+     * @param string $initial The initial state name
+     */
+    public function __construct($initial)
+    {
+        Assert::string($initial);
+        $this->current = $initial;
+    }
 
     /**
      * Returns the state workflow configuration.
      *
      * @param StateBuilder $builder
      */
-    protected abstract function createMachine(StateBuilder $builder);
-
-    /**
-     * Returns the initial state at the creation of the context.
-     *
-     * @return string
-     */
-    protected abstract function initialState();
+    protected abstract function configure(StateBuilder $builder);
 
     private function getMachine()
     {
-        if (! $this->current) {
-            $this->current = $this->initialState();
-        }
-
-        $this->createMachine($builder = new StateBuilder());
+        $this->configure($builder = new StateBuilder());
 
         // todo implement caching for faster building
         return $builder->create($this->current);
     }
 
-    final public function transit($name, $context) {
-        return $this->getMachine()->transit($name, $context);
+    /**
+     * @param string $name
+     * @param mixed $context
+     * @param FailureHandler $handler
+     *
+     * @return StateMetadata
+     */
+    final public function transit($name, $context, FailureHandler $handler = null) {
+        $this->current = $this->getMachine()->transit($name, $context, $handler);
+
+        return $this;
     }
 
+    /**
+     * @param string $attribute
+     *
+     * @return bool
+     */
     final public function hasAttribute($attribute) {
         return $this->getMachine()->hasAttribute($attribute);
     }
 
+    /**
+     * @param string $state
+     *
+     * @return bool
+     */
     final public function isInState($state) {
         return $this->getMachine()->isInState($state);
     }

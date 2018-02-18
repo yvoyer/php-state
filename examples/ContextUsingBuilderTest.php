@@ -237,17 +237,17 @@ class Post
 
     public function moveToDraft()
     {
-        $this->state = $this->workflow()->transitContext(self::TRANSITION_TO_DRAFT, $this);
+        $this->state = $this->workflow()->transit(self::TRANSITION_TO_DRAFT, $this);
     }
 
     public function publish()
     {
-        $this->state = $this->workflow()->transitContext(self::TRANSITION_PUBLISH, $this);
+        $this->state = $this->workflow()->transit(self::TRANSITION_PUBLISH, $this);
     }
 
     public function archive()
     {
-        $this->state = $this->workflow()->transitContext(self::TRANSITION_ARCHIVE, $this);
+        $this->state = $this->workflow()->transit(self::TRANSITION_ARCHIVE, $this);
     }
 
     /**

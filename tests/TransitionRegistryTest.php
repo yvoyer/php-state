@@ -129,4 +129,11 @@ final class TransitionRegistryTest extends TestCase
         $this->registry->addTransition('t', $transition);
         $this->registry->acceptStateVisitor($visitor);
     }
+
+    public function test_it_should_return_if_the_state_exists()
+    {
+        $this->registry->registerState('exists');
+        $this->assertTrue($this->registry->hasState('exists'));
+        $this->assertFalse($this->registry->hasState('not-exists'));
+    }
 }

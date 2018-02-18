@@ -5,7 +5,8 @@ namespace Star\Component\State;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 
-final class ContextUsingCustomMetadataTest extends TestCase {
+final class ContextUsingCustomMetadataTest extends TestCase
+{
     /**
      * +---------------------------------------------------------+
      * |                           Transition                    |

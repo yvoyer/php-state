@@ -36,7 +36,8 @@ final class StateMachineTest extends TestCase
      */
     private $transition;
 
-    public function setUp() {
+    public function setUp()
+    {
         $this->transition = $this->getMockBuilder(StateTransition::class)->getMock();
         $this->context = new TestContext('current');
         $this->registry = new TransitionRegistry();
@@ -107,15 +108,28 @@ final class StateMachineTest extends TestCase
 
     /**
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'transition' is not allowed when context 'Star\Component\State\TestContext' is in state 'current'.
+     * @expectedExceptionMessage The transition 't' is not allowed when context 'stdClass' is in state 'current'.
      */
-    public function test_it_should_throw_exception_when_transition_not_allowed()
+    public function test_it_should_throw_exception_with_class_context_when_transition_not_allowed()
+    {
+        $this->registry->registerState('not-allowed');
+        $this->registry->addTransition('t', $this->transition);
+        $this->assertFalse($this->machine->isInState('not-allowed'));
+
+        $this->machine->transit('t', new \stdClass);
+    }
+
+    /**
+     * @expectedException        \Star\Component\State\InvalidStateTransitionException
+     * @expectedExceptionMessage The transition 'transition' is not allowed when context 'c' is in state 'current'.
+     */
+    public function test_it_should_throw_exception_with_context_as_string_when_transition_not_allowed()
     {
         $this->registry->registerState('not-allowed');
         $this->registry->addTransition('transition', $this->transition);
         $this->assertFalse($this->machine->isInState('not-allowed'));
 
-        $this->machine->transit('transition', $this->context);
+        $this->machine->transit('transition', 'c');
     }
 
     public function test_state_can_have_attribute()
@@ -170,7 +184,8 @@ final class StateMachineTest extends TestCase
                 $this->assertInstanceOf(TransitionWasFailed::class, $event);
                 $this->assertSame('t', $event->transition());
                 $this->assertInstanceOf(InvalidStateTransitionException::class, $event->exception());
-            });
+            }
+        );
 
         $this->registry->addTransition('t', $this->transition);
         try {

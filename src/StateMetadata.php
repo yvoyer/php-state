@@ -26,7 +26,7 @@ abstract class StateMetadata
      *
      * @param StateBuilder $builder
      */
-    protected abstract function configure(StateBuilder $builder);
+    abstract protected function configure(StateBuilder $builder);
 
     private function getMachine()
     {
@@ -42,7 +42,8 @@ abstract class StateMetadata
      *
      * @return StateMetadata
      */
-    final public function transit($name, $context) {
+    final public function transit($name, $context)
+    {
         $this->current = $this->getMachine()->transit($name, $context);
 
         return $this;
@@ -53,7 +54,8 @@ abstract class StateMetadata
      *
      * @return bool
      */
-    final public function hasAttribute($attribute) {
+    final public function hasAttribute($attribute)
+    {
         return $this->getMachine()->hasAttribute($attribute);
     }
 
@@ -62,7 +64,8 @@ abstract class StateMetadata
      *
      * @return bool
      */
-    final public function isInState($state) {
+    final public function isInState($state)
+    {
         return $this->getMachine()->isInState($state);
     }
 }

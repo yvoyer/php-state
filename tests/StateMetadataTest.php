@@ -24,7 +24,8 @@ final class StateMetadataTest extends TestCase
     {
         $metadata = new CustomMetadata('from');
         $this->assertInstanceOf(
-            CustomMetadata::class, $new = $metadata->transit('t1', 'context')
+            CustomMetadata::class,
+            $new = $metadata->transit('t1', 'context')
         );
         $this->assertTrue($new->isInState('to'));
     }

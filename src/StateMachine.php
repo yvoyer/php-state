@@ -61,7 +61,9 @@ final class StateMachine
         $transition = $this->registry->getTransition($transitionName);
         if (! $transition->isAllowed($this->currentState)) {
             $exception = InvalidStateTransitionException::notAllowedTransition(
-                $transitionName, $context, $this->currentState
+                $transitionName,
+                $context,
+                $this->currentState
             );
 
             $this->dispatcher->dispatch(

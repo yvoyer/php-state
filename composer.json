@@ -27,7 +27,8 @@
     },
     "require-dev": {
         "doctrine/orm": "^2.5",
-        "phpunit/phpunit": "~4.0"
+        "phpunit/phpunit": "~4.0",
+        "squizlabs/php_codesniffer": "^3.2"
     },
     "extra": {
         "branch-alias": {

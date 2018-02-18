@@ -2,7 +2,8 @@
 
 namespace Star\Component\State;
 
-final class DuplicateEntryException extends \LogicException {
+final class DuplicateEntryException extends \LogicException
+{
     /**
      * @param string $transition
      *

@@ -29,7 +29,12 @@
         "doctrine/orm": "^2.5",
         "phpunit/phpunit": "~4.0"
     },
-	"config": {
-		"bin-dir": "bin"
-	}
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
 }

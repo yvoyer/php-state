@@ -309,9 +309,7 @@ final class MyModel
 }
 ```
 
-## Events (Experimental)
-
-**Note: Events are experimental, the API may be subject to changes, or removed.**
+## Events
 
 The state machine has an internal event handling systems.
 
@@ -322,3 +320,4 @@ Subscribers that listens to these events will have their configured callback(s) 
 
 * `StateEventStore::BEFORE_TRANSITION`: This event is performed before any transition on the context.
 * `StateEventStore::AFTER_TRANSITION`: This event is performed after any transition is executed on the context.
+* `StateEventStore::FAILURE_TRANSITION`: This event is performed before the transition exception is triggered.

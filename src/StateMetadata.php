@@ -39,12 +39,11 @@ abstract class StateMetadata
     /**
      * @param string $name
      * @param mixed $context
-     * @param FailureHandler $handler
      *
      * @return StateMetadata
      */
-    final public function transit($name, $context, FailureHandler $handler = null) {
-        $this->current = $this->getMachine()->transit($name, $context, $handler);
+    final public function transit($name, $context) {
+        $this->current = $this->getMachine()->transit($name, $context);
 
         return $this;
     }

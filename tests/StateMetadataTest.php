@@ -28,18 +28,6 @@ final class StateMetadataTest extends TestCase
         );
         $this->assertTrue($new->isInState('to'));
     }
-
-    public function test_it_should_call_the_failure_handler_on_failure_transit()
-    {
-        $metadata = new CustomMetadata('to');
-        $handler = $this->getMockBuilder(FailureHandler::class)->getMock();
-        $handler
-            ->expects($this->once())
-            ->method('beforeTransitionNotAllowed');
-
-        $this->setExpectedException(InvalidStateTransitionException::class);
-        $metadata->transit('t1', 'context', $handler);
-    }
 }
 
 final class CustomMetadata extends StateMetadata

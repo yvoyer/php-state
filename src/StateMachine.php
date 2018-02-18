@@ -8,9 +8,9 @@
 namespace Star\Component\State;
 
 use Star\Component\State\Event\StateEventStore;
+use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
-use Star\Component\State\Handlers\NullHandler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Webmozart\Assert\Assert;
 
@@ -50,26 +50,27 @@ final class StateMachine
     /**
      * @param string $transitionName The transition name
      * @param mixed $context
-     * @param FailureHandler $handler Gives you the possibility to perform some task when transition not allowed
      *
      * @return string The next state to store on your context
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
-    public function transit($transitionName, $context, FailureHandler $handler = null)
+    public function transit($transitionName, $context)
     {
         Assert::string($transitionName);
-        if (! $handler) {
-            $handler = new NullHandler();
-        }
-
         $transition = $this->registry->getTransition($transitionName);
-
         if (! $transition->isAllowed($this->currentState)) {
-            // todo dispatch exception event instead ?
-            $handler->beforeTransitionNotAllowed($transitionName, $context, $this->currentState);
+            $exception = InvalidStateTransitionException::notAllowedTransition(
+                $transitionName, $context, $this->currentState
+            );
+
+            $this->dispatcher->dispatch(
+                StateEventStore::FAILURE_TRANSITION,
+                new TransitionWasFailed($transitionName, $exception)
+            );
+
             // always throw exception when not allowed
-            throw InvalidStateTransitionException::notAllowedTransition($transitionName, $context, $this->currentState);
+            throw $exception;
         }
 
         $this->dispatcher->dispatch(

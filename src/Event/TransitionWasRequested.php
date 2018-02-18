@@ -10,9 +10,6 @@ namespace Star\Component\State\Event;
 use Symfony\Component\EventDispatcher\Event;
 use Webmozart\Assert\Assert;
 
-/**
- * @experimental
- */
 final class TransitionWasRequested extends Event
 {
     /**

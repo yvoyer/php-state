@@ -9,9 +9,9 @@ namespace Star\Component\State;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Event\StateEventStore;
+use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
-use Star\Component\State\Handlers\ClosureHandler;
 use Star\Component\State\Transitions\OneToOneTransition;
 
 final class StateMachineTest extends TestCase
@@ -31,7 +31,13 @@ final class StateMachineTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var StateTransition|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $transition;
+
     public function setUp() {
+        $this->transition = $this->getMockBuilder(StateTransition::class)->getMock();
         $this->context = new TestContext('current');
         $this->registry = new TransitionRegistry();
         $this->registry->registerState('current', ['exists']);
@@ -105,10 +111,8 @@ final class StateMachineTest extends TestCase
      */
     public function test_it_should_throw_exception_when_transition_not_allowed()
     {
-        $transition = $this->getMockBuilder(StateTransition::class)->getMock();
-
         $this->registry->registerState('not-allowed');
-        $this->registry->addTransition('transition', $transition);
+        $this->registry->addTransition('transition', $this->transition);
         $this->assertFalse($this->machine->isInState('not-allowed'));
 
         $this->machine->transit('transition', $this->context);
@@ -118,25 +122,6 @@ final class StateMachineTest extends TestCase
     {
         $this->assertFalse($this->machine->hasAttribute('not-exists'));
         $this->assertTrue($this->machine->hasAttribute('exists'));
-    }
-
-    /**
-     * @expectedException        \RuntimeException
-     * @expectedExceptionMessage The custom handler was triggered.
-     */
-    public function test_it_should_use_supplied_failure_handler_when_transition_not_allowed()
-    {
-        $this->registry->addTransition(
-            'transition',
-            $this->getMockBuilder(StateTransition::class)->getMock()
-        );
-        $this->machine->transit(
-            'transition',
-            $this->context,
-            new ClosureHandler(function() {
-                throw new \RuntimeException("The custom handler was triggered.");
-            })
-        );
     }
 
     public function test_it_should_visit_the_transitions()
@@ -172,5 +157,27 @@ final class StateMachineTest extends TestCase
     public function test_it_should_throw_exception_when_state_do_not_exists()
     {
         $this->machine->isInState('not-exists');
+    }
+
+    public function test_it_should_dispatch_an_event_before_a_transition_has_failed()
+    {
+        $this->machine->addListener(
+            StateEventStore::FAILURE_TRANSITION,
+            function ($event) {
+                /**
+                 * @var TransitionWasFailed $event
+                 */
+                $this->assertInstanceOf(TransitionWasFailed::class, $event);
+                $this->assertSame('t', $event->transition());
+                $this->assertInstanceOf(InvalidStateTransitionException::class, $event->exception());
+            });
+
+        $this->registry->addTransition('t', $this->transition);
+        try {
+            $this->machine->transit('t', 'context');
+            $this->fail('An exception should have been thrown');
+        } catch (InvalidStateTransitionException $exception) {
+            // silence it
+        }
     }
 }

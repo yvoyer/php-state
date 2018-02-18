@@ -74,12 +74,6 @@ final class TransitionRegistryTest extends TestCase
         $this->assertTrue($this->registry->getState('from')->hasAttribute('other'));
     }
 
-    public function test_it_should_not_generate_error_when_state_is_same()
-    {
-        $this->registry->registerState('from');
-        $this->registry->registerState('from');
-    }
-
     /**
      * @expectedException        \Star\Component\State\DuplicateEntryException
      * @expectedExceptionMessage The transition 'duplicate' is already registered.

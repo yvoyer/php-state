@@ -1,16 +1,10 @@
 <?php
-/**
- * This file is part of the php-state project.
- *
- * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
- */
 
 namespace Star\Component\State\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use Webmozart\Assert\Assert;
 
-final class TransitionWasSuccessful extends Event
+final class TransitionWasFailed extends Event
 {
     /**
      * @var string
@@ -18,12 +12,18 @@ final class TransitionWasSuccessful extends Event
     private $transition;
 
     /**
-     * @param string $transition
+     * @var \Exception
      */
-    public function __construct($transition)
+    private $exception;
+
+    /**
+     * @param string $transition
+     * @param \Exception $exception
+     */
+    public function __construct($transition, \Exception $exception)
     {
-        Assert::string($transition);
         $this->transition = $transition;
+        $this->exception = $exception;
     }
 
     /**
@@ -32,5 +32,13 @@ final class TransitionWasSuccessful extends Event
     public function transition()
     {
         return $this->transition;
+    }
+
+    /**
+     * @return \Exception
+     */
+    public function exception()
+    {
+        return $this->exception;
     }
 }

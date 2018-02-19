@@ -42,7 +42,7 @@ final class ContextUsingBuilderTest extends TestCase
      * @depends test_post_should_be_published
      *
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'Star\Component\State\Example\Post' is in state 'drafted'.
+     * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'post' is in state 'drafted'.
      */
     public function test_it_should_not_allow_from_draft_to_draft()
     {
@@ -72,7 +72,7 @@ final class ContextUsingBuilderTest extends TestCase
      * @depends test_post_should_be_published
      *
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'publish' is not allowed when context 'Star\Component\State\Example\Post' is in state 'published'.
+     * @expectedExceptionMessage The transition 'publish' is not allowed when context 'post' is in state 'published'.
      */
     public function test_it_should_not_allow_from_published_to_published()
     {
@@ -100,7 +100,7 @@ final class ContextUsingBuilderTest extends TestCase
      * @depends test_post_should_be_archived
      *
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'archive' is not allowed when context 'Star\Component\State\Example\Post' is in state 'drafted'.
+     * @expectedExceptionMessage The transition 'archive' is not allowed when context 'post' is in state 'drafted'.
      */
     public function test_it_should_not_allow_from_draft_to_archived()
     {
@@ -127,7 +127,7 @@ final class ContextUsingBuilderTest extends TestCase
      * @depends test_post_should_be_archived
      *
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'archive' is not allowed when context 'Star\Component\State\Example\Post' is in state 'archived'.
+     * @expectedExceptionMessage The transition 'archive' is not allowed when context 'post' is in state 'archived'.
      */
     public function test_it_should_not_allow_from_archived_to_archived()
     {
@@ -141,7 +141,7 @@ final class ContextUsingBuilderTest extends TestCase
      * @depends test_post_should_be_archived
      *
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'Star\Component\State\Example\Post' is in state 'archived'.
+     * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'post' is in state 'archived'.
      */
     public function test_it_should_not_allow_from_archived_to_draft()
     {
@@ -155,7 +155,7 @@ final class ContextUsingBuilderTest extends TestCase
      * @depends test_post_should_be_archived
      *
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'publish' is not allowed when context 'Star\Component\State\Example\Post' is in state 'archived'.
+     * @expectedExceptionMessage The transition 'publish' is not allowed when context 'post' is in state 'archived'.
      */
     public function test_it_should_not_allow_from_archived_to_published()
     {
@@ -237,17 +237,17 @@ class Post
 
     public function moveToDraft()
     {
-        $this->state = $this->workflow()->transit(self::TRANSITION_TO_DRAFT, $this);
+        $this->state = $this->workflow()->transit(self::TRANSITION_TO_DRAFT, 'post');
     }
 
     public function publish()
     {
-        $this->state = $this->workflow()->transit(self::TRANSITION_PUBLISH, $this);
+        $this->state = $this->workflow()->transit(self::TRANSITION_PUBLISH, 'post');
     }
 
     public function archive()
     {
-        $this->state = $this->workflow()->transit(self::TRANSITION_ARCHIVE, $this);
+        $this->state = $this->workflow()->transit(self::TRANSITION_ARCHIVE, 'post');
     }
 
     /**

@@ -1,6 +1,8 @@
 # PHP State machine
 
 [![Build Status](https://travis-ci.org/yvoyer/php-state.svg?branch=master)](https://travis-ci.org/yvoyer/php-state)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yvoyer/php-state/badges/quality-score.png)](https://scrutinizer-ci.com/g/yvoyer/php-state/)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yvoyer/php-state/badges/coverage.png)](https://scrutinizer-ci.com/g/yvoyer/php-state/)
 
 This package help you to build a workflow for a designated context, that can be encapsulated inside the given context.
 

@@ -7,13 +7,9 @@ build:
     environment:
         php:
             version: 7.2
-    tests:
-        override:
-            -
-                command: 'bin/phpunit --coverage-clover=scrutinizer'
-                coverage:
-                    file: 'scrutinizer'
-                    format: 'clover'
+tools:
+    external_code_coverage: true
+
 filter:
     excluded_paths:
         - bin/*

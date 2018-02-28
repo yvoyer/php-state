@@ -4,6 +4,7 @@ namespace Star\Component\State;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\Transitions\ClosureCallback;
 
 final class StateMetadataTest extends TestCase
 {
@@ -28,6 +29,20 @@ final class StateMetadataTest extends TestCase
             $new = $metadata->transit('t1', 'context')
         );
         $this->assertTrue($new->isInState('to'));
+    }
+
+    public function test_it_should_use_the_failure_callback_on_transit() {
+        $metadata = new CustomMetadata('to');
+        $this->setExpectedException(\RuntimeException::class, 'Callback was called');
+        $metadata->transit(
+            't1',
+            'context',
+            new ClosureCallback(
+                function () {
+                    throw new \RuntimeException('Callback was called');
+                }
+            )
+        );
     }
 }
 

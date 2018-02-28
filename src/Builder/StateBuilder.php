@@ -2,6 +2,8 @@
 
 namespace Star\Component\State\Builder;
 
+use Star\Component\State\EventRegistry;
+use Star\Component\State\Port\Symfony\EventDispatcherAdapter;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionRegistry;
@@ -19,9 +21,15 @@ final class StateBuilder
      */
     private $registry;
 
+    /**
+     * @var EventRegistry
+     */
+    private $listeners;
+
     public function __construct()
     {
         $this->registry = new TransitionRegistry();
+        $this->listeners = new EventDispatcherAdapter();
     }
 
     /**
@@ -78,7 +86,7 @@ final class StateBuilder
      */
     public function create($currentState)
     {
-        return new StateMachine($currentState, $this->registry);
+        return new StateMachine($currentState, $this->registry, $this->listeners);
     }
 
     /**

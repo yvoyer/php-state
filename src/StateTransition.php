@@ -23,27 +23,31 @@ interface StateTransition
 
     /**
      * @param mixed $context
+     * Todo remove in favor of TransitionCallback
      */
     public function beforeStateChange($context);
 
     /**
-     * @param StateMachine $machine
+     * @return string
      */
-    public function onStateChange(StateMachine $machine);
+    public function getDestinationState();
 
     /**
      * @param mixed $context
+     * Todo remove in favor of TransitionCallback
      */
     public function afterStateChange($context);
 
     /**
      * @param TransitionVisitor $visitor
+     * todo Find a way to remove from interface (new interface maybe)
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor);
 
     /**
      * @param StateVisitor $visitor
      * @param StateRegistry $registry
+     * todo Find a way to remove from interface (new interface maybe)
      */
     public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry);
 }

@@ -4,7 +4,7 @@ namespace Star\Component\State\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
-final class TransitionWasFailed extends Event
+final class TransitionWasFailed extends Event implements StateEvent
 {
     /**
      * @var string

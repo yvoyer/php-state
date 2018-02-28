@@ -11,20 +11,21 @@ use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Star\Component\State\Transitions\AlwaysThrowExceptionOnFailure;
+use Star\Component\State\Transitions\TransitionCallback;
 use Webmozart\Assert\Assert;
 
 final class StateMachine
 {
     /**
-     * @var EventDispatcher
+     * @var EventRegistry
      */
-    private $dispatcher;
+    private $listeners;
 
     /**
      * @var StateRegistry
      */
-    private $registry;
+    private $states;
 
     /**
      * @var string
@@ -33,32 +34,45 @@ final class StateMachine
 
     /**
      * @param string $currentState
-     * @param StateRegistry|null $registry
+     * @param StateRegistry $states
+     * @param EventRegistry $listeners
      */
-    public function __construct($currentState, StateRegistry $registry = null)
-    {
+    public function __construct(
+        $currentState,
+        StateRegistry $states,
+        EventRegistry $listeners
+    ) {
         Assert::string($currentState);
-        if (! $registry) {
-            $registry = new TransitionRegistry();
-        }
-
-        $this->dispatcher = new EventDispatcher();
-        $this->registry = $registry;
+        $this->listeners = $listeners;
+        $this->states = $states;
         $this->setCurrentState($currentState);
     }
 
     /**
      * @param string $transitionName The transition name
      * @param mixed $context
+     * @param TransitionCallback|null $callback
      *
      * @return string The next state to store on your context
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
-    public function transit($transitionName, $context)
+    public function transit($transitionName, $context, TransitionCallback $callback = null)
     {
+        if (! $callback) {
+            $callback = new AlwaysThrowExceptionOnFailure();
+        }
+
+        $this->listeners->dispatch(
+            StateEventStore::BEFORE_TRANSITION,
+            new TransitionWasRequested($transitionName)
+        );
+
         Assert::string($transitionName);
-        $transition = $this->registry->getTransition($transitionName);
+        $transition = $this->states->getTransition($transitionName);
+        $transition->beforeStateChange($context);
+
+        $newState = $transition->getDestinationState();
         if (! $transition->isAllowed($this->currentState)) {
             $exception = InvalidStateTransitionException::notAllowedTransition(
                 $transitionName,
@@ -66,25 +80,19 @@ final class StateMachine
                 $this->currentState
             );
 
-            $this->dispatcher->dispatch(
+            $this->listeners->dispatch(
                 StateEventStore::FAILURE_TRANSITION,
                 new TransitionWasFailed($transitionName, $exception)
             );
 
-            // always throw exception when not allowed
-            throw $exception;
+            $newState = $callback->onFailure($exception, $this);
         }
+        Assert::string($newState);
 
-        $this->dispatcher->dispatch(
-            StateEventStore::BEFORE_TRANSITION,
-            new TransitionWasRequested($transitionName)
-        );
-
-        $transition->beforeStateChange($context);
-        $transition->onStateChange($this);
+        $this->setCurrentState($newState);
         $transition->afterStateChange($context);
 
-        $this->dispatcher->dispatch(
+        $this->listeners->dispatch(
             StateEventStore::AFTER_TRANSITION,
             new TransitionWasSuccessful($transitionName)
         );
@@ -100,7 +108,7 @@ final class StateMachine
     public function isInState($stateName)
     {
         Assert::string($stateName);
-        if (! $this->registry->hasState($stateName)) {
+        if (! $this->states->hasState($stateName)) {
             throw NotFoundException::stateNotFound($stateName);
         }
 
@@ -115,17 +123,7 @@ final class StateMachine
     public function hasAttribute($attribute)
     {
         Assert::string($attribute);
-        return $this->registry->getState($this->currentState)->hasAttribute($attribute);
-    }
-
-    /**
-     * @param string $state
-     * @internal Internal to the StateMachine service. You should not base your logic on this.
-     */
-    public function setCurrentState($state)
-    {
-        Assert::string($state);
-        $this->currentState = $state;
+        return $this->states->getState($this->currentState)->hasAttribute($attribute);
     }
 
     /**
@@ -135,7 +133,7 @@ final class StateMachine
     public function addListener($event, \Closure $listener)
     {
         Assert::string($event);
-        $this->dispatcher->addListener($event, $listener);
+        $this->listeners->addListener($event, $listener);
     }
 
     /**
@@ -143,7 +141,7 @@ final class StateMachine
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
-        $this->registry->acceptTransitionVisitor($visitor);
+        $this->states->acceptTransitionVisitor($visitor);
     }
 
     /**
@@ -151,6 +149,15 @@ final class StateMachine
      */
     public function acceptStateVisitor(StateVisitor $visitor)
     {
-        $this->registry->acceptStateVisitor($visitor);
+        $this->states->acceptStateVisitor($visitor);
+    }
+
+    /**
+     * @param string $state
+     */
+    private function setCurrentState($state)
+    {
+        Assert::string($state);
+        $this->currentState = $state;
     }
 }

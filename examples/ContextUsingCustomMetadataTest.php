@@ -227,12 +227,9 @@ final class ReOpenTransition implements StateTransition
         // todo add test for change on context
     }
 
-    /**
-     * @param StateMachine $machine
-     */
-    public function onStateChange(StateMachine $machine)
+    public function getDestinationState()
     {
-        $machine->setCurrentState('pending');
+        return 'pending';
     }
 
     /**

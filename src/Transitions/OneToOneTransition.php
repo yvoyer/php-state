@@ -3,8 +3,6 @@
 namespace Star\Component\State\Transitions;
 
 use Star\Component\State\RegistryBuilder;
-use Star\Component\State\State;
-use Star\Component\State\StateMachine;
 use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
 use Star\Component\State\StateVisitor;
@@ -62,12 +60,9 @@ final class OneToOneTransition implements StateTransition
     {
     }
 
-    /**
-     * @param StateMachine $machine
-     */
-    public function onStateChange(StateMachine $machine)
+    public function getDestinationState()
     {
-        $machine->setCurrentState($this->to);
+        return $this->to;
     }
 
     /**

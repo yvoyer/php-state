@@ -4,6 +4,9 @@ namespace Star\Component\State\Example;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\Callbacks\CallContextMethodOnFailure;
+use Star\Component\State\Callbacks\ClosureCallback;
+use Star\Component\State\Callbacks\TransitionCallback;
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateMachine;
@@ -11,9 +14,6 @@ use Star\Component\State\StateMetadata;
 use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
 use Star\Component\State\StateVisitor;
-use Star\Component\State\Transitions\CallMethodOnContext;
-use Star\Component\State\Transitions\ClosureCallback;
-use Star\Component\State\Transitions\TransitionCallback;
 use Star\Component\State\TransitionVisitor;
 
 final class CallbackStateTest extends TestCase
@@ -70,7 +70,8 @@ class TurnStill
 
     private $coins = 0;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->state = new TurnStillState('locked');
     }
 
@@ -81,10 +82,9 @@ class TurnStill
     {
         $this->state = $this->state->transit(
             'pay',
-            'turn-still',
-            new CallMethodOnContext(
+            $this,
+            new CallContextMethodOnFailure(
                 'violation',
-                $this,
                 'refund',
                 [$coin]
             )
@@ -142,22 +142,18 @@ class UnlockTransition implements StateTransition
      *
      * @return bool
      */
-    public function isAllowed($from) {
+    public function isAllowed($from)
+    {
         return 'locked' === $from;
     }
 
     /**
      * @param RegistryBuilder $registry
      */
-    public function onRegister(RegistryBuilder $registry) {
+    public function onRegister(RegistryBuilder $registry)
+    {
         $registry->registerState('locked', []);
         $registry->registerState('unlocked', []);
-    }
-
-    /**
-     * @param mixed $context
-     */
-    public function beforeStateChange($context) {
     }
 
     public function getDestinationState()
@@ -166,15 +162,10 @@ class UnlockTransition implements StateTransition
     }
 
     /**
-     * @param mixed $context
-     */
-    public function afterStateChange($context) {
-    }
-
-    /**
      * @param TransitionVisitor $visitor
      */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor) {
+    public function acceptTransitionVisitor(TransitionVisitor $visitor)
+    {
         $visitor->visitFromState('locked');
         $visitor->visitToState('unlocked');
     }
@@ -183,7 +174,8 @@ class UnlockTransition implements StateTransition
      * @param StateVisitor $visitor
      * @param StateRegistry $registry
      */
-    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry) {
+    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
+    {
         $registry->getState('locked')->acceptStateVisitor($visitor);
         $registry->getState('unlocked')->acceptStateVisitor($visitor);
     }
@@ -191,13 +183,15 @@ class UnlockTransition implements StateTransition
 
 class TriggerAlarm implements TransitionCallback
 {
-    /**
-     * @param InvalidStateTransitionException $exception
-     * @param StateMachine $machine
-     *
-     * @return string The new state to move to on failure
-     */
-    public function onFailure(InvalidStateTransitionException $exception, StateMachine $machine)
+    public function beforeStateChange($context, StateMachine $machine)
+    {
+    }
+
+    public function afterStateChange($context, StateMachine $machine)
+    {
+    }
+
+    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine)
     {
         return $machine->transit('alarm', 'turnstill');
     }
@@ -218,13 +212,15 @@ class Refund implements TransitionCallback
         $this->coin = $coin;
     }
 
-    /**
-     * @param InvalidStateTransitionException $exception
-     * @param StateMachine $machine
-     *
-     * @return string The new state to move to on failure
-     */
-    public function onFailure(InvalidStateTransitionException $exception, StateMachine $machine)
+    public function beforeStateChange($context, StateMachine $machine)
+    {
+    }
+
+    public function afterStateChange($context, StateMachine $machine)
+    {
+    }
+
+    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine)
     {
         return 'violation';
     }
@@ -237,7 +233,8 @@ class TurnStillState extends StateMetadata
      *
      * @param StateBuilder $builder
      */
-    protected function configure(StateBuilder $builder) {
+    protected function configure(StateBuilder $builder)
+    {
         $builder->allowTransition('pass', 'unlocked', 'locked');
         $builder->allowCustomTransition('pay', new UnlockTransition());
         // alarm is called on transition failure

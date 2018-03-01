@@ -3,7 +3,7 @@
 namespace Star\Component\State;
 
 use Star\Component\State\Builder\StateBuilder;
-use Star\Component\State\Transitions\TransitionCallback;
+use Star\Component\State\Callbacks\TransitionCallback;
 use Webmozart\Assert\Assert;
 
 abstract class StateMetadata

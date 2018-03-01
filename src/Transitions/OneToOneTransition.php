@@ -53,23 +53,9 @@ final class OneToOneTransition implements StateTransition
         $registry->registerState($this->to, []);
     }
 
-    /**
-     * @param mixed $context
-     */
-    public function beforeStateChange($context)
-    {
-    }
-
     public function getDestinationState()
     {
         return $this->to;
-    }
-
-    /**
-     * @param mixed $context
-     */
-    public function afterStateChange($context)
-    {
     }
 
     /**

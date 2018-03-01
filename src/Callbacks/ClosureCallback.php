@@ -1,6 +1,6 @@
 <?php
 
-namespace Star\Component\State\Transitions;
+namespace Star\Component\State\Callbacks;
 
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\StateMachine;
@@ -22,18 +22,35 @@ final class ClosureCallback implements TransitionCallback
     }
 
     /**
+     * @param mixed $context
+     * @param StateMachine $machine
+     */
+    public function beforeStateChange($context, StateMachine $machine)
+    {
+    }
+
+    /**
+     * @param mixed $context
+     * @param StateMachine $machine
+     */
+    public function afterStateChange($context, StateMachine $machine)
+    {
+    }
+
+    /**
      * @param InvalidStateTransitionException $exception
+     * @param mixed $context
      * @param StateMachine $machine
      *
-     * @return string The new state to move to on failure
+     * @return string
      */
-    public function onFailure(InvalidStateTransitionException $exception, StateMachine $machine)
+    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine)
     {
         $callback = $this->callback;
         /**
          * @var string $state
          */
-        $state = $callback();
+        $state = $callback($context);
         Assert::string($state);
 
         return $state;

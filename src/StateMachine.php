@@ -7,12 +7,12 @@
 
 namespace Star\Component\State;
 
+use Star\Component\State\Callbacks\AlwaysThrowExceptionOnFailure;
+use Star\Component\State\Callbacks\TransitionCallback;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
-use Star\Component\State\Transitions\AlwaysThrowExceptionOnFailure;
-use Star\Component\State\Transitions\TransitionCallback;
 use Webmozart\Assert\Assert;
 
 final class StateMachine
@@ -70,7 +70,7 @@ final class StateMachine
 
         Assert::string($transitionName);
         $transition = $this->states->getTransition($transitionName);
-        $transition->beforeStateChange($context);
+        $callback->beforeStateChange($context, $this);
 
         $newState = $transition->getDestinationState();
         if (! $transition->isAllowed($this->currentState)) {
@@ -85,12 +85,13 @@ final class StateMachine
                 new TransitionWasFailed($transitionName, $exception)
             );
 
-            $newState = $callback->onFailure($exception, $this);
+            $newState = $callback->onFailure($exception, $context, $this);
         }
         Assert::string($newState);
 
         $this->setCurrentState($newState);
-        $transition->afterStateChange($context);
+
+        $callback->afterStateChange($context, $this);
 
         $this->listeners->dispatch(
             StateEventStore::AFTER_TRANSITION,

@@ -22,21 +22,9 @@ interface StateTransition
     public function onRegister(RegistryBuilder $registry);
 
     /**
-     * @param mixed $context
-     * Todo remove in favor of TransitionCallback
-     */
-    public function beforeStateChange($context);
-
-    /**
      * @return string
      */
     public function getDestinationState();
-
-    /**
-     * @param mixed $context
-     * Todo remove in favor of TransitionCallback
-     */
-    public function afterStateChange($context);
 
     /**
      * @param TransitionVisitor $visitor

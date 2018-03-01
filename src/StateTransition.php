@@ -22,28 +22,20 @@ interface StateTransition
     public function onRegister(RegistryBuilder $registry);
 
     /**
-     * @param mixed $context
+     * @return string
      */
-    public function beforeStateChange($context);
-
-    /**
-     * @param StateMachine $machine
-     */
-    public function onStateChange(StateMachine $machine);
-
-    /**
-     * @param mixed $context
-     */
-    public function afterStateChange($context);
+    public function getDestinationState();
 
     /**
      * @param TransitionVisitor $visitor
+     * todo Find a way to remove from interface (new interface maybe)
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor);
 
     /**
      * @param StateVisitor $visitor
      * @param StateRegistry $registry
+     * todo Find a way to remove from interface (new interface maybe)
      */
     public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry);
 }

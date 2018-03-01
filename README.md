@@ -30,11 +30,12 @@ or kept in the model using a [string](https://github.com/yvoyer/php-state/blob/m
 
 ## Transitions
 
-A transition is an action on the model that will mode the context from one state to the other. A transition can only 
-have one destination state, since there is no way (yet) for the machine to know which state to go to.
+A transition is an action on the model that will move the context from one state to the other. A transition can only 
+have one destination state, since there is no way (yet) for the machine to know which state to go to. On the other side
+a transition may have multiple starting states.
 
-If no transition has the context's current state as a start start, an exception will be raised, since the transition
-is not allowed.
+If no transition has the context's current state as a start start, an exception will be raised (unless another 
+ [TransitionCallback](https://github.com/yvoyer/php-state/blob/master/src/Callbacks/) is given).
 
 ## Attributes
 
@@ -277,6 +278,26 @@ behavior on certain transitions.
 
 Subscribers that listens to these events will have their configured callback(s) called for any transitions.
 
-* `StateEventStore::BEFORE_TRANSITION`: This event is performed before any transition on the context.
-* `StateEventStore::AFTER_TRANSITION`: This event is performed after any transition is executed on the context.
-* `StateEventStore::FAILURE_TRANSITION`: This event is performed before the transition exception is triggered.
+* `StateEventStore::BEFORE_TRANSITION`: The event is performed before any transition on the context. See `TransitionWasRequested`.
+* `StateEventStore::AFTER_TRANSITION`: This event is performed after any transition is executed on the context. See `TransitionWasSuccessful`.
+* `StateEventStore::FAILURE_TRANSITION`: This event is performed before the transition exception is triggered. See `TransitionWasFailed`.
+
+*Subscribing a listener*
+
+```php
+$stateMachine->addListener(
+    StateEventStore::BEFORE_TRANSITION,
+    function(TransitionWasRequested $event) {
+        // do something
+    }
+);
+
+```
+
+## Transition callbacks
+
+When requesting a transition, another way to hook in the process is to pass
+ a [TransitionCallback](https://github.com/yvoyer/php-state/blob/master/src/Callbacks/).
+
+Transition callbacks allow to perform an action before, after or when the transition is not allowed.
+By default, an exception is triggered. see [AlwaysThrowExceptionOnFailure](https://github.com/yvoyer/php-state/blob/master/src/Callbacks/AlwaysThrowExceptionOnFailure).

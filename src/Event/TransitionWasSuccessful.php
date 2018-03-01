@@ -10,7 +10,7 @@ namespace Star\Component\State\Event;
 use Symfony\Component\EventDispatcher\Event;
 use Webmozart\Assert\Assert;
 
-final class TransitionWasSuccessful extends Event
+final class TransitionWasSuccessful extends Event implements StateEvent
 {
     /**
      * @var string

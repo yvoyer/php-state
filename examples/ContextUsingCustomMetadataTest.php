@@ -219,28 +219,9 @@ final class ReOpenTransition implements StateTransition
         $registry->registerState('pending', []);
     }
 
-    /**
-     * @param mixed $context
-     */
-    public function beforeStateChange($context)
+    public function getDestinationState()
     {
-        // todo add test for change on context
-    }
-
-    /**
-     * @param StateMachine $machine
-     */
-    public function onStateChange(StateMachine $machine)
-    {
-        $machine->setCurrentState('pending');
-    }
-
-    /**
-     * @param mixed $context
-     */
-    public function afterStateChange($context)
-    {
-        // todo add test for change on context
+        return 'pending';
     }
 
     /**

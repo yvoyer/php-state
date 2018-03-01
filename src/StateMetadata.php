@@ -3,6 +3,7 @@
 namespace Star\Component\State;
 
 use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\Callbacks\TransitionCallback;
 use Webmozart\Assert\Assert;
 
 abstract class StateMetadata
@@ -39,12 +40,13 @@ abstract class StateMetadata
     /**
      * @param string $name
      * @param mixed $context
+     * @param TransitionCallback|null $callback
      *
      * @return StateMetadata
      */
-    final public function transit($name, $context)
+    final public function transit($name, $context, TransitionCallback $callback = null)
     {
-        $this->current = $this->getMachine()->transit($name, $context);
+        $this->current = $this->getMachine()->transit($name, $context, $callback);
 
         return $this;
     }
@@ -67,5 +69,13 @@ abstract class StateMetadata
     final public function isInState($state)
     {
         return $this->getMachine()->isInState($state);
+    }
+
+    /**
+     * @return string
+     */
+    final public function getCurrent()
+    {
+        return $this->current;
     }
 }

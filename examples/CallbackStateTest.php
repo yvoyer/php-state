@@ -132,7 +132,7 @@ class TurnStill
     }
 }
 
-class UnlockTransition implements StateTransition
+class PayTransition implements StateTransition
 {
     public function getName()
     {
@@ -209,7 +209,7 @@ class TurnStillState extends StateMetadata
     protected function configure(StateBuilder $builder)
     {
         $builder->allowTransition('pass', 'unlocked', 'locked');
-        $builder->allowCustomTransition(new UnlockTransition());
+        $builder->allowCustomTransition(new PayTransition());
         // alarm is called on transition failure
         $builder->allowTransition('alarm', ['locked', 'unlocked'], 'violation');
         $builder->allowTransition('reset', 'violation', 'locked');

@@ -93,14 +93,14 @@ final class StateMachineTest extends TestCase
 
     /**
      * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'transition' is not allowed when context 'stdClass' is in state 'current'.
+     * @expectedExceptionMessage The transition 't' is not allowed when context 'stdClass' is in state 'current'.
      */
     public function test_it_should_throw_exception_with_class_context_when_transition_not_allowed()
     {
-        $this->registry->addTransition(new OneToOneTransition('transition', 'start', 'end'));
+        $this->registry->addTransition(new OneToOneTransition('t', 'start', 'end'));
         $this->assertFalse($this->machine->isInState('start'));
 
-        $this->machine->transit('transition', new \stdClass);
+        $this->machine->transit('t', new \stdClass);
     }
 
     /**

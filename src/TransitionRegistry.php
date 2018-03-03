@@ -90,7 +90,8 @@ final class TransitionRegistry implements StateRegistry
      *
      * @return bool
      */
-    public function transitionStartsFrom($transition, $state) {
+    public function transitionStartsFrom($transition, $state)
+    {
         Assert::string($transition);
         Assert::string($state);
         $from = [];

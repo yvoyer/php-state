@@ -6,7 +6,7 @@ use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\StateMachine;
 use Webmozart\Assert\Assert;
 
-final class ClosureCallback implements TransitionCallback
+final class CallClosureOnFailure implements TransitionCallback
 {
     /**
      * @var \Closure

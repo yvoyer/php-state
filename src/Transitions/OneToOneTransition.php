@@ -3,14 +3,16 @@
 namespace Star\Component\State\Transitions;
 
 use Star\Component\State\RegistryBuilder;
-use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
-use Star\Component\State\StateVisitor;
-use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
 
 final class OneToOneTransition implements StateTransition
 {
+    /**
+     * @var string
+     */
+    private $name;
+
     /**
      * @var string
      */
@@ -22,26 +24,26 @@ final class OneToOneTransition implements StateTransition
     private $to;
 
     /**
+     * @param string $name
      * @param string $from
      * @param string $to
      */
-    public function __construct($from, $to)
+    public function __construct($name, $from, $to)
     {
+        Assert::string($name);
         Assert::string($from);
         Assert::string($to);
+        $this->name = $name;
         $this->from = $from;
         $this->to = $to;
     }
 
     /**
-     * @param string $from
-     *
-     * @return bool
+     * @return string
      */
-    public function isAllowed($from)
+    public function getName()
     {
-        Assert::string($from);
-        return $from === $this->from;
+        return $this->name;
     }
 
     /**
@@ -49,31 +51,15 @@ final class OneToOneTransition implements StateTransition
      */
     public function onRegister(RegistryBuilder $registry)
     {
-        $registry->registerState($this->from, []);
-        $registry->registerState($this->to, []);
+        $registry->registerStartingState($this->name, $this->from, []);
+        $registry->registerDestinationState($this->name, $this->to, []);
     }
 
+    /**
+     * @return string
+     */
     public function getDestinationState()
     {
         return $this->to;
-    }
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor)
-    {
-        $visitor->visitFromState($this->from);
-        $visitor->visitToState($this->to);
-    }
-
-    /**
-     * @param StateVisitor $visitor
-     * @param StateRegistry $registry
-     */
-    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
-    {
-        $registry->getState($this->from)->acceptStateVisitor($visitor);
-        $registry->getState($this->to)->acceptStateVisitor($visitor);
     }
 }

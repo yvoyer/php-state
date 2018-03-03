@@ -3,7 +3,7 @@
 namespace Star\Component\State\Transitions;
 
 use PHPUnit\Framework\TestCase;
-use Star\Component\State\RegistryBuilder;
+use Star\Component\State\Stub\RegistrySpy;
 
 final class ManyToOneTransitionTest extends TestCase
 {
@@ -14,33 +14,22 @@ final class ManyToOneTransitionTest extends TestCase
 
     public function setUp()
     {
-        $this->transition = new ManyToOneTransition(['f1', 'f2'], 'to');
+        $this->transition = new ManyToOneTransition('name', ['f1', 'f2'], 'to');
     }
 
-    public function test_it_should_be_allowed_when_from_state_match()
+    public function test_it_should_have_a_name()
     {
-        $this->assertTrue($this->transition->isAllowed('f1'));
-        $this->assertTrue($this->transition->isAllowed('f2'));
-        $this->assertFalse($this->transition->isAllowed('to'));
+        $this->assertSame('name', $this->transition->getName());
     }
 
     public function test_it_should_register_the_from_and_to_states()
     {
-        $registry = $this->getMockBuilder(RegistryBuilder::class)->getMock();
-        $registry
-            ->expects($this->at(0))
-            ->method('registerState')
-            ->with('f1', []);
-        $registry
-            ->expects($this->at(1))
-            ->method('registerState')
-            ->with('f2', []);
-        $registry
-            ->expects($this->at(2))
-            ->method('registerState')
-            ->with('to', []);
+        $registry = new RegistrySpy();
 
         $this->transition->onRegister($registry);
+
+        $this->assertCount(2, $registry->states['name']['start']);
+        $this->assertCount(1, $registry->states['name']['destination']);
     }
 
     /**
@@ -49,7 +38,7 @@ final class ManyToOneTransitionTest extends TestCase
      */
     public function test_it_should_throw_exception_when_no_states_are_provided()
     {
-        new ManyToOneTransition([], 'to');
+        new ManyToOneTransition('name', [], 'to');
     }
 
     /**
@@ -58,6 +47,6 @@ final class ManyToOneTransitionTest extends TestCase
      */
     public function test_it_should_throw_exception_when_states_are_not_instances()
     {
-        new ManyToOneTransition([[]], 'to');
+        new ManyToOneTransition('name', [[]], 'to');
     }
 }

@@ -11,11 +11,13 @@ interface TransitionVisitor
 
     /**
      * @param string $state
+     * @param string[] $attributes
      */
-    public function visitFromState($state);
+    public function visitFromState($state, array $attributes);
 
     /**
      * @param string $state
+     * @param string[] $attributes
      */
-    public function visitToState($state);
+    public function visitToState($state, array $attributes);
 }

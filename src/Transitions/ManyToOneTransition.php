@@ -3,14 +3,16 @@
 namespace Star\Component\State\Transitions;
 
 use Star\Component\State\RegistryBuilder;
-use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
-use Star\Component\State\StateVisitor;
-use Star\Component\State\TransitionVisitor;
 use Webmozart\Assert\Assert;
 
 final class ManyToOneTransition implements StateTransition
 {
+    /**
+     * @var string
+     */
+    private $name;
+
     /**
      * @var string[]
      */
@@ -22,11 +24,14 @@ final class ManyToOneTransition implements StateTransition
     private $to;
 
     /**
+     * @param string $name
      * @param string[] $fromStates
      * @param string $to
      */
-    public function __construct(array $fromStates, $to)
+    public function __construct($name, array $fromStates, $to)
     {
+        Assert::string($name);
+        $this->name = $name;
         Assert::greaterThanEq(count($fromStates), 1, 'Expected at least %2$s state. Got: %s');
         Assert::allString($fromStates);
         Assert::string($to);
@@ -35,14 +40,11 @@ final class ManyToOneTransition implements StateTransition
     }
 
     /**
-     * @param string $state
-     *
-     * @return bool
+     * @return string
      */
-    public function isAllowed($state)
+    public function getName()
     {
-        Assert::string($state);
-        return in_array($state, $this->fromStates, true);
+        return $this->name;
     }
 
     /**
@@ -51,39 +53,17 @@ final class ManyToOneTransition implements StateTransition
     public function onRegister(RegistryBuilder $registry)
     {
         foreach ($this->fromStates as $from) {
-            $registry->registerState($from, []);
+            $registry->registerStartingState($this->name, $from, []);
         }
 
-        $registry->registerState($this->to, []);
+        $registry->registerDestinationState($this->name, $this->to, []);
     }
 
+    /**
+     * @return string
+     */
     public function getDestinationState()
     {
         return $this->to;
-    }
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor)
-    {
-        foreach ($this->fromStates as $from) {
-            $visitor->visitFromState($from);
-        }
-
-        $visitor->visitToState($this->to);
-    }
-
-    /**
-     * @param StateVisitor $visitor
-     * @param StateRegistry $registry
-     */
-    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
-    {
-        foreach ($this->fromStates as $from) {
-            $registry->getState($from)->acceptStateVisitor($visitor);
-        }
-
-        $registry->getState($this->to)->acceptStateVisitor($visitor);
     }
 }

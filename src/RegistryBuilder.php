@@ -5,8 +5,16 @@ namespace Star\Component\State;
 interface RegistryBuilder
 {
     /**
-     * @param string $name
+     * @param string $transition
+     * @param string $stateName
      * @param string[] $attributes
      */
-    public function registerState($name, array $attributes);
+    public function registerStartingState($transition, $stateName, array $attributes);
+
+    /**
+     * @param string $transition
+     * @param string $stateName
+     * @param string[] $attributes
+     */
+    public function registerDestinationState($transition, $stateName, array $attributes);
 }

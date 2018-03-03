@@ -192,7 +192,7 @@ final class MyStateWorkflow extends StateMetadata
         $builder->allowTransition('remove', 'published', 'approved');
         $builder->allowTransition('archive', ['approved', 'published'], 'archived');
         $builder->allowTransition('un-archive', 'archived', 'approved');
-        $builder->allowCustomTransition('re-open', new ReOpenTransition());
+        $builder->allowCustomTransition(new ReOpenTransition());
         $builder->addAttribute('is_visible', 'published');
         $builder->addAttribute('is_draft', ['pending', 'approved']);
     }
@@ -200,14 +200,9 @@ final class MyStateWorkflow extends StateMetadata
 
 final class ReOpenTransition implements StateTransition
 {
-    /**
-     * @param string $from
-     *
-     * @return bool
-     */
-    public function isAllowed($from)
+    public function getName()
     {
-        return 'archived' === $from;
+        return 're-open';
     }
 
     /**
@@ -215,32 +210,13 @@ final class ReOpenTransition implements StateTransition
      */
     public function onRegister(RegistryBuilder $registry)
     {
-        $registry->registerState('archived', []);
-        $registry->registerState('pending', []);
+        $registry->registerStartingState('re-open', 'archived', []);
+        $registry->registerDestinationState('re-open', 'pending', []);
     }
 
     public function getDestinationState()
     {
         return 'pending';
-    }
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor)
-    {
-        $visitor->visitFromState('archived');
-        $visitor->visitToState('pending');
-    }
-
-    /**
-     * @param StateVisitor $visitor
-     * @param StateRegistry $registry
-     */
-    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
-    {
-        $registry->getState('archived')->acceptStateVisitor($visitor);
-        $registry->getState('pending')->acceptStateVisitor($visitor);
     }
 }
 

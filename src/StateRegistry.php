@@ -13,11 +13,18 @@ interface StateRegistry extends RegistryBuilder
     public function getTransition($name);
 
     /**
-     * @param string $name
-     * @return State
-     * @throws NotFoundException
+     * @param string $state
+     * @param string $attribute
      */
-    public function getState($name);
+    public function addAttribute($state, $attribute);
+
+    /**
+     * @param string $state
+     * @param string $attribute
+     *
+     * @return bool
+     */
+    public function hasAttribute($state, $attribute);
 
     /**
      * @param string $name
@@ -25,6 +32,14 @@ interface StateRegistry extends RegistryBuilder
      * @return bool
      */
     public function hasState($name);
+
+    /**
+     * @param string $transition
+     * @param string $state
+     *
+     * @return bool
+     */
+    public function transitionStartsFrom($transition, $state);
 
     /**
      * @param TransitionVisitor $visitor

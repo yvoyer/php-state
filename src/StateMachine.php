@@ -73,7 +73,8 @@ final class StateMachine
         $callback->beforeStateChange($context, $this);
 
         $newState = $transition->getDestinationState();
-        if (! $transition->isAllowed($this->currentState)) {
+        $allowed = $this->states->transitionStartsFrom($transitionName, $this->currentState);
+        if (! $allowed) {
             $exception = InvalidStateTransitionException::notAllowedTransition(
                 $transitionName,
                 $context,
@@ -124,7 +125,7 @@ final class StateMachine
     public function hasAttribute($attribute)
     {
         Assert::string($attribute);
-        return $this->states->getState($this->currentState)->hasAttribute($attribute);
+        return $this->states->hasAttribute($this->currentState, $attribute);
     }
 
     /**

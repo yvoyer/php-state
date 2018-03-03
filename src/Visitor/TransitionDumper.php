@@ -30,13 +30,13 @@ final class TransitionDumper implements TransitionVisitor
         $this->currentTransition = $name;
     }
 
-    public function visitFromState($state)
+    public function visitFromState($state, array $attributes)
     {
         Assert::string($state);
         $this->structure[$this->currentTransition]['from'][] = $state;
     }
 
-    public function visitToState($state)
+    public function visitToState($state, array $attributes)
     {
         $this->structure[$this->currentTransition]['to'][] = $state;
     }

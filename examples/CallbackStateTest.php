@@ -5,61 +5,13 @@ namespace Star\Component\State\Example;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Callbacks\CallContextMethodOnFailure;
-use Star\Component\State\Callbacks\ClosureCallback;
+use Star\Component\State\Callbacks\CallClosureOnFailure;
 use Star\Component\State\Callbacks\TransitionCallback;
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateMetadata;
-use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
-use Star\Component\State\StateVisitor;
-use Star\Component\State\TransitionVisitor;
-
-final class CallbackStateTest extends TestCase
-{
-    public function test_workflow()
-    {
-        $turnStill = new TurnStill();
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertFalse($turnStill->inViolation());
-
-        $this->assertSame(0, $turnStill->coins());
-        $turnStill->pay(1);
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertFalse($turnStill->isLocked());
-        $this->assertFalse($turnStill->inViolation());
-
-        $this->assertSame(1, $turnStill->coins());
-        $turnStill->pass();
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertFalse($turnStill->inViolation());
-
-        $this->assertSame(1, $turnStill->coins());
-        $turnStill->pass();
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertTrue($turnStill->inViolation());
-
-        $this->assertSame(1, $turnStill->coins());
-        $turnStill->pay(1);
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertTrue($turnStill->inViolation());
-
-        $this->assertSame(1, $turnStill->coins());
-        $turnStill->reset();
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertFalse($turnStill->inViolation());
-    }
-}
 
 class TurnStill
 {
@@ -98,7 +50,7 @@ class TurnStill
         $this->state = $this->state->transit(
             'pass',
             'turn-still',
-            new ClosureCallback(
+            new CallClosureOnFailure(
                 function () {
                     return $this->state->transit('alarm', $this)->getCurrent();
                 }
@@ -135,16 +87,11 @@ class TurnStill
     }
 }
 
-class UnlockTransition implements StateTransition
+class PayTransition implements StateTransition
 {
-    /**
-     * @param string $from
-     *
-     * @return bool
-     */
-    public function isAllowed($from)
+    public function getName()
     {
-        return 'locked' === $from;
+        return 'pay';
     }
 
     /**
@@ -152,32 +99,13 @@ class UnlockTransition implements StateTransition
      */
     public function onRegister(RegistryBuilder $registry)
     {
-        $registry->registerState('locked', []);
-        $registry->registerState('unlocked', []);
+        $registry->registerStartingState($this->getName(), 'locked', []);
+        $registry->registerDestinationState($this->getName(), 'unlocked', []);
     }
 
     public function getDestinationState()
     {
         return 'unlocked';
-    }
-
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor)
-    {
-        $visitor->visitFromState('locked');
-        $visitor->visitToState('unlocked');
-    }
-
-    /**
-     * @param StateVisitor $visitor
-     * @param StateRegistry $registry
-     */
-    public function acceptStateVisitor(StateVisitor $visitor, StateRegistry $registry)
-    {
-        $registry->getState('locked')->acceptStateVisitor($visitor);
-        $registry->getState('unlocked')->acceptStateVisitor($visitor);
     }
 }
 
@@ -236,11 +164,56 @@ class TurnStillState extends StateMetadata
     protected function configure(StateBuilder $builder)
     {
         $builder->allowTransition('pass', 'unlocked', 'locked');
-        $builder->allowCustomTransition('pay', new UnlockTransition());
+        $builder->allowCustomTransition(new PayTransition());
         // alarm is called on transition failure
         $builder->allowTransition('alarm', ['locked', 'unlocked'], 'violation');
         $builder->allowTransition('reset', 'violation', 'locked');
 
         $builder->addAttribute('is_locked', ['locked', 'violation']);
+    }
+}
+
+final class CallbackStateTest extends TestCase
+{
+    public function test_workflow()
+    {
+        $turnStill = new TurnStill();
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertFalse($turnStill->inViolation());
+
+        $this->assertSame(0, $turnStill->coins());
+        $turnStill->pay(1);
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertFalse($turnStill->isLocked());
+        $this->assertFalse($turnStill->inViolation());
+
+        $this->assertSame(1, $turnStill->coins());
+        $turnStill->pass();
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertFalse($turnStill->inViolation());
+
+        $this->assertSame(1, $turnStill->coins());
+        $turnStill->pass();
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertTrue($turnStill->inViolation());
+
+        $this->assertSame(1, $turnStill->coins());
+        $turnStill->pay(1);
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertTrue($turnStill->inViolation());
+
+        $this->assertSame(1, $turnStill->coins());
+        $turnStill->reset();
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertFalse($turnStill->inViolation());
     }
 }

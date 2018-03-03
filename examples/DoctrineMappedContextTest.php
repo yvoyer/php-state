@@ -15,6 +15,69 @@ use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\StateMetadata;
 
+/**
+ * @Entity()
+ */
+class MyEntity
+{
+    /**
+     * @var int
+     * @Id()
+     * @GeneratedValue(strategy="AUTO")
+     * @Column(name="id", type="integer")
+     */
+    public $id;
+
+    /**
+     * @var MyState
+     * @Embedded(class="MyState", columnPrefix="my_")
+     */
+    private $state;
+
+    public function __construct()
+    {
+        $this->state = new MyState();
+    }
+
+    public function isLocked()
+    {
+        return $this->state->isInState('locked');
+    }
+
+    public function lock()
+    {
+        $this->state = $this->state->transit('lock', $this);
+    }
+
+    public function unlock()
+    {
+        $this->state = $this->state->transit('unlock', $this);
+    }
+}
+
+/**
+ * @Embeddable()
+ */
+final class MyState extends StateMetadata
+{
+    /**
+     * @var string
+     * @Column(name="state", type="string")
+     */
+    protected $current;
+
+    public function __construct()
+    {
+        parent::__construct('locked');
+    }
+
+    protected function configure(StateBuilder $builder)
+    {
+        $builder->allowTransition('lock', 'unlocked', 'locked');
+        $builder->allowTransition('unlock', 'locked', 'unlocked');
+    }
+}
+
 final class DoctrineMappedContextTest extends TestCase
 {
     /**
@@ -76,68 +139,5 @@ final class DoctrineMappedContextTest extends TestCase
         $this->em->clear();
 
         return $this->em->find(MyEntity::class, $id);
-    }
-}
-
-/**
- * @Entity()
- */
-class MyEntity
-{
-    /**
-     * @var int
-     * @Id()
-     * @GeneratedValue(strategy="AUTO")
-     * @Column(name="id", type="integer")
-     */
-    public $id;
-
-    /**
-     * @var MyState
-     * @Embedded(class="MyState", columnPrefix="my_")
-     */
-    private $state;
-
-    public function __construct()
-    {
-        $this->state = new MyState();
-    }
-
-    public function isLocked()
-    {
-        return $this->state->isInState('locked');
-    }
-
-    public function lock()
-    {
-        $this->state = $this->state->transit('lock', $this);
-    }
-
-    public function unlock()
-    {
-        $this->state = $this->state->transit('unlock', $this);
-    }
-}
-
-/**
- * @Embeddable()
- */
-final class MyState extends StateMetadata
-{
-    /**
-     * @var string
-     * @Column(name="state", type="string")
-     */
-    protected $current;
-
-    public function __construct()
-    {
-        parent::__construct('locked');
-    }
-
-    protected function configure(StateBuilder $builder)
-    {
-        $builder->allowTransition('lock', 'unlocked', 'locked');
-        $builder->allowTransition('unlock', 'locked', 'unlocked');
     }
 }

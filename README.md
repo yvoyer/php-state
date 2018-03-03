@@ -1,13 +1,13 @@
 # PHP State machine
 
 [![Build Status](https://travis-ci.org/yvoyer/php-state.svg?branch=master)](https://travis-ci.org/yvoyer/php-state)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yvoyer/php-state/badges/quality-score.png)](https://scrutinizer-ci.com/g/yvoyer/php-state/)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yvoyer/php-state/badges/coverage.png)](https://scrutinizer-ci.com/g/yvoyer/php-state/)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yvoyer/php-state/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yvoyer/php-state/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/yvoyer/php-state/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yvoyer/php-state/?branch=master)
 
-This package help you to build a workflow for a designated context, that can be encapsulated inside the given context.
+This package help you build a workflow for a designated context, that can be encapsulated inside the given context.
 
-It was designed to avoid add a hard dependency to the package. The library do not require you to implement any method.
-All the code you need to do can be encapsulated inside your context class, and it stays hidden to your other object.
+It was designed to avoid having a hard dependency to the package. The library do not require you to implement any method.
+All the code you need to write can be encapsulated inside your context class, and it stays hidden from your other object.
 
 
 ## Installation
@@ -20,73 +20,49 @@ Using composer, add the following require in your `composer.json`.
     }
 ```
 
-## Features 
+## Features
 
 ## States
 
-A state is just a name in which a context can find itself in. The state is usually kept in a persistence platform, 
-or kept in the model using a [string](https://github.com/yvoyer/php-state/blob/master/examples/ContextUsingBuilderTest.php#240)
- representation or a [StateMetadata](https://github.com/yvoyer/php-state/blob/master/examples/ContextUsingCustomMetadataTest.php#L179) class.
+A state is just a name in which a context can find itself in. The state is usually kept in a persistence platform,
+ or kept in the model using a [string](https://github.com/yvoyer/php-state/blob/master/examples/ContextUsingBuilderTest.php)
+ representation or a [StateMetadata](https://github.com/yvoyer/php-state/blob/master/examples/ContextUsingCustomMetadataTest.php) class.
 
 ## Transitions
 
-A transition is an action on the model that will move the context from one state to the other. A transition can only 
-have one destination state, since there is no way (yet) for the machine to know which state to go to. On the other side
+A transition is an action on the context that will move from one state to the other. A transition can only
+ have one destination state, since there is no way for the machine to know which state to go to. On the other hand,
 a transition may have multiple starting states.
 
-If no transition has the context's current state as a start start, an exception will be raised (unless another 
- [TransitionCallback](https://github.com/yvoyer/php-state/blob/master/src/Callbacks/) is given).
+If no transition contains the context's current state as a start start, an exception will be raised (unless another
+  [TransitionCallback](https://github.com/yvoyer/php-state/blob/master/src/Callbacks/) is given).
 
 ## Attributes
 
-Attributes are used to mark a state as having a certain signification to the context.
- 
-Ie. Given your state needs to be considered as being active or closed while another state should not,
- you just need to add the `is_active` and `is_closed` attributes to the states that needs it.
-In doing so, you'll be able to add methods `isActive()`, `isClosed()` on your context that will be defined as follow:
+Attributes are used to mark a state as having a meaning to the context.
 
-    +-------------------+------------+------------+
-    | state / attribute | is_active  | is_closed  |
-    +===================+============+============+
-    | draft             |   false    |   true     |
-    +-------------------+------------+------------+
-    | published         |   true     |   false    |
-    +-------------------+------------+------------+
-    | archived          |   false    |   true     |   
-    +-------------------+------------+------------+
+Ie. Given you need a state to be considered active or closed while another state should not,
+ you just need to add the `is_active` and `is_closed` attributes to the states that needs them.
 
 ```php
-class Post
+// your context using the builder
+public function isActive()
 {
-    /**
-     * @return StateMachine
-     */
-    private function stateMachine()
-    {
-        return StateBuilder::build()
-            // ... your transitions here
-            ->addAttribute("is_active", "published") // one state only has the attribute
-            ->addAttribute("is_closed", ["archived", "drafted"]) // many states have the attribute
-            ->create($this->state);
-    }
-    
-    public function isActive()
-    {
-        return $this->stateMachine()-hasAttribute("is_active");
-    } 
+    return $this->stateMachine()-hasAttribute("is_active");
+}
+```
 
-    public function isClosed()
-    {
-        return $this->stateMachine()-hasAttribute("is_closed");
-    } 
+```php
+// your context using the metadata
+public function isActive()
+{
+    return $this->state->hasAttribute("is_active");
 }
 ```
 
 ## Examples of usage
 
-### Using the builder in your model
-
-Given you have a `Post` implementation that can have multiple states:
+Given you have a `Post` context that can have the following states:
 
 * **Draft**: The post is visible only to the creator and moderators
 * **Published**: The post is visible to all users
@@ -94,33 +70,42 @@ Given you have a `Post` implementation that can have multiple states:
 
 The post's allowed workflow should be as follow:
 
-    +---------------------------------------------------+
-    |                  Transitions                      |
-    +------------+------------+------------+------------+
-    |   State    |            |            |            |
-    | from / to  |    draft   | published  |  archived  |
-    +============+============+============+============+
-    | draft      |     N/A    | publish    |    N/A     |
-    +------------+------------+------------+------------+
-    | published  |     N/A    |     N/A    | archive    | 
-    +------------+------------+------------+------------+
-    | archived   |     N/A    | to_draft   |    N/A     |
-    +------------+------------+------------+------------+
+| Transitions | draft | published | archived |
+| ----------- | ----- | --------- | -------- |
+| draft       | N/A   | publish   | N/A      |
+| published   | N/A   | N/A       | archive  |
+| archived    | N/A   | unarchive | N/A      |
 
-You can setup your `Post` object using the following configuration:
+You `Post` class can be defined as one of the following pattern.
+
+### Using the builder in your model
 
 ```php
 class Post
 {
     /**
-     * @var string The current state (as a string of your model)
+     * @var string
      */
     private $state;
 
     public function publish()
     {
-        // set the state to the next one after the transition is done (and if allowed)
         $this->state = $this->stateMachine()->transit("publish", $this);
+    }
+
+    public function archive()
+    {
+        $this->state = $this->stateMachine()->transit("archive", $this);
+    }
+
+    public function unarchive()
+    {
+        $this->state = $this->stateMachine()->transit("unarchive", $this);
+    }
+
+    public function isClosed()
+    {
+        return $this->stateMachine()->hasAttribute("is_closed");
     }
 
     /**
@@ -130,9 +115,8 @@ class Post
     {
         return StateBuilder::build()
             ->allowTransition("publish", "draft", "published")
-            ->allowTransition("to_draft", "published", "draft")
             ->allowTransition("archive", "published", "archived")
-            ->addAttribute("is_active", "published")
+            ->allowTransition("unarchive", "published", "draft")
             ->addAttribute("is_closed", ["archived", "drafted"])
             ->create($this->state);
     }
@@ -144,130 +128,63 @@ class Post
 If you have multiple models that can have the same workflow, defining a class that wraps the workflow can be done using
 the [StateMetadata](https://github.com/yvoyer/php-state/blob/master/src/StateMetadata.php).
 
-Supports the following persistence engine:
-
-* [Doctrine](https://github.com/doctrine/doctrine2): Can be used using `@Embeddable`, see 
-[Example of usage](https://github.com/yvoyer/php-state/blob/master/examples/DoctrineMappedContextTest.php).
-
 ```php
-/**
- * +---------------------------------------------------------+
- * |                           Transition                    |
- * +-----------+---------+------------+-----------+----------+
- * | From / To | pending | approved   | published | archived |
- * +-----------+---------+------------+-----------+----------+
- * | pending   |   N/A   |  approve   |    N/A    | discard  |
- * +-----------+---------+------------+-----------+----------+
- * | approved  |   N/A   |    N/A     |  publish  | archive  |
- * +-----------+---------+------------+-----------+----------+
- * | published |   N/A   |   remove   |    N/A    | archive  |
- * +-----------+---------+------------+-----------+----------+
- * | archived  | re-open | un-archive |    N/A    |    N/A   |
- * +-----------+---------+------------+-----------+----------+
- *
- * +-----------------------------------+
- * |           |       Attributes      |
- * +-----------+----------+------------+
- * | State     | is_draft | is_visible |
- * +-----------+----------+------------+
- * | pending   |   true   |   false    |
- * +-----------+----------+------------+
- * | approved  |   true   |   false    |
- * +-----------+----------+------------+
- * | published |   false  |   true     |
- * +-----------+----------+------------+
- * | archived  |   false  |   false    |
- * +-----------+----------+------------+
- */
 final class MyStateWorkflow extends StateMetadata
 {
     protected function __construct()
     {
         parent::__construct('pending');
     }
-    
+
     protected function createMachine(StateBuilder $builder)
     {
-        // define transitions
-        $builder->allowTransition('approve', 'pending', 'approved');
-        $builder->allowTransition('discard', 'pending', 'archived');
-        $builder->allowTransition('publish', 'approved', 'published');
-        $builder->allowTransition('remove', 'published', 'approved');
-        $builder->allowTransition('archive', ['approved', 'published'], 'archived');
-        $builder->allowTransition('un-archive', 'archived', 'approved');
-        
-        // Custom transition
-        $builder->allowCustomTransition('re-open', new ReOpenTransition());
-
-        // attributes
-        $builder->addAttribute('is_visible', 'published');
-        $builder->addAttribute('is_draft', ['pending', 'approved']);
+        $builder->allowTransition("publish", "draft", "published")
+        $builder->allowTransition("archive", "published", "archived")
+        $builder->allowTransition("unarchive", "published", "draft")
+        $builder->addAttribute("is_closed", ["archived", "drafted"])
     }
 }
 
-final class MyModel
+class Post
 {
     /**
-     * @var MyStateWorkflow
+     * @var string
      */
-    public $state;
+    private $state;
 
     public function __construct()
     {
-        $this->state = new MyStateWorkflow();
+        $this->>state = new MyStateWorkflow();
     }
 
     public function publish()
     {
-        $this->state = $this->state->transit('publish', $this);
-    }
-
-    public function approve()
-    {
-        $this->state = $this->state->transit('approve', $this);
-    }
-
-    public function discard()
-    {
-        $this->state = $this->state->transit('discard', $this);
-    }
-
-    public function reOpen()
-    {
-        $this->state = $this->state->transit('re-open', $this);
-    }
-
-    public function remove()
-    {
-        $this->state = $this->state->transit('remove', $this);
-    }
-
-    public function unPublish()
-    {
-        $this->state = $this->state->transit('un-publish', $this);
+        $this->state = $this->state->transit("publish", $this);
     }
 
     public function archive()
     {
-        $this->state = $this->state->transit('archive', $this);
+        $this->state = $this->state->transit("archive", $this);
     }
 
-    public function unArchive()
+    public function unarchive()
     {
-        $this->state = $this->state->transit('un-archive', $this);
+        $this->state = $this->state->transit("unarchive", $this);
     }
 
-    public function isDraft()
+    public function isClosed()
     {
-        return $this->state->hasAttribute('is_draft');
-    }
-
-    public function isVisible()
-    {
-        return $this->state->hasAttribute('is_visible');
+        return $this->state->hasAttribute("is_closed");
     }
 }
 ```
+
+## Persistence of state
+
+The package supports the following persistence engine:
+
+* [Doctrine](https://github.com/doctrine/doctrine2): Can be used using `@Embeddable`, see
+ [Example of usage](https://github.com/yvoyer/php-state/blob/master/examples/DoctrineMappedContextTest.php).
 
 ## Events
 
@@ -282,7 +199,7 @@ Subscribers that listens to these events will have their configured callback(s) 
 * `StateEventStore::AFTER_TRANSITION`: This event is performed after any transition is executed on the context. See `TransitionWasSuccessful`.
 * `StateEventStore::FAILURE_TRANSITION`: This event is performed before the transition exception is triggered. See `TransitionWasFailed`.
 
-*Subscribing a listener*
+**Subscribing a listener in the machine**
 
 ```php
 $stateMachine->addListener(
@@ -291,7 +208,6 @@ $stateMachine->addListener(
         // do something
     }
 );
-
 ```
 
 ## Transition callbacks
@@ -301,3 +217,9 @@ When requesting a transition, another way to hook in the process is to pass
 
 Transition callbacks allow to perform an action before, after or when the transition is not allowed.
 By default, an exception is triggered. see [AlwaysThrowExceptionOnFailure](https://github.com/yvoyer/php-state/blob/master/src/Callbacks/AlwaysThrowExceptionOnFailure).
+
+**Callback on a transition**
+
+```php
+$this->state->transit("transition", $this, new DoSomethingOnSuccessIfConditionMatches());
+```

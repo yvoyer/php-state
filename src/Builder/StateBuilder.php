@@ -9,7 +9,6 @@ use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\ManyToOneTransition;
 use Star\Component\State\Transitions\OneToOneTransition;
-use Webmozart\Assert\Assert;
 
 /**
  * Tool to build the StateMachine.
@@ -42,24 +41,22 @@ final class StateBuilder
     public function allowTransition($name, $from, $to)
     {
         if (is_array($from)) {
-            $transition = new ManyToOneTransition($from, $to);
+            $transition = new ManyToOneTransition($name, $from, $to);
         } else {
-            $transition = new OneToOneTransition($from, $to);
+            $transition = new OneToOneTransition($name, $from, $to);
         }
 
-        $this->allowCustomTransition($name, $transition);
+        $this->allowCustomTransition($transition);
 
         return $this;
     }
 
     /**
-     * @param string $name
      * @param StateTransition $transition
      */
-    public function allowCustomTransition($name, StateTransition $transition)
+    public function allowCustomTransition(StateTransition $transition)
     {
-        Assert::string($name);
-        $this->registry->addTransition($name, $transition);
+        $this->registry->addTransition($transition);
     }
 
     /**
@@ -72,8 +69,7 @@ final class StateBuilder
     {
         $states = (array) $states;
         foreach ($states as $stateName) {
-            $state = $this->registry->getState($stateName);
-            $state->addAttribute($attribute);
+            $this->registry->addAttribute($stateName, $attribute);
         }
 
         return $this;

@@ -32,11 +32,6 @@ final class StateMachineTest extends TestCase
     private $context;
 
     /**
-     * @var StateTransition|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $transition;
-
-    /**
      * @var EventRegistry|\PHPUnit_Framework_MockObject_MockObject
      */
     private $listeners;
@@ -44,10 +39,8 @@ final class StateMachineTest extends TestCase
     public function setUp()
     {
         $this->listeners = $this->getMockBuilder(EventRegistry::class)->getMock();
-        $this->transition = $this->getMockBuilder(StateTransition::class)->getMock();
         $this->context = new TestContext('current');
         $this->registry = new TransitionRegistry();
-        $this->registry->registerState('current', ['exists']);
         $this->machine = new StateMachine('current', $this->registry, $this->listeners);
     }
 
@@ -62,9 +55,9 @@ final class StateMachineTest extends TestCase
 
     public function test_it_should_transition_from_one_state_to_the_other()
     {
+        $this->registry->addTransition(new OneToOneTransition('name', 'current', 'next'));
         $this->assertTrue($this->machine->isInState('current'));
 
-        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
         $this->assertSame('next', $this->machine->transit('name', $this->context));
 
         $this->assertFalse($this->machine->isInState('current'));
@@ -80,7 +73,7 @@ final class StateMachineTest extends TestCase
                 $this->isInstanceOf(TransitionWasRequested::class)
             );
 
-        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
+        $this->registry->addTransition(new OneToOneTransition('name', 'current', 'next'));
         $this->machine->transit('name', $this->context);
     }
 
@@ -94,7 +87,7 @@ final class StateMachineTest extends TestCase
                 $this->isInstanceOf(TransitionWasSuccessful::class)
             );
 
-        $this->registry->addTransition('name', new OneToOneTransition('current', 'next'));
+        $this->registry->addTransition(new OneToOneTransition('name', 'current', 'next'));
         $this->machine->transit('name', $this->context);
     }
 
@@ -104,9 +97,8 @@ final class StateMachineTest extends TestCase
      */
     public function test_it_should_throw_exception_with_class_context_when_transition_not_allowed()
     {
-        $this->registry->registerState('not-allowed');
-        $this->registry->addTransition('t', $this->transition);
-        $this->assertFalse($this->machine->isInState('not-allowed'));
+        $this->registry->addTransition(new OneToOneTransition('t', 'start', 'end'));
+        $this->assertFalse($this->machine->isInState('start'));
 
         $this->machine->transit('t', new \stdClass);
     }
@@ -117,15 +109,15 @@ final class StateMachineTest extends TestCase
      */
     public function test_it_should_throw_exception_with_context_as_string_when_transition_not_allowed()
     {
-        $this->registry->registerState('not-allowed');
-        $this->registry->addTransition('transition', $this->transition);
-        $this->assertFalse($this->machine->isInState('not-allowed'));
+        $this->registry->addTransition(new OneToOneTransition('transition', 'start', 'end'));
+        $this->assertFalse($this->machine->isInState('start'));
 
         $this->machine->transit('transition', 'c');
     }
 
     public function test_state_can_have_attribute()
     {
+        $this->registry->registerStartingState('transition', 'current', ['exists']);
         $this->assertFalse($this->machine->hasAttribute('not-exists'));
         $this->assertTrue($this->machine->hasAttribute('exists'));
     }
@@ -141,19 +133,6 @@ final class StateMachineTest extends TestCase
             ->method('acceptTransitionVisitor')
             ->with($visitor);
         $machine->acceptTransitionVisitor($visitor);
-    }
-
-    public function test_it_should_visit_the_states()
-    {
-        $registry = $this->getMockBuilder(StateRegistry::class)->getMock();
-        $machine = new StateMachine('', $registry, $this->listeners);
-        $visitor = $this->getMockBuilder(StateVisitor::class)->getMock();
-
-        $registry
-            ->expects($this->once())
-            ->method('acceptStateVisitor')
-            ->with($visitor);
-        $machine->acceptStateVisitor($visitor);
     }
 
     /**
@@ -175,7 +154,7 @@ final class StateMachineTest extends TestCase
                 $this->isInstanceOf(TransitionWasFailed::class)
             );
 
-        $this->registry->addTransition('t', $this->transition);
+        $this->registry->addTransition(new OneToOneTransition('t', 'from', 'to'));
         try {
             $this->machine->transit('t', 'context');
             $this->fail('An exception should have been thrown');

@@ -7,33 +7,31 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\States\StringState;
+use Star\Component\State\Transitions\ReadOnlyTransition;
 use Webmozart\Assert\Assert;
 
 final class TransitionRegistry implements StateRegistry
 {
     /**
-     * @var StateTransition[]
+     * @var array[] Collection of states indexed by transition name
      */
     private $transitions = [];
 
     /**
-     * @var State[]
+     * @var array[] Collection of attributes indexed by state name
      */
     private $states = [];
 
     /**
-     * @param string $name
      * @param StateTransition $transition
      */
-    public function addTransition($name, StateTransition $transition)
+    public function addTransition(StateTransition $transition)
     {
-        Assert::string($name);
+        $name = $transition->getName();
         if (isset($this->transitions[$name])) {
             throw DuplicateEntryException::duplicateTransition($name);
         }
 
-        $this->transitions[$name] = $transition;
         $transition->onRegister($this);
     }
 
@@ -47,8 +45,8 @@ final class TransitionRegistry implements StateRegistry
     {
         Assert::string($name);
         $transition = null;
-        if (isset($this->transitions[$name])) {
-            $transition = $this->transitions[$name];
+        if (isset($this->transitions[$name]['to'])) {
+            $transition = new ReadOnlyTransition($this->transitions[$name]['to']);
         }
 
         if (! $transition) {
@@ -59,18 +57,66 @@ final class TransitionRegistry implements StateRegistry
     }
 
     /**
-     * @param string $name
-     * @return State
-     * @throws NotFoundException
+     * @param string $state
+     * @param string $attribute
      */
-    public function getState($name)
+    public function addAttribute($state, $attribute)
     {
-        Assert::string($name);
-        if (! $this->hasState($name)) {
-            throw NotFoundException::stateNotFound($name);
+        $attributes = [$attribute];
+        if ($this->hasState($state)) {
+            $attributes = array_merge($this->states[$state], $attributes);
         }
 
-        return $this->states[$name];
+        $this->states[$state] = array_unique($attributes);
+    }
+
+    /**
+     * @param string $state
+     * @param string[] $attributes
+     */
+    private function addAttributes($state, array $attributes)
+    {
+        array_map(
+            function ($attribute) use ($state) {
+                $this->addAttribute($state, $attribute);
+            },
+            $attributes
+        );
+    }
+
+    /**
+     * @param string $transition
+     * @param string $state
+     *
+     * @return bool
+     */
+    public function transitionStartsFrom($transition, $state)
+    {
+        Assert::string($transition);
+        Assert::string($state);
+        $from = [];
+        if (isset($this->transitions[$transition]['from'])) {
+            $from = $this->transitions[$transition]['from'];
+        }
+
+        return in_array($state, $from, true);
+    }
+
+    /**
+     * @param string $state
+     * @param string $attribute
+     *
+     * @return bool
+     */
+    public function hasAttribute($state, $attribute)
+    {
+        Assert::string($state);
+        Assert::string($attribute);
+        if (! $this->hasState($state)) {
+            return false;
+        }
+
+        return in_array($attribute, $this->states[$state]);
     }
 
     /**
@@ -80,7 +126,7 @@ final class TransitionRegistry implements StateRegistry
      */
     public function hasState($name)
     {
-        return isset($this->states[$name]);
+        return array_key_exists($name, $this->states);
     }
 
     /**
@@ -88,9 +134,13 @@ final class TransitionRegistry implements StateRegistry
      */
     public function acceptTransitionVisitor(TransitionVisitor $visitor)
     {
-        foreach ($this->transitions as $name => $transition) {
-            $visitor->visitTransition($name);
-            $transition->acceptTransitionVisitor($visitor);
+        foreach ($this->transitions as $transition => $states) {
+            $visitor->visitTransition($transition);
+
+            foreach ($states['from'] as $from) {
+                $visitor->visitFromState($from, $this->states[$from]);
+            }
+            $visitor->visitToState($states['to'], $this->states[$states['to']]);
         }
     }
 
@@ -99,26 +149,42 @@ final class TransitionRegistry implements StateRegistry
      */
     public function acceptStateVisitor(StateVisitor $visitor)
     {
-        foreach ($this->transitions as $transition) {
-            $transition->acceptStateVisitor($visitor, $this);
+        foreach ($this->states as $state => $attributes) {
+            $visitor->visitState($state, $attributes);
         }
     }
 
     /**
-     * @param string $name
+     * @param string $transition
+     * @param string $stateName
      * @param string[] $attributes
      */
-    public function registerState($name, array $attributes = [])
+    public function registerStartingState($transition, $stateName, array $attributes = [])
     {
-        $state = new StringState($name, $attributes);
-        if ($this->hasState($name)) {
-            $state = $this->getState($name);
-        }
+        $this->initState($stateName);
+        $this->addAttributes($stateName, $attributes);
+        $this->transitions[$transition]['from'][] = $stateName;
+    }
 
-        foreach ($attributes as $attribute) {
-            $state->addAttribute($attribute);
-        }
+    /**
+     * @param string $transition
+     * @param string $stateName
+     * @param string[] $attributes
+     */
+    public function registerDestinationState($transition, $stateName, array $attributes = [])
+    {
+        $this->initState($stateName);
+        $this->addAttributes($stateName, $attributes);
+        $this->transitions[$transition]['to'] = $stateName;
+    }
 
-        $this->states[$name] = $state;
+    /**
+     * @param string $state
+     */
+    private function initState($state)
+    {
+        if (!$this->hasState($state)) {
+            $this->states[$state] = [];
+        }
     }
 }

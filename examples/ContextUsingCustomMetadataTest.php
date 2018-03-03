@@ -5,6 +5,109 @@ namespace Star\Component\State;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 
+final class MyStateWorkflow extends StateMetadata
+{
+    public function __construct()
+    {
+        parent::__construct('pending');
+    }
+
+    protected function configure(StateBuilder $builder)
+    {
+        $builder->allowTransition('approve', 'pending', 'approved');
+        $builder->allowTransition('discard', 'pending', 'archived');
+        $builder->allowTransition('publish', 'approved', 'published');
+        $builder->allowTransition('remove', 'published', 'approved');
+        $builder->allowTransition('archive', ['approved', 'published'], 'archived');
+        $builder->allowTransition('un-archive', 'archived', 'approved');
+        $builder->allowCustomTransition(new ReOpenTransition());
+        $builder->addAttribute('is_visible', 'published');
+        $builder->addAttribute('is_draft', ['pending', 'approved']);
+    }
+}
+
+final class ReOpenTransition implements StateTransition
+{
+    public function getName()
+    {
+        return 're-open';
+    }
+
+    /**
+     * @param RegistryBuilder $registry
+     */
+    public function onRegister(RegistryBuilder $registry)
+    {
+        $registry->registerStartingState('re-open', 'archived', []);
+        $registry->registerDestinationState('re-open', 'pending', []);
+    }
+
+    public function getDestinationState()
+    {
+        return 'pending';
+    }
+}
+
+final class ContextStub
+{
+    public $state;
+
+    public function __construct()
+    {
+        $this->state = new MyStateWorkflow();
+    }
+
+    public function publish()
+    {
+        $this->state = $this->state->transit('publish', $this);
+    }
+
+    public function approve()
+    {
+        $this->state = $this->state->transit('approve', $this);
+    }
+
+    public function discard()
+    {
+        $this->state = $this->state->transit('discard', $this);
+    }
+
+    public function reOpen()
+    {
+        $this->state = $this->state->transit('re-open', $this);
+    }
+
+    public function remove()
+    {
+        $this->state = $this->state->transit('remove', $this);
+    }
+
+    public function unPublish()
+    {
+        $this->state = $this->state->transit('un-publish', $this);
+    }
+
+    public function archive()
+    {
+        $this->state = $this->state->transit('archive', $this);
+    }
+
+    public function unArchive()
+    {
+        $this->state = $this->state->transit('un-archive', $this);
+    }
+
+    public function isDraft()
+    {
+        return $this->state->hasAttribute('is_draft');
+    }
+
+    public function isVisible()
+    {
+        return $this->state->hasAttribute('is_visible');
+    }
+}
+
 final class ContextUsingCustomMetadataTest extends TestCase
 {
     /**
@@ -174,108 +277,5 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('archived'));
         $this->assertFalse($context->isDraft());
         $this->assertFalse($context->isVisible());
-    }
-}
-
-final class MyStateWorkflow extends StateMetadata
-{
-    public function __construct()
-    {
-        parent::__construct('pending');
-    }
-
-    protected function configure(StateBuilder $builder)
-    {
-        $builder->allowTransition('approve', 'pending', 'approved');
-        $builder->allowTransition('discard', 'pending', 'archived');
-        $builder->allowTransition('publish', 'approved', 'published');
-        $builder->allowTransition('remove', 'published', 'approved');
-        $builder->allowTransition('archive', ['approved', 'published'], 'archived');
-        $builder->allowTransition('un-archive', 'archived', 'approved');
-        $builder->allowCustomTransition(new ReOpenTransition());
-        $builder->addAttribute('is_visible', 'published');
-        $builder->addAttribute('is_draft', ['pending', 'approved']);
-    }
-}
-
-final class ReOpenTransition implements StateTransition
-{
-    public function getName()
-    {
-        return 're-open';
-    }
-
-    /**
-     * @param RegistryBuilder $registry
-     */
-    public function onRegister(RegistryBuilder $registry)
-    {
-        $registry->registerStartingState('re-open', 'archived', []);
-        $registry->registerDestinationState('re-open', 'pending', []);
-    }
-
-    public function getDestinationState()
-    {
-        return 'pending';
-    }
-}
-
-final class ContextStub
-{
-    public $state;
-
-    public function __construct()
-    {
-        $this->state = new MyStateWorkflow();
-    }
-
-    public function publish()
-    {
-        $this->state = $this->state->transit('publish', $this);
-    }
-
-    public function approve()
-    {
-        $this->state = $this->state->transit('approve', $this);
-    }
-
-    public function discard()
-    {
-        $this->state = $this->state->transit('discard', $this);
-    }
-
-    public function reOpen()
-    {
-        $this->state = $this->state->transit('re-open', $this);
-    }
-
-    public function remove()
-    {
-        $this->state = $this->state->transit('remove', $this);
-    }
-
-    public function unPublish()
-    {
-        $this->state = $this->state->transit('un-publish', $this);
-    }
-
-    public function archive()
-    {
-        $this->state = $this->state->transit('archive', $this);
-    }
-
-    public function unArchive()
-    {
-        $this->state = $this->state->transit('un-archive', $this);
-    }
-
-    public function isDraft()
-    {
-        return $this->state->hasAttribute('is_draft');
-    }
-
-    public function isVisible()
-    {
-        return $this->state->hasAttribute('is_visible');
     }
 }

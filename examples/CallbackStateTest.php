@@ -13,51 +13,6 @@ use Star\Component\State\StateMachine;
 use Star\Component\State\StateMetadata;
 use Star\Component\State\StateTransition;
 
-final class CallbackStateTest extends TestCase
-{
-    public function test_workflow()
-    {
-        $turnStill = new TurnStill();
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertFalse($turnStill->inViolation());
-
-        $this->assertSame(0, $turnStill->coins());
-        $turnStill->pay(1);
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertFalse($turnStill->isLocked());
-        $this->assertFalse($turnStill->inViolation());
-
-        $this->assertSame(1, $turnStill->coins());
-        $turnStill->pass();
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertFalse($turnStill->inViolation());
-
-        $this->assertSame(1, $turnStill->coins());
-        $turnStill->pass();
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertTrue($turnStill->inViolation());
-
-        $this->assertSame(1, $turnStill->coins());
-        $turnStill->pay(1);
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertTrue($turnStill->inViolation());
-
-        $this->assertSame(1, $turnStill->coins());
-        $turnStill->reset();
-        $this->assertSame(1, $turnStill->coins());
-
-        $this->assertTrue($turnStill->isLocked());
-        $this->assertFalse($turnStill->inViolation());
-    }
-}
-
 class TurnStill
 {
     /**
@@ -215,5 +170,50 @@ class TurnStillState extends StateMetadata
         $builder->allowTransition('reset', 'violation', 'locked');
 
         $builder->addAttribute('is_locked', ['locked', 'violation']);
+    }
+}
+
+final class CallbackStateTest extends TestCase
+{
+    public function test_workflow()
+    {
+        $turnStill = new TurnStill();
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertFalse($turnStill->inViolation());
+
+        $this->assertSame(0, $turnStill->coins());
+        $turnStill->pay(1);
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertFalse($turnStill->isLocked());
+        $this->assertFalse($turnStill->inViolation());
+
+        $this->assertSame(1, $turnStill->coins());
+        $turnStill->pass();
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertFalse($turnStill->inViolation());
+
+        $this->assertSame(1, $turnStill->coins());
+        $turnStill->pass();
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertTrue($turnStill->inViolation());
+
+        $this->assertSame(1, $turnStill->coins());
+        $turnStill->pay(1);
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertTrue($turnStill->inViolation());
+
+        $this->assertSame(1, $turnStill->coins());
+        $turnStill->reset();
+        $this->assertSame(1, $turnStill->coins());
+
+        $this->assertTrue($turnStill->isLocked());
+        $this->assertFalse($turnStill->inViolation());
     }
 }

@@ -26,8 +26,12 @@
         "symfony/event-dispatcher": "^2.0"
     },
     "require-dev": {
+        "claviska/simpleimage": "~3.0",
         "doctrine/orm": "^2.5",
-        "phpunit/phpunit": "~4.0",
+        "ext-gd": "*",
+        "ext-sqlite3": "*",
+        "ext-simplexml": "*",
+        "phpunit/phpunit": "~5.0",
         "squizlabs/php_codesniffer": "^3.2"
     },
     "extra": {

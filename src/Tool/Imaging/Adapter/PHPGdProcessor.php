@@ -9,9 +9,14 @@ use Star\Component\State\Tool\Imaging\ImageProcessor;
 final class PHPGdProcessor implements ImageProcessor
 {
     /**
-     * @var SimpleImage
+     * @var Coordinate
      */
-    private $image;
+    private $lastCoordinate;
+
+    /**
+     * @var \Closure[]
+     */
+    private $states = [];
 
     public function __construct()
     {
@@ -26,17 +31,28 @@ final class PHPGdProcessor implements ImageProcessor
      */
     public function drawState($name, Coordinate $point)
     {
-        if (! $this->image) {
-            $this->image = new SimpleImage();
-            $this->image->fromNew(500, 500, 'white');
-        }
+        $this->states[$name] = function(SimpleImage $canvas) use ($name, $point) {
+            $box = new SimpleImage();
+            $box->fromNew(100, 50);
+            $box->text(
+                $name,
+                [
+                    'color' => 'black',
+                    'fontFile' => dirname(__DIR__) . '/Resources/fonts/Roboto/Roboto-Medium.ttf',
+                ]
+            );
+            $box->border('black', 2);
 
-        $box = new SimpleImage();
-        $box->fromNew(100, 50);
-        $box->text($name, ['color' => 'black', 'fontFile' => dirname(__DIR__) . '/Resources/fonts/Roboto/Roboto-Medium.ttf']);
-        $box->border('black', 2);
+            $canvas->overlay(
+                $box,
+                'top left',
+                1,
+                $point->x() * 1.5,
+                $point->y()
+            );
+        };
 
-        $this->image->overlay($box, 'center', 1, $point->x(), $point->y());
+        $this->lastCoordinate = $point;
     }
 
     /**
@@ -46,7 +62,19 @@ final class PHPGdProcessor implements ImageProcessor
      */
     public function createPng($filename)
     {
-        $this->image->toFile($filename, 'image/png');
+        $canvas = new SimpleImage();
+        $square = sqrt(count($this->states));
+        if ($square !== (int) $square) {
+            $square = (int) $square + 1;
+        }
+
+        $canvas->fromNew($square * 200, $square * 100, 'white');
+
+        foreach ($this->states as $data) {
+            $data($canvas);
+        }
+
+        $canvas->toFile($filename, 'image/png');
 
         return new \SplFileObject($filename);
     }

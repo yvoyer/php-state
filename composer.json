@@ -23,7 +23,7 @@
     "require": {
         "php": ">=5.5",
         "webmozart/assert": "^1.0",
-        "symfony/event-dispatcher": "^2.0"
+        "symfony/event-dispatcher": ">=2.0"
     },
     "require-dev": {
         "doctrine/orm": "^2.5",

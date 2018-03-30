@@ -4,9 +4,9 @@ namespace Star\Component\State\Tool\Imaging;
 
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateVisitor;
-use Star\Component\State\TransitionVisitor;
+use Star\Component\State\Visitor\TransitionDumper;
 
-final class ImageGenerator implements StateVisitor, TransitionVisitor
+final class ImageGenerator implements StateVisitor
 {
     /**
      * @var ImageProcessor
@@ -48,6 +48,8 @@ final class ImageGenerator implements StateVisitor, TransitionVisitor
     {
         $this->nextPosition = new Coordinate($this->spacing, $this->spacing);
         $machine->acceptStateVisitor($this); // print state boxes
+        $machine->acceptTransitionVisitor($dumper = new TransitionDumper()); // print transitions links
+        $this->generateLinks($dumper->getStructure());
 
         return $this->processor->createPng($name);
     }
@@ -85,28 +87,14 @@ final class ImageGenerator implements StateVisitor, TransitionVisitor
     }
 
     /**
-     * @param string $name
+     * @param array $structure
      */
-    public function visitTransition($name)
+    private function generateLinks(array $structure)
     {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
-    }
-
-    /**
-     * @param string $state
-     * @param string[] $attributes
-     */
-    public function visitFromState($state, array $attributes)
-    {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
-    }
-
-    /**
-     * @param string $state
-     * @param string[] $attributes
-     */
-    public function visitToState($state, array $attributes)
-    {
-        throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
+        foreach ($structure as $transition => $states) {
+            foreach ($states['from'] as $from) {
+                $this->processor->drawTransition($transition, $from, $states['to']);
+            }
+        }
     }
 }

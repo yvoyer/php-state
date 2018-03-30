@@ -38,6 +38,6 @@ final class TransitionDumper implements TransitionVisitor
 
     public function visitToState($state, array $attributes)
     {
-        $this->structure[$this->currentTransition]['to'][] = $state;
+        $this->structure[$this->currentTransition]['to'] = $state;
     }
 }

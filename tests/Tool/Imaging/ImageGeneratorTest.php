@@ -159,4 +159,17 @@ final class ImageGeneratorTest extends TestCase
 
         $this->generator->generate('path', $machine);
     }
+
+    public function test_it_should_draw_the_transition_from_center_of_state()
+    {
+        $machine = StateBuilder::build()
+            ->allowTransition('t1', 's1', 's2')
+            ->create('s1');
+        $this->processor
+            ->expects($this->at(0))
+            ->method('drawTransition')
+            ->with('s20', new Coordinate(150, 25));
+
+        $this->generator->generate('path', $machine);
+    }
 }

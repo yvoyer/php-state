@@ -36,7 +36,7 @@ final class TransitionDumperTest extends TestCase
         $this->assertEquals(
             [
                 'from' => ['s1'],
-                'to' => ['s2'],
+                'to' => 's2',
             ],
             $this->dumper->getStructure()['t1']
         );
@@ -52,9 +52,7 @@ final class TransitionDumperTest extends TestCase
                     's2',
                     's3',
                 ],
-                'to' => [
-                    's1',
-                ],
+                'to' => 's1',
             ],
             $this->dumper->getStructure()['t2']
         );

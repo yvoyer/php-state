@@ -11,6 +11,13 @@ interface ImageProcessor
     public function drawState($state, Coordinate $coordinate);
 
     /**
+     * @param string $transition
+     * @param string $from
+     * @param string $to
+     */
+    public function drawTransition($transition, $from, $to);
+
+    /**
      * @param string $filename
      *
      * @return \SplFileInfo

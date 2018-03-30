@@ -5,6 +5,8 @@ namespace Star\Component\State\Tool\Imaging\Adapter;
 use claviska\SimpleImage;
 use Star\Component\State\Tool\Imaging\Coordinate;
 use Star\Component\State\Tool\Imaging\ImageProcessor;
+use Star\Component\State\Tool\Imaging\Size;
+use Webmozart\Assert\Assert;
 
 final class PHPGdProcessor implements ImageProcessor
 {
@@ -17,6 +19,16 @@ final class PHPGdProcessor implements ImageProcessor
      * @var \Closure[]
      */
     private $states = [];
+
+    /**
+     * @var \Closure[]
+     */
+    private $transitions = [];
+
+    /**
+     * @var Coordinate[]
+     */
+    private $points = [];
 
     public function __construct()
     {
@@ -31,6 +43,8 @@ final class PHPGdProcessor implements ImageProcessor
      */
     public function drawState($name, Coordinate $point)
     {
+        $this->points[$name] = $point->moveRight(50)->moveDown(25);
+
         $this->states[$name] = function(SimpleImage $canvas) use ($name, $point) {
             $box = new SimpleImage();
             $box->fromNew(100, 50);
@@ -38,7 +52,7 @@ final class PHPGdProcessor implements ImageProcessor
                 $name,
                 [
                     'color' => 'black',
-                    'fontFile' => dirname(__DIR__) . '/Resources/fonts/Roboto/Roboto-Medium.ttf',
+                    'fontFile' => $this->getFont(),
                 ]
             );
             $box->border('black', 2);
@@ -56,6 +70,50 @@ final class PHPGdProcessor implements ImageProcessor
     }
 
     /**
+     * @param string $transition
+     * @param string $from
+     * @param string $to
+     */
+    public function drawTransition($transition, $from, $to)
+    {
+        Assert::string($transition);
+        Assert::string($from);
+        Assert::string($to);
+
+        $fromPoint = $this->points[$from];
+        $toPoint = $this->points[$to];
+
+        var_dump($fromPoint, $toPoint);
+
+        $this->transitions[$transition] = function(SimpleImage $canvas, Size $size) use (
+            $transition,
+            $fromPoint,
+            $toPoint
+        ) {
+            $line = new SimpleImage();
+            $line->fromNew($size->getWidth(), $size->getHeight());
+            $line->text(
+                $transition,
+                [
+                    'color' => 'red',
+                    'anchor' => 'bottom',
+                    'fontFile' => $this->getFont(),
+                ]
+            );
+            $line->line(
+                $fromPoint->x(),
+                $fromPoint->y(),
+                $toPoint->x(),
+                $toPoint->y(),
+                'red',
+                2
+            );
+
+            $canvas->overlay($line);
+        };
+    }
+
+    /**
      * @param string $filename
      *
      * @return \SplFileInfo
@@ -68,14 +126,27 @@ final class PHPGdProcessor implements ImageProcessor
             $square = (int) $square + 1;
         }
 
-        $canvas->fromNew($square * 200, $square * 100, 'white');
+        $canvasSize = new Size($square * 200, $square * 100);
+        $canvas->fromNew($canvasSize->getWidth(), $canvasSize->getHeight(), 'white');
 
         foreach ($this->states as $data) {
             $data($canvas);
         }
 
+        foreach ($this->transitions as $transition => $callback) {
+            $callback($canvas, $canvasSize);
+        }
+
         $canvas->toFile($filename, 'image/png');
 
         return new \SplFileObject($filename);
+    }
+
+    /**
+     * @return string
+     */
+    private function getFont()
+    {
+        return dirname(__DIR__) . '/Resources/fonts/Roboto/Roboto-Medium.ttf';
     }
 }

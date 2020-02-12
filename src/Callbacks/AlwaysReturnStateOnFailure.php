@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Callbacks;
 
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\StateMachine;
-use Webmozart\Assert\Assert;
 
 final class AlwaysReturnStateOnFailure implements TransitionCallback
 {
@@ -13,12 +12,8 @@ final class AlwaysReturnStateOnFailure implements TransitionCallback
      */
     private $to;
 
-    /**
-     * @param string $to
-     */
-    public function __construct($to)
+    public function __construct(string $to)
     {
-        Assert::string($to);
         $this->to = $to;
     }
 
@@ -26,7 +21,7 @@ final class AlwaysReturnStateOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function beforeStateChange($context, StateMachine $machine)
+    public function beforeStateChange($context, StateMachine $machine): void
     {
     }
 
@@ -34,7 +29,7 @@ final class AlwaysReturnStateOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function afterStateChange($context, StateMachine $machine)
+    public function afterStateChange($context, StateMachine $machine): void
     {
     }
 
@@ -45,7 +40,7 @@ final class AlwaysReturnStateOnFailure implements TransitionCallback
      *
      * @return string
      */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine)
+    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
     {
         return $this->to;
     }

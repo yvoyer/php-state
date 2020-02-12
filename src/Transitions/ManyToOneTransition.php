@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Transitions;
 
@@ -23,34 +23,20 @@ final class ManyToOneTransition implements StateTransition
      */
     private $to;
 
-    /**
-     * @param string $name
-     * @param string[] $fromStates
-     * @param string $to
-     */
-    public function __construct($name, array $fromStates, $to)
+    public function __construct(string $name, string $to, string ...$fromStates)
     {
-        Assert::string($name);
         $this->name = $name;
-        Assert::greaterThanEq(count($fromStates), 1, 'Expected at least %2$s state. Got: %s');
-        Assert::allString($fromStates);
-        Assert::string($to);
+        Assert::greaterThanEq(\count($fromStates), 1, 'Expected at least %2$s state. Got: %s');
         $this->fromStates = $fromStates;
         $this->to = $to;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param RegistryBuilder $registry
-     */
-    public function onRegister(RegistryBuilder $registry)
+    public function onRegister(RegistryBuilder $registry): void
     {
         foreach ($this->fromStates as $from) {
             $registry->registerStartingState($this->name, $from, []);
@@ -59,10 +45,7 @@ final class ManyToOneTransition implements StateTransition
         $registry->registerDestinationState($this->name, $this->to, []);
     }
 
-    /**
-     * @return string
-     */
-    public function getDestinationState()
+    public function getDestinationState(): string
     {
         return $this->to;
     }

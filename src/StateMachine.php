@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the php-state project.
  *
@@ -13,7 +13,6 @@ use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
-use Webmozart\Assert\Assert;
 
 final class StateMachine
 {
@@ -32,17 +31,11 @@ final class StateMachine
      */
     private $currentState;
 
-    /**
-     * @param string $currentState
-     * @param StateRegistry $states
-     * @param EventRegistry $listeners
-     */
     public function __construct(
-        $currentState,
+        string $currentState,
         StateRegistry $states,
         EventRegistry $listeners
     ) {
-        Assert::string($currentState);
         $this->listeners = $listeners;
         $this->states = $states;
         $this->setCurrentState($currentState);
@@ -57,7 +50,7 @@ final class StateMachine
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
-    public function transit($transitionName, $context, TransitionCallback $callback = null)
+    public function transit(string $transitionName, $context, TransitionCallback $callback = null): string
     {
         if (! $callback) {
             $callback = new AlwaysThrowExceptionOnFailure();
@@ -68,7 +61,6 @@ final class StateMachine
             new TransitionWasRequested($transitionName)
         );
 
-        Assert::string($transitionName);
         $transition = $this->states->getTransition($transitionName);
         $callback->beforeStateChange($context, $this);
 
@@ -88,7 +80,6 @@ final class StateMachine
 
             $newState = $callback->onFailure($exception, $context, $this);
         }
-        Assert::string($newState);
 
         $this->setCurrentState($newState);
 
@@ -107,9 +98,8 @@ final class StateMachine
      * @return bool
      * @throws NotFoundException
      */
-    public function isInState($stateName)
+    public function isInState(string $stateName): bool
     {
-        Assert::string($stateName);
         if (! $this->states->hasState($stateName)) {
             throw NotFoundException::stateNotFound($stateName);
         }
@@ -117,49 +107,28 @@ final class StateMachine
         return $this->currentState === $stateName;
     }
 
-    /**
-     * @param string $attribute
-     *
-     * @return bool
-     */
-    public function hasAttribute($attribute)
+    public function hasAttribute(string $attribute): bool
     {
-        Assert::string($attribute);
         return $this->states->hasAttribute($this->currentState, $attribute);
     }
 
-    /**
-     * @param string $event
-     * @param \Closure $listener
-     */
-    public function addListener($event, \Closure $listener)
+    public function addListener(string $event, \Closure $listener): void
     {
-        Assert::string($event);
         $this->listeners->addListener($event, $listener);
     }
 
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor)
+    public function acceptTransitionVisitor(TransitionVisitor $visitor): void
     {
         $this->states->acceptTransitionVisitor($visitor);
     }
 
-    /**
-     * @param StateVisitor $visitor
-     */
-    public function acceptStateVisitor(StateVisitor $visitor)
+    public function acceptStateVisitor(StateVisitor $visitor): void
     {
         $this->states->acceptStateVisitor($visitor);
     }
 
-    /**
-     * @param string $state
-     */
-    private function setCurrentState($state)
+    private function setCurrentState(string $state): void
     {
-        Assert::string($state);
         $this->currentState = $state;
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Callbacks;
 
@@ -11,13 +11,13 @@ interface TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function beforeStateChange($context, StateMachine $machine);
+    public function beforeStateChange($context, StateMachine $machine): void;
 
     /**
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function afterStateChange($context, StateMachine $machine);
+    public function afterStateChange($context, StateMachine $machine): void;
 
     /**
      * @param InvalidStateTransitionException $exception
@@ -26,5 +26,5 @@ interface TransitionCallback
      *
      * @return string The new state to move to on failure
      */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine);
+    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string;
 }

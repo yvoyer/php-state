@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Callbacks;
 
@@ -11,7 +11,7 @@ final class AlwaysThrowExceptionOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function beforeStateChange($context, StateMachine $machine)
+    public function beforeStateChange($context, StateMachine $machine): void
     {
     }
 
@@ -19,7 +19,7 @@ final class AlwaysThrowExceptionOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function afterStateChange($context, StateMachine $machine)
+    public function afterStateChange($context, StateMachine $machine): void
     {
     }
 
@@ -31,7 +31,7 @@ final class AlwaysThrowExceptionOnFailure implements TransitionCallback
      * @return string
      * @throws InvalidStateTransitionException
      */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine)
+    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
     {
         throw $exception;
     }

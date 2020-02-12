@@ -4,3 +4,8 @@
 /composer.phar
 /*ide*
 /composer.lock
+/bin
+/.phpunit.result.cache
+/infection.json
+!/bin/build.sh
+/infection-log.txt

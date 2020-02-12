@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State;
 
@@ -7,7 +7,7 @@ use Star\Component\State\Builder\StateBuilder;
 
 final class StateBuilderTest extends TestCase
 {
-    public function test_it_should_allow_to_transition_to_next_state_when_multiple_state_have_attribute()
+    public function test_it_should_allow_to_transition_to_next_state_when_multiple_state_have_attribute(): void
     {
         $machine = StateBuilder::build()
             ->allowTransition('t1', 'from', 'to')
@@ -19,7 +19,7 @@ final class StateBuilderTest extends TestCase
         $this->assertTrue($machine->isInState('to'));
     }
 
-    public function test_it_should_return_whether_the_current_state_has_attribute_after_transition()
+    public function test_it_should_return_whether_the_current_state_has_attribute_after_transition(): void
     {
         $machine = StateBuilder::build()
             ->allowTransition('t1', 'from', 'to')

@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Transitions;
 
 use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateTransition;
-use Webmozart\Assert\Assert;
 
 final class ReadOnlyTransition implements StateTransition
 {
@@ -13,32 +12,22 @@ final class ReadOnlyTransition implements StateTransition
      */
     private $destination;
 
-    /**
-     * @param string $destination
-     */
-    public function __construct($destination)
+    public function __construct(string $destination)
     {
-        Assert::string($destination);
         $this->destination = $destination;
     }
 
-    public function getName()
+    public function getName(): string
     {
         throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
     }
 
-    /**
-     * @param RegistryBuilder $registry
-     */
-    public function onRegister(RegistryBuilder $registry)
+    public function onRegister(RegistryBuilder $registry): void
     {
         throw new \RuntimeException('Method ' . __METHOD__ . ' not implemented yet.');
     }
 
-    /**
-     * @return string
-     */
-    public function getDestinationState()
+    public function getDestinationState(): string
     {
         return $this->destination;
     }

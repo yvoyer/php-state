@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Port\Symfony;
 
@@ -14,9 +14,6 @@ final class EventDispatcherAdapter implements EventRegistry
      */
     private $dispatcher;
 
-    /**
-     * @param EventDispatcherInterface $dispatcher
-     */
     public function __construct(EventDispatcherInterface $dispatcher = null)
     {
         if (! $dispatcher) {
@@ -25,20 +22,12 @@ final class EventDispatcherAdapter implements EventRegistry
         $this->dispatcher = $dispatcher;
     }
 
-    /**
-     * @param string $name
-     * @param StateEvent $event
-     */
-    public function dispatch($name, StateEvent $event)
+    public function dispatch(string $name, StateEvent $event): void
     {
-        $this->dispatcher->dispatch($name, $event);
+        $this->dispatcher->dispatch($event);
     }
 
-    /**
-     * @param string $event
-     * @param callable $listener
-     */
-    public function addListener($event, $listener)
+    public function addListener(string $event, callable $listener): void
     {
         $this->dispatcher->addListener($event, $listener);
     }

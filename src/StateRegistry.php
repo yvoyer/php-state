@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State;
 
@@ -10,44 +10,17 @@ interface StateRegistry extends RegistryBuilder
      * @return StateTransition
      * @throws NotFoundException
      */
-    public function getTransition($name);
+    public function getTransition(string $name): StateTransition;
 
-    /**
-     * @param string $state
-     * @param string $attribute
-     */
-    public function addAttribute($state, $attribute);
+    public function addAttribute(string $state, string $attribute): void;
 
-    /**
-     * @param string $state
-     * @param string $attribute
-     *
-     * @return bool
-     */
-    public function hasAttribute($state, $attribute);
+    public function hasAttribute(string $state, string $attribute): bool;
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasState($name);
+    public function hasState(string $name): bool;
 
-    /**
-     * @param string $transition
-     * @param string $state
-     *
-     * @return bool
-     */
-    public function transitionStartsFrom($transition, $state);
+    public function transitionStartsFrom(string $transition, string $state): bool;
 
-    /**
-     * @param TransitionVisitor $visitor
-     */
-    public function acceptTransitionVisitor(TransitionVisitor $visitor);
+    public function acceptTransitionVisitor(TransitionVisitor $visitor): void;
 
-    /**
-     * @param StateVisitor $visitor
-     */
-    public function acceptStateVisitor(StateVisitor $visitor);
+    public function acceptStateVisitor(StateVisitor $visitor): void;
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the php-state project.
  *
@@ -7,7 +7,7 @@
 
 namespace Star\Component\State;
 
-class InvalidStateTransitionException extends \Exception
+final class InvalidStateTransitionException extends \Exception
 {
     /**
      * @param string $transition
@@ -17,16 +17,16 @@ class InvalidStateTransitionException extends \Exception
      * @return static
      */
     public static function notAllowedTransition(
-        $transition,
+        string $transition,
         $context,
-        $currentState
-    ) {
-        if (is_object($context)) {
-            $context = get_class($context);
+        string $currentState
+    ): self {
+        if (\is_object($context)) {
+            $context = \get_class($context);
         }
 
         return new static(
-            sprintf(
+            \sprintf(
                 "The transition '%s' is not allowed when context '%s' is in state '%s'.",
                 $transition,
                 $context,

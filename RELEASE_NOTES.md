@@ -1,5 +1,13 @@
 # Release notes
 
+# 2.0.0
+
+* Bump minimum php version to php 7.1
+* Add strict type and type hint 
+* Add PHPStan, PHPCodeSniffer and Infection checks
+* Signature for `ManyToOneTransition` changed from `__construct(string $name, string[] $from, string $to)` to `public function __construct(string $name, string $to, string ...$fromStates)`
+* Add final keyword to some classes
+
 # 1.0.0-beta
 
 * Remove state interface (#21)

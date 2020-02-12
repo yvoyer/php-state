@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Transitions;
 
@@ -12,17 +12,17 @@ final class ManyToOneTransitionTest extends TestCase
      */
     private $transition;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->transition = new ManyToOneTransition('name', ['f1', 'f2'], 'to');
+        $this->transition = new ManyToOneTransition('name', 'to', 'f1', 'f2');
     }
 
-    public function test_it_should_have_a_name()
+    public function test_it_should_have_a_name(): void
     {
         $this->assertSame('name', $this->transition->getName());
     }
 
-    public function test_it_should_register_the_from_and_to_states()
+    public function test_it_should_register_the_from_and_to_states(): void
     {
         $registry = new RegistrySpy();
 
@@ -32,21 +32,10 @@ final class ManyToOneTransitionTest extends TestCase
         $this->assertCount(1, $registry->states['name']['destination']);
     }
 
-    /**
-     * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Expected at least 1 state. Got: 0
-     */
-    public function test_it_should_throw_exception_when_no_states_are_provided()
+    public function test_it_should_throw_exception_when_no_states_are_provided(): void
     {
-        new ManyToOneTransition('name', [], 'to');
-    }
-
-    /**
-     * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Expected a string. Got: array
-     */
-    public function test_it_should_throw_exception_when_states_are_not_instances()
-    {
-        new ManyToOneTransition('name', [[]], 'to');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expected at least 1 state. Got: 0');
+        new ManyToOneTransition('name', 'to');
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the php-state project.
  *
@@ -18,26 +18,24 @@ final class TransitionRegistryTest extends TestCase
      */
     private $registry;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->registry = new TransitionRegistry();
     }
 
-    /**
-     * @expectedException        \Star\Component\State\NotFoundException
-     * @expectedExceptionMessage The transition 'not-found' could not be found.
-     */
-    public function test_it_should_throw_exception_when_transition_is_not_registered()
+    public function test_it_should_throw_exception_when_transition_is_not_registered(): void
     {
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage("The transition 'not-found' could not be found.");
         $this->registry->getTransition('not-found');
     }
 
-    public function test_it_should_throw_exception_when_state_is_not_registered()
+    public function test_it_should_throw_exception_when_state_is_not_registered(): void
     {
         $this->assertFalse($this->registry->hasState('not-found'));
     }
 
-    public function test_it_should_add_transition()
+    public function test_it_should_add_transition(): void
     {
         $this->registry->addTransition(
             new OneToOneTransition('name', 'from', 'to')
@@ -46,14 +44,14 @@ final class TransitionRegistryTest extends TestCase
         $this->assertInstanceOf(StateTransition::class, $transition);
     }
 
-    public function test_it_should_contain_the_states()
+    public function test_it_should_contain_the_states(): void
     {
         $this->assertFalse($this->registry->hasState('from'));
         $this->registry->registerStartingState('t', 'from');
         $this->assertTrue($this->registry->hasState('from'));
     }
 
-    public function test_it_should_merge_attributes_when_duplicate_state_is_registered()
+    public function test_it_should_merge_attributes_when_duplicate_state_is_registered(): void
     {
         $this->registry->registerStartingState('t1', 'from');
         $this->assertFalse($this->registry->hasAttribute('from', 'attr'));
@@ -70,38 +68,37 @@ final class TransitionRegistryTest extends TestCase
         $this->assertTrue($this->registry->hasAttribute('from', 'other'));
     }
 
-    /**
-     * @expectedException        \Star\Component\State\DuplicateEntryException
-     * @expectedExceptionMessage The transition 'duplicate' is already registered.
-     */
-    public function test_it_should_throw_exception_when_duplicate_transition_is_registered()
+    public function test_it_should_throw_exception_when_duplicate_transition_is_registered(): void
     {
         $this->registry->addTransition(
             new OneToOneTransition('duplicate', 'from', 'to')
         );
+
+        $this->expectException(DuplicateEntryException::class);
+        $this->expectExceptionMessage("The transition 'duplicate' is already registered.");
         $this->registry->addTransition(
             new OneToOneTransition('duplicate', 'from', 'to')
         );
     }
 
-    public function test_it_should_register_multiple_state_when_transition_has_multiple_source_state()
+    public function test_it_should_register_multiple_state_when_transition_has_multiple_source_state(): void
     {
         $this->registry->addTransition(
-            new ManyToOneTransition('name', ['from1', 'from2'], 'to')
+            new ManyToOneTransition('name', 'to', 'from1', 'from2')
         );
         $this->assertTrue($this->registry->hasState('from1'));
         $this->assertTrue($this->registry->hasState('from2'));
         $this->assertTrue($this->registry->hasState('to'));
     }
 
-    public function test_it_should_return_if_the_state_exists()
+    public function test_it_should_return_if_the_state_exists(): void
     {
         $this->registry->registerStartingState('t', 'exists');
         $this->assertTrue($this->registry->hasState('exists'));
         $this->assertFalse($this->registry->hasState('not-exists'));
     }
 
-    public function test_it_should_return_whether_the_transition_starts_from_a_state()
+    public function test_it_should_return_whether_the_transition_starts_from_a_state(): void
     {
         $this->registry->addTransition(new OneToOneTransition('t', 'from', 'to'));
 
@@ -109,7 +106,7 @@ final class TransitionRegistryTest extends TestCase
         $this->assertFalse($this->registry->transitionStartsFrom('t', 'to'));
     }
 
-    public function test_it_should_visit_the_transitions()
+    public function test_it_should_visit_the_transitions(): void
     {
         $visitor = $this->getMockBuilder(TransitionVisitor::class)->getMock();
         $visitor
@@ -130,7 +127,7 @@ final class TransitionRegistryTest extends TestCase
         $this->registry->acceptTransitionVisitor($visitor);
     }
 
-    public function test_it_should_visit_the_states()
+    public function test_it_should_visit_the_states(): void
     {
         $visitor = $this->getMockBuilder(StateVisitor::class)->getMock();
         $visitor

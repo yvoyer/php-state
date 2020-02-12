@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Visitor;
 
@@ -8,20 +8,23 @@ final class AttributeDumper implements StateVisitor
 {
     /**
      * An array having the state name as key and the attributes of this state.
-     * @var array
+     * @var string[][]
      */
     private $structure = [];
 
-    public function getStructure()
+    /**
+     * @return string[][]
+     */
+    public function getStructure(): array
     {
         return $this->structure;
     }
 
     /**
      * @param string $name
-     * @param array $attributes
+     * @param string[] $attributes
      */
-    public function visitState($name, array $attributes)
+    public function visitState(string $name, array $attributes): void
     {
         if (! isset($this->structure[$name])) {
             $this->structure[$name] = [];

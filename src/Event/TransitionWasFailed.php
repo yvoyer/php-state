@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Event;
 
@@ -12,32 +12,22 @@ final class TransitionWasFailed extends Event implements StateEvent
     private $transition;
 
     /**
-     * @var \Exception
+     * @var \Throwable
      */
     private $exception;
 
-    /**
-     * @param string $transition
-     * @param \Exception $exception
-     */
-    public function __construct($transition, \Exception $exception)
+    public function __construct(string $transition, \Throwable $exception)
     {
         $this->transition = $transition;
         $this->exception = $exception;
     }
 
-    /**
-     * @return string
-     */
-    public function transition()
+    public function transition(): string
     {
         return $this->transition;
     }
 
-    /**
-     * @return \Exception
-     */
-    public function exception()
+    public function exception(): \Throwable
     {
         return $this->exception;
     }

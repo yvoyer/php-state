@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Callbacks;
 
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\StateMachine;
-use Webmozart\Assert\Assert;
 
 final class CallClosureOnFailure implements TransitionCallback
 {
@@ -13,9 +12,6 @@ final class CallClosureOnFailure implements TransitionCallback
      */
     private $callback;
 
-    /**
-     * @param \Closure $callback
-     */
     public function __construct(\Closure $callback)
     {
         $this->callback = $callback;
@@ -25,7 +21,7 @@ final class CallClosureOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function beforeStateChange($context, StateMachine $machine)
+    public function beforeStateChange($context, StateMachine $machine): void
     {
     }
 
@@ -33,7 +29,7 @@ final class CallClosureOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function afterStateChange($context, StateMachine $machine)
+    public function afterStateChange($context, StateMachine $machine): void
     {
     }
 
@@ -44,15 +40,10 @@ final class CallClosureOnFailure implements TransitionCallback
      *
      * @return string
      */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine)
+    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
     {
         $callback = $this->callback;
-        /**
-         * @var string $state
-         */
-        $state = $callback($context);
-        Assert::string($state);
 
-        return $state;
+        return $callback($context);
     }
 }

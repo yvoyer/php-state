@@ -40,7 +40,7 @@ abstract class StateMetadata
      * @param mixed $context
      * @param TransitionCallback|null $callback
      *
-     * @return StateMetadata
+     * @return static
      */
     final public function transit(string $name, $context, TransitionCallback $callback = null): StateMetadata
     {

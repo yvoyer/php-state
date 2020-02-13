@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the php-state project.
  *
@@ -9,12 +9,190 @@ namespace Star\Component\State\Example;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\StateMachine;
+
+final class ContextUsingBuilderTest extends TestCase
+{
+    public function test_post_should_be_draft(): void
+    {
+        $post = Post::drafted();
+        $this->assertTrue($post->isDraft());
+        $this->assertFalse($post->isPublished());
+        $this->assertFalse($post->isArchived());
+    }
+
+    public function test_post_should_be_published(): void
+    {
+        $post = Post::published();
+        $this->assertFalse($post->isDraft());
+        $this->assertTrue($post->isPublished());
+        $this->assertFalse($post->isArchived());
+    }
+
+    public function test_post_should_be_archived(): void
+    {
+        $post = Post::archived();
+        $this->assertFalse($post->isDraft());
+        $this->assertFalse($post->isPublished());
+        $this->assertTrue($post->isArchived());
+    }
+
+    /**
+     * @depends test_post_should_be_draft
+     * @depends test_post_should_be_published
+     */
+    public function test_it_should_not_allow_from_draft_to_draft(): void
+    {
+        $post = Post::drafted();
+        $this->assertTrue($post->isDraft());
+
+        $this->expectException(InvalidStateTransitionException::class);
+        $this->expectExceptionMessage(
+            "The transition 'to_draft' is not allowed when context 'post' is in state 'drafted'."
+        );
+        $post->moveToDraft();
+    }
+
+    /**
+     * @depends test_post_should_be_draft
+     * @depends test_post_should_be_published
+     */
+    public function test_it_should_allow_from_draft_to_published(): void
+    {
+        $post = Post::drafted();
+        $this->assertTrue($post->isDraft());
+
+        $post->publish();
+
+        $this->assertFalse($post->isDraft());
+        $this->assertTrue($post->isPublished());
+    }
+
+    /**
+     * @depends test_post_should_be_draft
+     * @depends test_post_should_be_published
+     */
+    public function test_it_should_not_allow_from_published_to_published(): void
+    {
+        $post = Post::published();
+        $this->assertTrue($post->isPublished());
+
+        $this->expectException(InvalidStateTransitionException::class);
+        $this->expectExceptionMessage(
+            "The transition 'publish' is not allowed when context 'post' is in state 'published'."
+        );
+        $post->publish();
+    }
+
+    /**
+     * @depends test_post_should_be_draft
+     * @depends test_post_should_be_published
+     */
+    public function test_it_should_allow_from_published_to_draft(): void
+    {
+        $post = Post::published();
+        $this->assertTrue($post->isPublished());
+
+        $post->moveToDraft();
+
+        $this->assertTrue($post->isDraft());
+    }
+
+    /**
+     * @depends test_post_should_be_archived
+     */
+    public function test_it_should_not_allow_from_draft_to_archived(): void
+    {
+        $post = Post::drafted();
+        $this->assertTrue($post->isDraft());
+
+        $this->expectException(InvalidStateTransitionException::class);
+        $this->expectExceptionMessage(
+            "The transition 'archive' is not allowed when context 'post' is in state 'drafted'."
+        );
+        $post->archive();
+    }
+
+    /**
+     * @depends test_post_should_be_archived
+     */
+    public function test_it_should_allow_from_published_to_archived(): void
+    {
+        $post = Post::published();
+        $this->assertTrue($post->isPublished());
+
+        $post->archive();
+
+        $this->assertTrue($post->isArchived());
+    }
+
+    /**
+     * @depends test_post_should_be_archived
+     */
+    public function test_it_should_not_allow_from_archived_to_archived(): void
+    {
+        $post = Post::archived();
+        $this->assertTrue($post->isArchived());
+
+        $this->expectException(InvalidStateTransitionException::class);
+        $this->expectExceptionMessage(
+            "The transition 'archive' is not allowed when context 'post' is in state 'archived'."
+        );
+        $post->archive();
+    }
+
+    /**
+     * @depends test_post_should_be_archived
+     */
+    public function test_it_should_not_allow_from_archived_to_draft(): void
+    {
+        $post = Post::archived();
+        $this->assertTrue($post->isArchived());
+
+        $this->expectException(InvalidStateTransitionException::class);
+        $this->expectExceptionMessage(
+            "The transition 'to_draft' is not allowed when context 'post' is in state 'archived'."
+        );
+        $post->moveToDraft();
+    }
+
+    /**
+     * @depends test_post_should_be_archived
+     */
+    public function test_it_should_not_allow_from_archived_to_published(): void
+    {
+        $post = Post::archived();
+        $this->assertTrue($post->isArchived());
+
+        $this->expectException(InvalidStateTransitionException::class);
+        $this->expectExceptionMessage(
+            "The transition 'publish' is not allowed when context 'post' is in state 'archived'."
+        );
+        $post->publish();
+    }
+
+    /**
+     * @depends test_post_should_be_draft
+     * @depends test_post_should_be_published
+     * @depends test_post_should_be_archived
+     */
+    public function test_it_should_allow_to_define_attributes_on_state(): void
+    {
+        $this->assertFalse(Post::drafted()->isActive());
+        $this->assertTrue(Post::published()->isActive());
+        $this->assertFalse(Post::archived()->isActive());
+
+        $this->assertTrue(Post::drafted()->isClosed());
+        $this->assertFalse(Post::published()->isClosed());
+        $this->assertTrue(Post::archived()->isClosed());
+    }
+}
 
 /**
  * Example of usage when using self contained workflow creation.
  */
-class Post
+final class Post
 {
     const ALIAS = 'post';
 
@@ -34,47 +212,47 @@ class Post
      */
     private $state;
 
-    private function __construct($state)
+    private function __construct(string $state)
     {
         $this->state = $state;
     }
 
-    public function isDraft()
+    public function isDraft(): bool
     {
         return $this->workflow()->isInState(self::STATE_DRAFT);
     }
 
-    public function isPublished()
+    public function isPublished(): bool
     {
         return $this->workflow()->isInState(self::STATE_PUBLISHED);
     }
 
-    public function isArchived()
+    public function isArchived(): bool
     {
         return $this->workflow()->isInState(self::STATE_ARCHIVED);
     }
 
-    public function isActive()
+    public function isActive(): bool
     {
         return $this->workflow()->hasAttribute(self::ATTRIBUTE_ACTIVE);
     }
 
-    public function isClosed()
+    public function isClosed(): bool
     {
         return $this->workflow()->hasAttribute(self::ATTRIBUTE_CLOSED);
     }
 
-    public function moveToDraft()
+    public function moveToDraft(): void
     {
         $this->state = $this->workflow()->transit(self::TRANSITION_TO_DRAFT, 'post');
     }
 
-    public function publish()
+    public function publish(): void
     {
         $this->state = $this->workflow()->transit(self::TRANSITION_PUBLISH, 'post');
     }
 
-    public function archive()
+    public function archive(): void
     {
         $this->state = $this->workflow()->transit(self::TRANSITION_ARCHIVE, 'post');
     }
@@ -87,26 +265,17 @@ class Post
         return new self(self::STATE_DRAFT);
     }
 
-    /**
-     * @return Post
-     */
-    public static function published()
+    public static function published(): self
     {
         return new self(self::STATE_PUBLISHED);
     }
 
-    /**
-     * @return Post
-     */
-    public static function archived()
+    public static function archived(): self
     {
         return new self(self::STATE_ARCHIVED);
     }
 
-    /**
-     * @return StateMachine
-     */
-    private function workflow()
+    private function workflow(): StateMachine
     {
         return StateBuilder::build()
             ->allowTransition(self::TRANSITION_PUBLISH, self::STATE_DRAFT, self::STATE_PUBLISHED)
@@ -115,176 +284,5 @@ class Post
             ->addAttribute(self::ATTRIBUTE_ACTIVE, self::STATE_PUBLISHED)
             ->addAttribute(self::ATTRIBUTE_CLOSED, [self::STATE_ARCHIVED, self::STATE_DRAFT])
             ->create($this->state);
-    }
-}
-
-final class ContextUsingBuilderTest extends TestCase
-{
-    public function test_post_should_be_draft()
-    {
-        $post = Post::drafted();
-        $this->assertTrue($post->isDraft());
-        $this->assertFalse($post->isPublished());
-        $this->assertFalse($post->isArchived());
-    }
-
-    public function test_post_should_be_published()
-    {
-        $post = Post::published();
-        $this->assertFalse($post->isDraft());
-        $this->assertTrue($post->isPublished());
-        $this->assertFalse($post->isArchived());
-    }
-
-    public function test_post_should_be_archived()
-    {
-        $post = Post::archived();
-        $this->assertFalse($post->isDraft());
-        $this->assertFalse($post->isPublished());
-        $this->assertTrue($post->isArchived());
-    }
-
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     *
-     * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'post' is in state 'drafted'.
-     */
-    public function test_it_should_not_allow_from_draft_to_draft()
-    {
-        $post = Post::drafted();
-        $this->assertTrue($post->isDraft());
-
-        $post->moveToDraft();
-    }
-
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     */
-    public function test_it_should_allow_from_draft_to_published()
-    {
-        $post = Post::drafted();
-        $this->assertTrue($post->isDraft());
-
-        $post->publish();
-
-        $this->assertFalse($post->isDraft());
-        $this->assertTrue($post->isPublished());
-    }
-
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     *
-     * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'publish' is not allowed when context 'post' is in state 'published'.
-     */
-    public function test_it_should_not_allow_from_published_to_published()
-    {
-        $post = Post::published();
-        $this->assertTrue($post->isPublished());
-
-        $post->publish();
-    }
-
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     */
-    public function test_it_should_allow_from_published_to_draft()
-    {
-        $post = Post::published();
-        $this->assertTrue($post->isPublished());
-
-        $post->moveToDraft();
-
-        $this->assertTrue($post->isDraft());
-    }
-
-    /**
-     * @depends test_post_should_be_archived
-     *
-     * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'archive' is not allowed when context 'post' is in state 'drafted'.
-     */
-    public function test_it_should_not_allow_from_draft_to_archived()
-    {
-        $post = Post::drafted();
-        $this->assertTrue($post->isDraft());
-
-        $post->archive();
-    }
-
-    /**
-     * @depends test_post_should_be_archived
-     */
-    public function test_it_should_allow_from_published_to_archived()
-    {
-        $post = Post::published();
-        $this->assertTrue($post->isPublished());
-
-        $post->archive();
-
-        $this->assertTrue($post->isArchived());
-    }
-
-    /**
-     * @depends test_post_should_be_archived
-     *
-     * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'archive' is not allowed when context 'post' is in state 'archived'.
-     */
-    public function test_it_should_not_allow_from_archived_to_archived()
-    {
-        $post = Post::archived();
-        $this->assertTrue($post->isArchived());
-
-        $post->archive();
-    }
-
-    /**
-     * @depends test_post_should_be_archived
-     *
-     * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'to_draft' is not allowed when context 'post' is in state 'archived'.
-     */
-    public function test_it_should_not_allow_from_archived_to_draft()
-    {
-        $post = Post::archived();
-        $this->assertTrue($post->isArchived());
-
-        $post->moveToDraft();
-    }
-
-    /**
-     * @depends test_post_should_be_archived
-     *
-     * @expectedException        \Star\Component\State\InvalidStateTransitionException
-     * @expectedExceptionMessage The transition 'publish' is not allowed when context 'post' is in state 'archived'.
-     */
-    public function test_it_should_not_allow_from_archived_to_published()
-    {
-        $post = Post::archived();
-        $this->assertTrue($post->isArchived());
-
-        $post->publish();
-    }
-
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     * @depends test_post_should_be_archived
-     */
-    public function test_it_should_allow_to_define_attributes_on_state()
-    {
-        $this->assertFalse(Post::drafted()->isActive());
-        $this->assertTrue(Post::published()->isActive());
-        $this->assertFalse(Post::archived()->isActive());
-
-        $this->assertTrue(Post::drafted()->isClosed());
-        $this->assertFalse(Post::published()->isClosed());
-        $this->assertTrue(Post::archived()->isClosed());
     }
 }

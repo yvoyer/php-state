@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Visitor;
 
@@ -13,7 +13,7 @@ final class AttributeDumperTest extends TestCase
      */
     private $machine;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->machine = StateBuilder::build()
             ->allowTransition('t1', 's1', 's2')
@@ -23,10 +23,9 @@ final class AttributeDumperTest extends TestCase
             ->create('s1');
     }
 
-    public function test_it_should_dump_the_attributes()
+    public function test_it_should_dump_the_attributes(): void
     {
         $this->machine->acceptStateVisitor($dumper = new AttributeDumper());
-        $this->assertInternalType('array', $dumper->getStructure());
         $this->assertEquals(
             [
                 's1' => ['a1', 'a2'],

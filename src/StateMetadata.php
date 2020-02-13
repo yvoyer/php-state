@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State;
 
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Callbacks\TransitionCallback;
-use Webmozart\Assert\Assert;
 
 abstract class StateMetadata
 {
@@ -16,9 +15,8 @@ abstract class StateMetadata
     /**
      * @param string $initial The initial state name
      */
-    public function __construct($initial)
+    public function __construct(string $initial)
     {
-        Assert::string($initial);
         $this->current = $initial;
     }
 
@@ -27,9 +25,9 @@ abstract class StateMetadata
      *
      * @param StateBuilder $builder
      */
-    abstract protected function configure(StateBuilder $builder);
+    abstract protected function configure(StateBuilder $builder): void;
 
-    private function getMachine()
+    private function getMachine(): StateMachine
     {
         $this->configure($builder = new StateBuilder());
 
@@ -44,37 +42,24 @@ abstract class StateMetadata
      *
      * @return StateMetadata
      */
-    final public function transit($name, $context, TransitionCallback $callback = null)
+    final public function transit(string $name, $context, TransitionCallback $callback = null): StateMetadata
     {
         $this->current = $this->getMachine()->transit($name, $context, $callback);
 
         return $this;
     }
 
-    /**
-     * @param string $attribute
-     *
-     * @return bool
-     */
-    final public function hasAttribute($attribute)
+    final public function hasAttribute(string $attribute): bool
     {
         return $this->getMachine()->hasAttribute($attribute);
     }
 
-    /**
-     * @param string $state
-     *
-     * @return bool
-     */
-    final public function isInState($state)
+    final public function isInState(string $state): bool
     {
         return $this->getMachine()->isInState($state);
     }
 
-    /**
-     * @return string
-     */
-    final public function getCurrent()
+    final public function getCurrent(): string
     {
         return $this->current;
     }

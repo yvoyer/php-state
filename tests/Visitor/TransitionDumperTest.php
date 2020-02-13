@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Visitor;
 
@@ -18,7 +18,7 @@ final class TransitionDumperTest extends TestCase
      */
     private $machine;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->machine = StateBuilder::build()
             ->allowTransition('t1', 's1', 's2')
@@ -29,7 +29,7 @@ final class TransitionDumperTest extends TestCase
         $this->dumper = new TransitionDumper();
     }
 
-    public function test_it_should_return_the_structure_when_one_to_one()
+    public function test_it_should_return_the_structure_when_one_to_one(): void
     {
         $this->machine->acceptTransitionVisitor($this->dumper);
         $this->assertArrayHasKey('t1', $this->dumper->getStructure());
@@ -42,7 +42,7 @@ final class TransitionDumperTest extends TestCase
         );
     }
 
-    public function test_it_should_return_the_structure_when_many_to_one()
+    public function test_it_should_return_the_structure_when_many_to_one(): void
     {
         $this->machine->acceptTransitionVisitor($this->dumper);
         $this->assertArrayHasKey('t2', $this->dumper->getStructure());

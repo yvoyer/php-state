@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State;
 
@@ -8,20 +8,20 @@ use Star\Component\State\Callbacks\NullCallback;
 
 final class StateMetadataTest extends TestCase
 {
-    public function test_it_should_check_if_current_state_is_same()
+    public function test_it_should_check_if_current_state_is_same(): void
     {
         $metadata = new CustomMetadata('from');
         $this->assertTrue($metadata->isInState('from'));
         $this->assertFalse($metadata->isInState('to'));
     }
 
-    public function test_it_should_check_if_has_attribute()
+    public function test_it_should_check_if_has_attribute(): void
     {
         $metadata = new CustomMetadata('from');
         $this->assertFalse($metadata->hasAttribute('attr'));
     }
 
-    public function test_it_should_transit()
+    public function test_it_should_transit(): void
     {
         $metadata = new CustomMetadata('from');
         $this->assertInstanceOf(
@@ -31,11 +31,11 @@ final class StateMetadataTest extends TestCase
         $this->assertTrue($new->isInState('to'));
     }
 
-    public function test_it_should_use_the_failure_callback_on_transit()
+    public function test_it_should_use_the_failure_callback_on_transit(): void
     {
         $metadata = new CustomMetadata('to');
-        $this->setExpectedException(
-            \RuntimeException::class,
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(
             'Method Star\Component\State\Callbacks\NullCallback::onFailure should never be called.'
         );
         $metadata->transit(
@@ -53,7 +53,7 @@ final class CustomMetadata extends StateMetadata
      *
      * @param StateBuilder $builder
      */
-    protected function configure(StateBuilder $builder)
+    protected function configure(StateBuilder $builder): void
     {
         $builder->allowTransition('t1', 'from', 'to');
     }

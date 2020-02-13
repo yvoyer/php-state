@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State;
 
@@ -6,15 +6,7 @@ use Star\Component\State\Event\StateEvent;
 
 interface EventRegistry
 {
-    /**
-     * @param string $name
-     * @param StateEvent $event
-     */
-    public function dispatch($name, StateEvent $event);
+    public function dispatch(string $name, StateEvent $event): void;
 
-    /**
-     * @param string $event
-     * @param callable $listener
-     */
-    public function addListener($event, $listener);
+    public function addListener(string $event, callable $listener): void;
 }

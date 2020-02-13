@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the php-state project.
  *
@@ -8,7 +8,6 @@
 namespace Star\Component\State\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use Webmozart\Assert\Assert;
 
 final class TransitionWasSuccessful extends Event implements StateEvent
 {
@@ -17,19 +16,12 @@ final class TransitionWasSuccessful extends Event implements StateEvent
      */
     private $transition;
 
-    /**
-     * @param string $transition
-     */
-    public function __construct($transition)
+    public function __construct(string $transition)
     {
-        Assert::string($transition);
         $this->transition = $transition;
     }
 
-    /**
-     * @return string
-     */
-    public function transition()
+    public function transition(): string
     {
         return $this->transition;
     }

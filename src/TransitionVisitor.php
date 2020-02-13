@@ -1,23 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State;
 
 interface TransitionVisitor
 {
-    /**
-     * @param string $name
-     */
-    public function visitTransition($name);
+    public function visitTransition(string $name): void;
 
     /**
      * @param string $state
      * @param string[] $attributes
      */
-    public function visitFromState($state, array $attributes);
+    public function visitFromState(string $state, array $attributes): void;
 
     /**
      * @param string $state
      * @param string[] $attributes
      */
-    public function visitToState($state, array $attributes);
+    public function visitToState(string $state, array $attributes): void;
 }

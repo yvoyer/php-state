@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Callbacks;
 
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\StateMachine;
-use Webmozart\Assert\Assert;
 
 final class CallContextMethodOnFailure implements TransitionCallback
 {
@@ -19,18 +18,18 @@ final class CallContextMethodOnFailure implements TransitionCallback
     private $method;
 
     /**
-     * @var array
+     * @var mixed[]
      */
     private $args;
 
     /**
      * @param string $to
      * @param string $method
-     * @param array $args
+     * @param mixed[] $args
      */
     public function __construct(
-        $to,
-        $method,
+        string $to,
+        string $method,
         array $args
     ) {
         $this->to = $to;
@@ -42,7 +41,7 @@ final class CallContextMethodOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function beforeStateChange($context, StateMachine $machine)
+    public function beforeStateChange($context, StateMachine $machine): void
     {
     }
 
@@ -50,21 +49,23 @@ final class CallContextMethodOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function afterStateChange($context, StateMachine $machine)
+    public function afterStateChange($context, StateMachine $machine): void
     {
     }
 
     /**
      * @param InvalidStateTransitionException $exception
-     * @param mixed $context
+     * @param mixed|object $context
      * @param StateMachine $machine
      *
      * @return string
      */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine)
+    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
     {
-        Assert::object($context);
-        call_user_func_array([$context, $this->method], $this->args);
+        $closure = function (array $args) use ($context) {
+            $context->{$this->method}(...$args);
+        };
+        $closure($this->args);
 
         return $this->to;
     }

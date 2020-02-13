@@ -1,112 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Star\Component\State;
+namespace Star\Component\State\Example;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
-
-final class MyStateWorkflow extends StateMetadata
-{
-    public function __construct()
-    {
-        parent::__construct('pending');
-    }
-
-    protected function configure(StateBuilder $builder)
-    {
-        $builder->allowTransition('approve', 'pending', 'approved');
-        $builder->allowTransition('discard', 'pending', 'archived');
-        $builder->allowTransition('publish', 'approved', 'published');
-        $builder->allowTransition('remove', 'published', 'approved');
-        $builder->allowTransition('archive', ['approved', 'published'], 'archived');
-        $builder->allowTransition('un-archive', 'archived', 'approved');
-        $builder->allowCustomTransition(new ReOpenTransition());
-        $builder->addAttribute('is_visible', 'published');
-        $builder->addAttribute('is_draft', ['pending', 'approved']);
-    }
-}
-
-final class ReOpenTransition implements StateTransition
-{
-    public function getName()
-    {
-        return 're-open';
-    }
-
-    /**
-     * @param RegistryBuilder $registry
-     */
-    public function onRegister(RegistryBuilder $registry)
-    {
-        $registry->registerStartingState('re-open', 'archived', []);
-        $registry->registerDestinationState('re-open', 'pending', []);
-    }
-
-    public function getDestinationState()
-    {
-        return 'pending';
-    }
-}
-
-final class ContextStub
-{
-    public $state;
-
-    public function __construct()
-    {
-        $this->state = new MyStateWorkflow();
-    }
-
-    public function publish()
-    {
-        $this->state = $this->state->transit('publish', $this);
-    }
-
-    public function approve()
-    {
-        $this->state = $this->state->transit('approve', $this);
-    }
-
-    public function discard()
-    {
-        $this->state = $this->state->transit('discard', $this);
-    }
-
-    public function reOpen()
-    {
-        $this->state = $this->state->transit('re-open', $this);
-    }
-
-    public function remove()
-    {
-        $this->state = $this->state->transit('remove', $this);
-    }
-
-    public function unPublish()
-    {
-        $this->state = $this->state->transit('un-publish', $this);
-    }
-
-    public function archive()
-    {
-        $this->state = $this->state->transit('archive', $this);
-    }
-
-    public function unArchive()
-    {
-        $this->state = $this->state->transit('un-archive', $this);
-    }
-
-    public function isDraft()
-    {
-        return $this->state->hasAttribute('is_draft');
-    }
-
-    public function isVisible()
-    {
-        return $this->state->hasAttribute('is_visible');
-    }
-}
+use Star\Component\State\RegistryBuilder;
+use Star\Component\State\StateMetadata;
+use Star\Component\State\StateTransition;
 
 final class ContextUsingCustomMetadataTest extends TestCase
 {
@@ -144,7 +44,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
      * * On post edit: move to pending (Override all rules)
      */
 
-    public function test_it_should_allow_to_transit_from_pending_to_approved()
+    public function test_it_should_allow_to_transit_from_pending_to_approved(): void
     {
         $context = new ContextStub();
         $this->assertTrue($context->state->isInState('pending'));
@@ -154,7 +54,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('approved'));
     }
 
-    public function test_it_should_allow_to_transit_from_pending_to_archived()
+    public function test_it_should_allow_to_transit_from_pending_to_archived(): void
     {
         $context = new ContextStub();
         $this->assertTrue($context->state->isInState('pending'));
@@ -164,7 +64,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('archived'));
     }
 
-    public function test_it_should_allow_to_transit_from_approved_to_published()
+    public function test_it_should_allow_to_transit_from_approved_to_published(): ContextStub
     {
         $context = new ContextStub();
         $context->approve();
@@ -177,7 +77,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         return $context;
     }
 
-    public function test_it_should_allow_to_transit_from_approved_to_archived()
+    public function test_it_should_allow_to_transit_from_approved_to_archived(): void
     {
         $context = new ContextStub();
         $context->approve();
@@ -188,7 +88,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('archived'));
     }
 
-    public function test_it_should_allow_to_transit_from_published_to_approved()
+    public function test_it_should_allow_to_transit_from_published_to_approved(): void
     {
         $context = new ContextStub();
         $context->approve();
@@ -200,7 +100,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('approved'));
     }
 
-    public function test_it_should_allow_to_transit_from_published_to_archived()
+    public function test_it_should_allow_to_transit_from_published_to_archived(): ContextStub
     {
         $context = new ContextStub();
         $context->approve();
@@ -214,7 +114,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         return $context;
     }
 
-    public function test_it_should_allow_to_transit_from_archived_to_pending()
+    public function test_it_should_allow_to_transit_from_archived_to_pending(): void
     {
         $context = new ContextStub();
         $context->discard();
@@ -225,7 +125,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('pending'));
     }
 
-    public function test_it_should_allow_to_transit_from_archived_to_approved()
+    public function test_it_should_allow_to_transit_from_archived_to_approved(): ContextStub
     {
         $context = new ContextStub();
         $context->discard();
@@ -238,7 +138,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         return $context;
     }
 
-    public function test_attributes_of_pending()
+    public function test_attributes_of_pending(): void
     {
         $context = new ContextStub();
         $this->assertTrue($context->state->isInState('pending'));
@@ -250,7 +150,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
      * @param ContextStub $context
      * @depends test_it_should_allow_to_transit_from_archived_to_approved
      */
-    public function test_attributes_of_approved(ContextStub $context)
+    public function test_attributes_of_approved(ContextStub $context): void
     {
         $this->assertTrue($context->state->isInState('approved'));
         $this->assertTrue($context->isDraft());
@@ -261,7 +161,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
      * @param ContextStub $context
      * @depends test_it_should_allow_to_transit_from_approved_to_published
      */
-    public function test_attributes_of_published(ContextStub $context)
+    public function test_attributes_of_published(ContextStub $context): void
     {
         $this->assertTrue($context->state->isInState('published'));
         $this->assertFalse($context->isDraft());
@@ -272,10 +172,113 @@ final class ContextUsingCustomMetadataTest extends TestCase
      * @param ContextStub $context
      * @depends test_it_should_allow_to_transit_from_published_to_archived
      */
-    public function test_attributes_of_archived(ContextStub $context)
+    public function test_attributes_of_archived(ContextStub $context): void
     {
         $this->assertTrue($context->state->isInState('archived'));
         $this->assertFalse($context->isDraft());
         $this->assertFalse($context->isVisible());
+    }
+}
+
+final class MyStateWorkflow extends StateMetadata
+{
+    public function __construct()
+    {
+        parent::__construct('pending');
+    }
+
+    protected function configure(StateBuilder $builder): void
+    {
+        $builder->allowTransition('approve', 'pending', 'approved');
+        $builder->allowTransition('discard', 'pending', 'archived');
+        $builder->allowTransition('publish', 'approved', 'published');
+        $builder->allowTransition('remove', 'published', 'approved');
+        $builder->allowTransition('archive', ['approved', 'published'], 'archived');
+        $builder->allowTransition('un-archive', 'archived', 'approved');
+        $builder->allowCustomTransition(new ReOpenTransition());
+        $builder->addAttribute('is_visible', 'published');
+        $builder->addAttribute('is_draft', ['pending', 'approved']);
+    }
+}
+
+final class ReOpenTransition implements StateTransition
+{
+    public function getName(): string
+    {
+        return 're-open';
+    }
+
+    public function onRegister(RegistryBuilder $registry): void
+    {
+        $registry->registerStartingState('re-open', 'archived', []);
+        $registry->registerDestinationState('re-open', 'pending', []);
+    }
+
+    public function getDestinationState(): string
+    {
+        return 'pending';
+    }
+}
+
+final class ContextStub
+{
+    /**
+     * @var MyStateWorkflow|StateMetadata
+     */
+    public $state;
+
+    public function __construct()
+    {
+        $this->state = new MyStateWorkflow();
+    }
+
+    public function publish(): void
+    {
+        $this->state = $this->state->transit('publish', $this);
+    }
+
+    public function approve(): void
+    {
+        $this->state = $this->state->transit('approve', $this);
+    }
+
+    public function discard(): void
+    {
+        $this->state = $this->state->transit('discard', $this);
+    }
+
+    public function reOpen(): void
+    {
+        $this->state = $this->state->transit('re-open', $this);
+    }
+
+    public function remove(): void
+    {
+        $this->state = $this->state->transit('remove', $this);
+    }
+
+    public function unPublish(): void
+    {
+        $this->state = $this->state->transit('un-publish', $this);
+    }
+
+    public function archive(): void
+    {
+        $this->state = $this->state->transit('archive', $this);
+    }
+
+    public function unArchive(): void
+    {
+        $this->state = $this->state->transit('un-archive', $this);
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->state->hasAttribute('is_draft');
+    }
+
+    public function isVisible(): bool
+    {
+        return $this->state->hasAttribute('is_visible');
     }
 }

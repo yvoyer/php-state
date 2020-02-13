@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Transitions;
 
 use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateTransition;
-use Webmozart\Assert\Assert;
 
 final class OneToOneTransition implements StateTransition
 {
@@ -23,42 +22,25 @@ final class OneToOneTransition implements StateTransition
      */
     private $to;
 
-    /**
-     * @param string $name
-     * @param string $from
-     * @param string $to
-     */
-    public function __construct($name, $from, $to)
+    public function __construct(string $name, string $from, string $to)
     {
-        Assert::string($name);
-        Assert::string($from);
-        Assert::string($to);
         $this->name = $name;
         $this->from = $from;
         $this->to = $to;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param RegistryBuilder $registry
-     */
-    public function onRegister(RegistryBuilder $registry)
+    public function onRegister(RegistryBuilder $registry): void
     {
         $registry->registerStartingState($this->name, $this->from, []);
         $registry->registerDestinationState($this->name, $this->to, []);
     }
 
-    /**
-     * @return string
-     */
-    public function getDestinationState()
+    public function getDestinationState(): string
     {
         return $this->to;
     }

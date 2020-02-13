@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Builder;
 
@@ -38,10 +38,10 @@ final class StateBuilder
      *
      * @return StateBuilder
      */
-    public function allowTransition($name, $from, $to)
+    public function allowTransition(string $name, $from, string $to): StateBuilder
     {
-        if (is_array($from)) {
-            $transition = new ManyToOneTransition($name, $from, $to);
+        if (\is_array($from)) {
+            $transition = new ManyToOneTransition($name, $to, ...$from);
         } else {
             $transition = new OneToOneTransition($name, $from, $to);
         }
@@ -54,7 +54,7 @@ final class StateBuilder
     /**
      * @param StateTransition $transition
      */
-    public function allowCustomTransition(StateTransition $transition)
+    public function allowCustomTransition(StateTransition $transition): void
     {
         $this->registry->addTransition($transition);
     }
@@ -65,7 +65,7 @@ final class StateBuilder
      *
      * @return StateBuilder
      */
-    public function addAttribute($attribute, $states)
+    public function addAttribute(string $attribute, $states): StateBuilder
     {
         $states = (array) $states;
         foreach ($states as $stateName) {
@@ -75,20 +75,12 @@ final class StateBuilder
         return $this;
     }
 
-    /**
-     * @param string $currentState
-     *
-     * @return StateMachine
-     */
-    public function create($currentState)
+    public function create(string $currentState): StateMachine
     {
         return new StateMachine($currentState, $this->registry, $this->listeners);
     }
 
-    /**
-     * @return StateBuilder
-     */
-    public static function build()
+    public static function build(): StateBuilder
     {
         return new static();
     }

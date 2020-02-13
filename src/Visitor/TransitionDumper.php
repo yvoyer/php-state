@@ -1,14 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Star\Component\State\Visitor;
 
 use Star\Component\State\TransitionVisitor;
-use Webmozart\Assert\Assert;
 
 final class TransitionDumper implements TransitionVisitor
 {
     /**
-     * @var array
+     * @var string[][][]
      */
     private $structure = [];
 
@@ -18,25 +17,32 @@ final class TransitionDumper implements TransitionVisitor
     private $currentTransition;
 
     /**
-     * @return array
+     * @return string[][][]
      */
-    public function getStructure()
+    public function getStructure(): array
     {
         return $this->structure;
     }
 
-    public function visitTransition($name)
+    public function visitTransition(string $name): void
     {
         $this->currentTransition = $name;
     }
 
-    public function visitFromState($state, array $attributes)
+    /**
+     * @param string $state
+     * @param string[] $attributes
+     */
+    public function visitFromState(string $state, array $attributes): void
     {
-        Assert::string($state);
         $this->structure[$this->currentTransition]['from'][] = $state;
     }
 
-    public function visitToState($state, array $attributes)
+    /**
+     * @param string $state
+     * @param string[] $attributes
+     */
+    public function visitToState(string $state, array $attributes): void
     {
         $this->structure[$this->currentTransition]['to'][] = $state;
     }

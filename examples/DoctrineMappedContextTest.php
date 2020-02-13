@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\StateMetadata;
@@ -71,10 +72,15 @@ final class DoctrineMappedContextTest extends TestCase
     {
         $this->em->persist($entity);
         $this->em->flush();
+        $id = $entity->id;
         $this->em->clear();
-        $this->em->refresh($entity);
 
-        return $entity;
+        $refreshed = $this->em->find(MyEntity::class, $id);
+        if (!$refreshed instanceof MyEntity) {
+            throw new AssertionFailedError('entity not found');
+        }
+
+        return $refreshed;
     }
 }
 

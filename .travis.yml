@@ -14,3 +14,5 @@ script:
   - bin/phpcs
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover php-state.clover
+  - bin/phpstan analyse -l max -c phpstan.neon src/ tests/ examples/
+  - bin/infection --formatter=progress

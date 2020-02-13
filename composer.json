@@ -26,17 +26,17 @@
         "symfony/event-dispatcher": "^4.0"
     },
     "require-dev": {
-		"ext-pdo": "*",
+        "ext-pdo": "*",
         "doctrine/orm": "^2.5",
-        "phpunit/phpunit": "~7.0",
-        "squizlabs/php_codesniffer": "^3.2",
+        "infection/infection": "^0.13",
         "phpstan/phpstan": "^0.12.9",
-        "infection/infection": "^0.15.1",
-        "phpstan/phpstan-phpunit": "^0.12.6"
+        "phpstan/phpstan-phpunit": "^0.12.6",
+        "phpunit/phpunit": "~7.0",
+        "squizlabs/php_codesniffer": "^3.2"
     },
     "extra": {
         "branch-alias": {
-            "dev-develop": "2.0.x-dev"
+            "dev-release/v2.0.0": "2.0.x-dev"
         }
     },
     "config": {

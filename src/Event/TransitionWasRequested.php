@@ -7,7 +7,7 @@
 
 namespace Star\Component\State\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 final class TransitionWasRequested extends Event implements StateEvent
 {

@@ -2,7 +2,7 @@
 
 namespace Star\Component\State\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 final class TransitionWasFailed extends Event implements StateEvent
 {

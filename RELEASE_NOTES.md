@@ -1,5 +1,9 @@
 # Release notes
 
+# 2.1.0
+
+* Remove dependency to dispatcher Event in favor to contract Event for support of Symfony applications
+
 # 2.0.0
 
 * Bump minimum php version to php 7.1

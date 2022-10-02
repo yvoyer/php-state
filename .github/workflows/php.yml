@@ -1,0 +1,52 @@
+name: Php state machine
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['7.4', '8.0', '8.1']
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    - name: Setup db
+      run: bin/console d:d:c --env test
+
+    - name: Setup Migrations
+      run: bin/console d:m:m --env test
+
+    - name: PHPUnit
+      run: bin/phpunit
+
+    - name: PHP code sniffer
+      run: bin/phpcs
+
+    - name: PHPStan
+      run: bin/phpstan
+
+    - name: Infection
+      run: bin/infection --formatter=progress

@@ -33,12 +33,6 @@ jobs:
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
-    - name: Setup db
-      run: bin/console d:d:c --env test
-
-    - name: Setup Migrations
-      run: bin/console d:m:m --env test
-
     - name: PHPUnit
       run: bin/phpunit
 

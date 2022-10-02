@@ -42,5 +42,5 @@ jobs:
     - name: PHPStan
       run: bin/phpstan
 
-    - name: Infection
-      run: bin/infection --formatter=progress
+ #   - name: Infection
+#      run: bin/infection --formatter=progress

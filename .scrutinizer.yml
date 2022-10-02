@@ -6,7 +6,7 @@ checks:
 build:
     environment:
         php:
-            version: 7.2
+            version: 7.4
 tools:
     external_code_coverage: true
 

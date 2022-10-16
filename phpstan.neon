@@ -7,9 +7,3 @@ parameters:
         - src
         - tests
         - examples
-#
-#services:
-#    -
-#        class: Star\Component\State\Port\PHPStan\StateMetadataExtension
-#        tags:
-#            - 'phpstan.broker.dynamicMethodReturnTypeExtension'

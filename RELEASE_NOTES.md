@@ -1,5 +1,10 @@
 # Release notes
 
+# 3.0.0
+
+* Bump php version to 7.4+
+* Add strict type everywhere.
+
 # 2.1.0
 
 * Remove dependency to dispatcher Event in favor to contract Event for support of Symfony applications

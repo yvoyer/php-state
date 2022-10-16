@@ -12,13 +12,7 @@ All the code you need to write can be encapsulated inside your context class, an
 
 ## Installation
 
-Using composer, add the following require in your `composer.json`.
-
-```json 
-    "require": {
-       "star/state-machine": "~1.0"
-    }
-```
+`composer require star/state-machine`
 
 ## Features
 

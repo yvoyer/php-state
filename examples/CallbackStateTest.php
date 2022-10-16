@@ -167,38 +167,6 @@ final class TriggerAlarm implements TransitionCallback
     }
 }
 
-final class Refund implements TransitionCallback
-{
-    /**
-     * @var int
-     */
-    private $coin;
-
-    public function __construct(int $coin)
-    {
-        $this->coin = $coin;
-    }
-
-    public function beforeStateChange($context, StateMachine $machine): void
-    {
-    }
-
-    public function afterStateChange($context, StateMachine $machine): void
-    {
-    }
-
-    /**
-     * @param InvalidStateTransitionException $exception
-     * @param mixed $context
-     * @param StateMachine $machine
-     * @return string
-     */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
-    {
-        return 'violation';
-    }
-}
-
 final class TurnStillState extends StateMetadata
 {
     /**

@@ -7,10 +7,7 @@ use Star\Component\State\Stub\RegistrySpy;
 
 final class ManyToOneTransitionTest extends TestCase
 {
-    /**
-     * @var ManyToOneTransition
-     */
-    private $transition;
+    private ManyToOneTransition $transition;
 
     public function setUp(): void
     {

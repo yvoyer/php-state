@@ -9,12 +9,8 @@ final class TransitionDumper implements TransitionVisitor
     /**
      * @var string[][][]
      */
-    private $structure = [];
-
-    /**
-     * @var string
-     */
-    private $currentTransition;
+    private array $structure = [];
+    private string $currentTransition;
 
     /**
      * @return string[][][]

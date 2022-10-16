@@ -2,7 +2,7 @@
 /**
  * This file is part of the php-state project.
  *
- * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
+ * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace Star\Component\State;
@@ -17,30 +17,18 @@ use Star\Component\State\Transitions\OneToOneTransition;
 
 final class StateMachineTest extends TestCase
 {
+    private TransitionRegistry $registry;
+    private StateMachine $machine;
+    private TestContext $context;
     /**
-     * @var TransitionRegistry
-     */
-    private $registry;
-
-    /**
-     * @var StateMachine
-     */
-    private $machine;
-
-    /**
-     * @var TestContext
-     */
-    private $context;
-
-    /**
-     * @var EventRegistry|MockObject
+     * @var MockObject|EventRegistry
      */
     private $listeners;
 
     public function setUp(): void
     {
-        $this->listeners = $this->getMockBuilder(EventRegistry::class)->getMock();
-        $this->context = new TestContext('current');
+        $this->listeners = $this->createMock(EventRegistry::class);
+        $this->context = new TestContext();
         $this->registry = new TransitionRegistry();
         $this->machine = new StateMachine('current', $this->registry, $this->listeners);
     }
@@ -123,9 +111,9 @@ final class StateMachineTest extends TestCase
 
     public function test_it_should_visit_the_transitions(): void
     {
-        $registry = $this->getMockBuilder(StateRegistry::class)->getMock();
+        $registry = $this->createMock(StateRegistry::class);
         $machine = new StateMachine('', $registry, $this->listeners);
-        $visitor = $this->getMockBuilder(TransitionVisitor::class)->getMock();
+        $visitor = $this->createMock(TransitionVisitor::class);
 
         $registry
             ->expects($this->once())

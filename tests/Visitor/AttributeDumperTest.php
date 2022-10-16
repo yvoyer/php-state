@@ -8,10 +8,7 @@ use Star\Component\State\StateMachine;
 
 final class AttributeDumperTest extends TestCase
 {
-    /**
-     * @var StateMachine
-     */
-    private $machine;
+    private StateMachine $machine;
 
     public function setUp(): void
     {

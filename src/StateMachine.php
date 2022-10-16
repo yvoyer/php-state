@@ -2,7 +2,7 @@
 /**
  * This file is part of the php-state project.
  *
- * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
+ * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace Star\Component\State;
@@ -16,20 +16,9 @@ use Star\Component\State\Event\TransitionWasRequested;
 
 final class StateMachine
 {
-    /**
-     * @var EventRegistry
-     */
-    private $listeners;
-
-    /**
-     * @var StateRegistry
-     */
-    private $states;
-
-    /**
-     * @var string
-     */
-    private $currentState;
+    private EventRegistry $listeners;
+    private StateRegistry $states;
+    private string $currentState;
 
     public function __construct(
         string $currentState,
@@ -43,7 +32,7 @@ final class StateMachine
 
     /**
      * @param string $transitionName The transition name
-     * @param mixed $context
+     * @param string|object $context
      * @param TransitionCallback|null $callback
      *
      * @return string The next state to store on your context

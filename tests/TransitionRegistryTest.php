@@ -2,7 +2,7 @@
 /**
  * This file is part of the php-state project.
  *
- * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
+ * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace Star\Component\State;
@@ -13,10 +13,7 @@ use Star\Component\State\Transitions\OneToOneTransition;
 
 final class TransitionRegistryTest extends TestCase
 {
-    /**
-     * @var TransitionRegistry
-     */
-    private $registry;
+    private TransitionRegistry $registry;
 
     public function setUp(): void
     {

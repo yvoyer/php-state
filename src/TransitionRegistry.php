@@ -2,7 +2,7 @@
 /**
  * This file is part of the php-state project.
  *
- * (c) Yannick Voyer <star.yvoyer@gmail.com> (http://github.com/yvoyer)
+ * (c) Yannick Voyer (http://github.com/yvoyer)
  */
 
 namespace Star\Component\State;
@@ -12,14 +12,14 @@ use Star\Component\State\Transitions\ReadOnlyTransition;
 final class TransitionRegistry implements StateRegistry
 {
     /**
-     * @var array[] Collection of states indexed by transition name
+     * @var string[][][]|string[][] Collection of states indexed by transition name
      */
-    private $transitions = [];
+    private array $transitions = [];
 
     /**
-     * @var array[] Collection of attributes indexed by state name
+     * @var string[][] Collection of attributes indexed by state name
      */
-    private $states = [];
+    private array $states = [];
 
     /**
      * @param StateTransition $transition
@@ -44,7 +44,11 @@ final class TransitionRegistry implements StateRegistry
     {
         $transition = null;
         if (isset($this->transitions[$name]['to'])) {
-            $transition = new ReadOnlyTransition($this->transitions[$name]['to']);
+            /**
+             * @var string $to
+             */
+            $to = $this->transitions[$name]['to'];
+            $transition = new ReadOnlyTransition($to);
         }
 
         if (! $transition) {
@@ -85,7 +89,7 @@ final class TransitionRegistry implements StateRegistry
             $from = $this->transitions[$transition]['from'];
         }
 
-        return \in_array($state, $from, true);
+        return \in_array($state, $from, true); // @phpstan-ignore-line
     }
 
     public function hasAttribute(string $state, string $attribute): bool
@@ -107,10 +111,15 @@ final class TransitionRegistry implements StateRegistry
         foreach ($this->transitions as $transition => $states) {
             $visitor->visitTransition($transition);
 
-            foreach ($states['from'] as $from) {
+            foreach ($states['from'] as $from) { // @phpstan-ignore-line
                 $visitor->visitFromState($from, $this->states[$from]);
             }
-            $visitor->visitToState($states['to'], $this->states[$states['to']]);
+            /**
+             * @var string $to
+             */
+            $to = $states['to'];
+
+            $visitor->visitToState($to, $this->states[$to]);
         }
     }
 
@@ -130,7 +139,7 @@ final class TransitionRegistry implements StateRegistry
     {
         $this->initState($stateName);
         $this->addAttributes($stateName, $attributes);
-        $this->transitions[$transition]['from'][] = $stateName;
+        $this->transitions[$transition]['from'][] = $stateName; // @phpstan-ignore-line
     }
 
     /**

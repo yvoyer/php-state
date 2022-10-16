@@ -8,20 +8,13 @@ use Webmozart\Assert\Assert;
 
 final class ManyToOneTransition implements StateTransition
 {
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
     /**
      * @var string[]
      */
-    private $fromStates;
-
-    /**
-     * @var string
-     */
-    private $to;
+    private array $fromStates;
+    private string $to;
 
     public function __construct(string $name, string $to, string ...$fromStates)
     {

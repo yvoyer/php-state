@@ -7,10 +7,7 @@ use Star\Component\State\Callbacks\TransitionCallback;
 
 abstract class StateMetadata
 {
-    /**
-     * @var string
-     */
-    protected $current;
+    protected string $current;
 
     /**
      * @param string $initial The initial state name
@@ -37,7 +34,7 @@ abstract class StateMetadata
 
     /**
      * @param string $name
-     * @param mixed $context
+     * @param string|object $context
      * @param TransitionCallback|null $callback
      *
      * @return static

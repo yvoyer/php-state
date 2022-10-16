@@ -7,10 +7,7 @@ use Star\Component\State\StateMachine;
 
 final class AlwaysReturnStateOnFailure implements TransitionCallback
 {
-    /**
-     * @var string
-     */
-    private $to;
+    private string $to;
 
     public function __construct(string $to)
     {

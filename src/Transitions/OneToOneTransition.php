@@ -7,20 +7,9 @@ use Star\Component\State\StateTransition;
 
 final class OneToOneTransition implements StateTransition
 {
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $from;
-
-    /**
-     * @var string
-     */
-    private $to;
+    private string $name;
+    private string $from;
+    private string $to;
 
     public function __construct(string $name, string $from, string $to)
     {

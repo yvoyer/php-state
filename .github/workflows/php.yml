@@ -8,7 +8,7 @@ on:
 
 jobs:
   phpunit:
-    name: PHPUnit
+    name: Build
     runs-on: ubuntu-latest
     strategy:
       matrix:

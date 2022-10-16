@@ -1,18 +1,18 @@
-checks:
-    php:
-        code_rating: true
-        duplication: true
-
-build:
-    environment:
-        php:
-            version: 7.4
-tools:
-    external_code_coverage: true
-
-filter:
-    excluded_paths:
-        - bin/*
-        - examples/*
-        - tests/*
-        - vendor/*
+#checks:
+#    php:
+#        code_rating: true
+#        duplication: true
+#
+#build:
+#    environment:
+#        php:
+#            version: 7.3
+#tools:
+#    external_code_coverage: true
+#
+#filter:
+#    excluded_paths:
+#        - bin/*
+#        - examples/*
+#        - tests/*
+#        - vendor/*

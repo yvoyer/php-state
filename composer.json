@@ -5,8 +5,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Yannick Voyer",
-            "email": "star.yvoyer@gmail.com"
+            "name": "Yannick Voyer"
         }
     ],
     "autoload": {
@@ -21,26 +20,26 @@
         }
     },
     "require": {
-        "php": "^7.2",
-        "webmozart/assert": ">=1.0",
-        "symfony/event-dispatcher": ">=4.0"
+        "php": "^7.4|^8.0",
+        "webmozart/assert": "^1.0",
+        "symfony/event-dispatcher": "^4.0|^5.0|^6.0"
     },
     "require-dev": {
         "ext-pdo": "*",
+        "doctrine/annotations": "^1.13",
         "doctrine/orm": "^2.5",
-        "infection/infection": "^0.13",
-        "phpstan/phpstan": "^0.12.9",
-        "phpstan/phpstan-phpunit": "^0.12.6",
-        "phpunit/phpunit": "~7.0",
-        "squizlabs/php_codesniffer": "^3.2"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.0.x-dev"
-        }
+        "infection/infection": "~0.13",
+        "phpstan/phpstan": "^1.0",
+        "phpstan/phpstan-phpunit": "^1.0",
+        "phpunit/phpunit": "^8.5",
+        "squizlabs/php_codesniffer": "^3.2",
+        "symfony/cache": "^4.0|^5.0|^6.0"
     },
     "config": {
         "bin-dir": "bin",
-		"sort-packages": true
+		"sort-packages": true,
+        "allow-plugins": {
+            "infection/extension-installer": true
+        }
     }
 }

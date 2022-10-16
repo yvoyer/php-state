@@ -9,7 +9,7 @@ final class RegistrySpy implements RegistryBuilder
     /**
      * @var string[][][][]
      */
-    public $states = [];
+    public array $states = [];
 
     /**
      * @param string $transition

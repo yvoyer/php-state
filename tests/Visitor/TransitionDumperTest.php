@@ -8,15 +8,8 @@ use Star\Component\State\StateMachine;
 
 final class TransitionDumperTest extends TestCase
 {
-    /**
-     * @var TransitionDumper
-     */
-    private $dumper;
-
-    /**
-     * @var StateMachine
-     */
-    private $machine;
+    private TransitionDumper $dumper;
+    private StateMachine $machine;
 
     public function setUp(): void
     {

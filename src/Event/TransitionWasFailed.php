@@ -6,15 +6,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 final class TransitionWasFailed extends Event implements StateEvent
 {
-    /**
-     * @var string
-     */
-    private $transition;
-
-    /**
-     * @var \Throwable
-     */
-    private $exception;
+    private string $transition;
+    private \Throwable $exception;
 
     public function __construct(string $transition, \Throwable $exception)
     {

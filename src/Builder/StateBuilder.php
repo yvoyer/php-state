@@ -15,15 +15,8 @@ use Star\Component\State\Transitions\OneToOneTransition;
  */
 final class StateBuilder
 {
-    /**
-     * @var TransitionRegistry
-     */
-    private $registry;
-
-    /**
-     * @var EventRegistry
-     */
-    private $listeners;
+    private TransitionRegistry $registry;
+    private EventRegistry $listeners;
 
     public function __construct()
     {

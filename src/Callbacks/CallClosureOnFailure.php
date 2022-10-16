@@ -7,10 +7,7 @@ use Star\Component\State\StateMachine;
 
 final class CallClosureOnFailure implements TransitionCallback
 {
-    /**
-     * @var \Closure
-     */
-    private $callback;
+    private \Closure $callback;
 
     public function __construct(\Closure $callback)
     {

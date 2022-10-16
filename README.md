@@ -1,6 +1,6 @@
 # PHP State machine
 
-[![Build Status](https://travis-ci.org/yvoyer/php-state.svg?branch=master)](https://travis-ci.org/yvoyer/php-state)
+![Build Status](https://github.com/yvoyer/php-state/actions/workflows/php.yml/badge.svg)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yvoyer/php-state/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yvoyer/php-state/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/yvoyer/php-state/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yvoyer/php-state/?branch=master)
 
@@ -16,7 +16,7 @@ Using composer, add the following require in your `composer.json`.
 
 ```json 
     "require": {
-        "star/state-machine": "~1.0"
+       "star/state-machine": "~1.0"
     }
 ```
 
@@ -48,7 +48,7 @@ Ie. Given you need a state to be considered active or closed while another state
 // your context using the builder
 public function isActive()
 {
-    return $this->stateMachine()-hasAttribute("is_active");
+    return $this->stateMachine()-hasAttribute("is_active");
 }
 ```
 
@@ -56,7 +56,7 @@ public function isActive()
 // your context using the metadata
 public function isActive()
 {
-    return $this->state->hasAttribute("is_active");
+    return $this->state->hasAttribute("is_active");
 }
 ```
 

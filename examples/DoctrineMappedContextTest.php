@@ -3,6 +3,7 @@
 namespace Star\Component\State\Example;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Embedded;
 use Doctrine\ORM\Mapping\Embeddable;
@@ -18,10 +19,7 @@ use Star\Component\State\StateMetadata;
 
 final class DoctrineMappedContextTest extends TestCase
 {
-    /**
-     * @var EntityManager
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
     public function setUp(): void
     {
@@ -95,7 +93,7 @@ class MyEntity
      * @GeneratedValue(strategy="AUTO")
      * @Column(name="id", type="integer")
      */
-    public $id;
+    public int $id;
 
     /**
      * @var MyState|StateMetadata
@@ -133,7 +131,7 @@ final class MyState extends StateMetadata
      * @var string
      * @Column(name="state", type="string")
      */
-    protected $current;
+    protected string $current;
 
     public function __construct()
     {

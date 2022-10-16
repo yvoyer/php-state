@@ -7,20 +7,13 @@ use Star\Component\State\StateMachine;
 
 final class CallContextMethodOnFailure implements TransitionCallback
 {
-    /**
-     * @var string
-     */
-    private $to;
-
-    /**
-     * @var string
-     */
-    private $method;
+    private string $to;
+    private string $method;
 
     /**
      * @var mixed[]
      */
-    private $args;
+    private array $args;
 
     /**
      * @param string $to

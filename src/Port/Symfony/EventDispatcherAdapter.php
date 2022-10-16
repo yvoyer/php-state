@@ -9,10 +9,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class EventDispatcherAdapter implements EventRegistry
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
     public function __construct(EventDispatcherInterface $dispatcher = null)
     {

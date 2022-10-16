@@ -7,10 +7,7 @@ use Star\Component\State\StateTransition;
 
 final class ReadOnlyTransition implements StateTransition
 {
-    /**
-     * @var string
-     */
-    private $destination;
+    private string $destination;
 
     public function __construct(string $destination)
     {

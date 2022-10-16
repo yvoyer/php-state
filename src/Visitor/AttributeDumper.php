@@ -10,7 +10,7 @@ final class AttributeDumper implements StateVisitor
      * An array having the state name as key and the attributes of this state.
      * @var string[][]
      */
-    private $structure = [];
+    private array $structure = [];
 
     /**
      * @return string[][]

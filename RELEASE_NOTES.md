@@ -1,5 +1,9 @@
 # Release notes
 
+# 3.1.0
+
+* [#30](https://github.com/yvoyer/php-state/pull/30)
+
 # 3.0.0
 
 * Bump php version to 7.4+
@@ -28,4 +32,3 @@
 * Add Doctrine Hydration support (#13)
 * Add Metadata concept to create the state machine (#12)
 * Add support for multiple from states to one state transition (#11)
-

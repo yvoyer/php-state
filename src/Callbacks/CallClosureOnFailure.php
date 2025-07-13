@@ -2,14 +2,18 @@
 
 namespace Star\Component\State\Callbacks;
 
+use Closure;
+use InvalidArgumentException;
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\StateMachine;
+use function is_string;
+use function sprintf;
 
 final class CallClosureOnFailure implements TransitionCallback
 {
-    private \Closure $callback;
+    private Closure $callback;
 
-    public function __construct(\Closure $callback)
+    public function __construct(Closure $callback)
     {
         $this->callback = $callback;
     }
@@ -37,10 +41,23 @@ final class CallClosureOnFailure implements TransitionCallback
      *
      * @return string
      */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
-    {
+    public function onFailure(
+        InvalidStateTransitionException $exception,
+        $context,
+        StateMachine $machine
+    ): string {
         $callback = $this->callback;
+        $return = $callback($context);
+        if (!is_string($return)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Callback should be returning a string, type "%s" returned.',
+                    gettype($return)
+                ),
+                E_USER_DEPRECATED
+            );
+        }
 
-        return $callback($context);
+        return $return;
     }
 }

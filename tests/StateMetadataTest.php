@@ -11,24 +11,22 @@ final class StateMetadataTest extends TestCase
     public function test_it_should_check_if_current_state_is_same(): void
     {
         $metadata = new CustomMetadata('from');
-        $this->assertTrue($metadata->isInState('from'));
-        $this->assertFalse($metadata->isInState('to'));
+        self::assertTrue($metadata->isInState('from'));
+        self::assertFalse($metadata->isInState('to'));
     }
 
     public function test_it_should_check_if_has_attribute(): void
     {
         $metadata = new CustomMetadata('from');
-        $this->assertFalse($metadata->hasAttribute('attr'));
+        self::assertFalse($metadata->hasAttribute('attr'));
     }
 
     public function test_it_should_transit(): void
     {
         $metadata = new CustomMetadata('from');
-        $this->assertInstanceOf(
-            CustomMetadata::class,
-            $new = $metadata->transit('t1', 'context')
-        );
-        $this->assertTrue($new->isInState('to'));
+        $new = $metadata->transit('t1', 'context');
+
+        self::assertTrue($new->isInState('to'));
     }
 
     public function test_it_should_use_the_failure_callback_on_transit(): void

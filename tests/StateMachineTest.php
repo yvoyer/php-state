@@ -43,11 +43,11 @@ final class StateMachineTest extends TestCase
     public function test_it_should_transition_from_one_state_to_the_other(): void
     {
         $this->registry->addTransition(new OneToOneTransition('name', 'current', 'next'));
-        $this->assertTrue($this->machine->isInState('current'));
+        self::assertTrue($this->machine->isInState('current'));
 
-        $this->assertSame('next', $this->machine->transit('name', $this->context));
+        self::assertSame('next', $this->machine->transit('name', $this->context));
 
-        $this->assertFalse($this->machine->isInState('current'));
+        self::assertFalse($this->machine->isInState('current'));
     }
 
     public function test_it_should_trigger_an_event_before_any_transition(): void
@@ -81,7 +81,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_throw_exception_with_class_context_when_transition_not_allowed(): void
     {
         $this->registry->addTransition(new OneToOneTransition('t', 'start', 'end'));
-        $this->assertFalse($this->machine->isInState('start'));
+        self::assertFalse($this->machine->isInState('start'));
 
         $this->expectException(InvalidStateTransitionException::class);
         $this->expectExceptionMessage(
@@ -93,7 +93,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_throw_exception_with_context_as_string_when_transition_not_allowed(): void
     {
         $this->registry->addTransition(new OneToOneTransition('transition', 'start', 'end'));
-        $this->assertFalse($this->machine->isInState('start'));
+        self::assertFalse($this->machine->isInState('start'));
 
         $this->expectException(InvalidStateTransitionException::class);
         $this->expectExceptionMessage(
@@ -105,8 +105,8 @@ final class StateMachineTest extends TestCase
     public function test_state_can_have_attribute(): void
     {
         $this->registry->registerStartingState('transition', 'current', ['exists']);
-        $this->assertFalse($this->machine->hasAttribute('not-exists'));
-        $this->assertTrue($this->machine->hasAttribute('exists'));
+        self::assertFalse($this->machine->hasAttribute('not-exists'));
+        self::assertTrue($this->machine->hasAttribute('exists'));
     }
 
     public function test_it_should_visit_the_transitions(): void

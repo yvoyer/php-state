@@ -26,7 +26,7 @@ final class AttributeDumper implements StateVisitor
      */
     public function visitState(string $name, array $attributes): void
     {
-        if (! isset($this->structure[$name])) {
+        if (!isset($this->structure[$name])) {
             $this->structure[$name] = [];
         }
 

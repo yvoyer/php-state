@@ -41,7 +41,7 @@ final class StateMachine
      */
     public function transit(string $transitionName, $context, TransitionCallback $callback = null): string
     {
-        if (! $callback) {
+        if (!$callback) {
             $callback = new AlwaysThrowExceptionOnFailure();
         }
 
@@ -55,7 +55,7 @@ final class StateMachine
 
         $newState = $transition->getDestinationState();
         $allowed = $this->states->transitionStartsFrom($transitionName, $this->currentState);
-        if (! $allowed) {
+        if (!$allowed) {
             $exception = InvalidStateTransitionException::notAllowedTransition(
                 $transitionName,
                 $context,
@@ -89,7 +89,7 @@ final class StateMachine
      */
     public function isInState(string $stateName): bool
     {
-        if (! $this->states->hasState($stateName)) {
+        if (!$this->states->hasState($stateName)) {
             throw NotFoundException::stateNotFound($stateName);
         }
 

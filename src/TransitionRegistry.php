@@ -51,7 +51,7 @@ final class TransitionRegistry implements StateRegistry
             $transition = new ReadOnlyTransition($to);
         }
 
-        if (! $transition) {
+        if (!$transition) {
             throw NotFoundException::transitionNotFound($name);
         }
 
@@ -75,7 +75,7 @@ final class TransitionRegistry implements StateRegistry
     private function addAttributes(string $state, array $attributes): void
     {
         \array_map(
-            function ($attribute) use ($state) {
+            function($attribute) use ($state) {
                 $this->addAttribute($state, $attribute);
             },
             $attributes
@@ -94,7 +94,7 @@ final class TransitionRegistry implements StateRegistry
 
     public function hasAttribute(string $state, string $attribute): bool
     {
-        if (! $this->hasState($state)) {
+        if (!$this->hasState($state)) {
             return false;
         }
 

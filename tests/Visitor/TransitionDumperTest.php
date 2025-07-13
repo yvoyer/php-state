@@ -25,8 +25,8 @@ final class TransitionDumperTest extends TestCase
     public function test_it_should_return_the_structure_when_one_to_one(): void
     {
         $this->machine->acceptTransitionVisitor($this->dumper);
-        $this->assertArrayHasKey('t1', $this->dumper->getStructure());
-        $this->assertEquals(
+        self::assertArrayHasKey('t1', $this->dumper->getStructure());
+        self::assertEquals(
             [
                 'from' => ['s1'],
                 'to' => ['s2'],
@@ -38,8 +38,8 @@ final class TransitionDumperTest extends TestCase
     public function test_it_should_return_the_structure_when_many_to_one(): void
     {
         $this->machine->acceptTransitionVisitor($this->dumper);
-        $this->assertArrayHasKey('t2', $this->dumper->getStructure());
-        $this->assertEquals(
+        self::assertArrayHasKey('t2', $this->dumper->getStructure());
+        self::assertEquals(
             [
                 'from' => [
                     's2',

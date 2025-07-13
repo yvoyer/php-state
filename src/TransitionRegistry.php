@@ -51,7 +51,7 @@ final class TransitionRegistry implements StateRegistry
             $transition = new ReadOnlyTransition($to);
         }
 
-        if (! $transition) {
+        if (!$transition) {
             throw NotFoundException::transitionNotFound($name);
         }
 
@@ -94,7 +94,7 @@ final class TransitionRegistry implements StateRegistry
 
     public function hasAttribute(string $state, string $attribute): bool
     {
-        if (! $this->hasState($state)) {
+        if (!$this->hasState($state)) {
             return false;
         }
 

@@ -14,9 +14,9 @@ final class StateBuilderTest extends TestCase
             ->addAttribute('attr', 'from')
             ->create('from');
 
-        $this->assertTrue($machine->isInState('from'));
+        self::assertTrue($machine->isInState('from'));
         $machine->transit('t1', 'context');
-        $this->assertTrue($machine->isInState('to'));
+        self::assertTrue($machine->isInState('to'));
     }
 
     public function test_it_should_return_whether_the_current_state_has_attribute_after_transition(): void
@@ -26,12 +26,12 @@ final class StateBuilderTest extends TestCase
             ->addAttribute('attr', 'from')
             ->create('from');
 
-        $this->assertTrue($machine->isInState('from'));
-        $this->assertTrue($machine->hasAttribute('attr'));
+        self::assertTrue($machine->isInState('from'));
+        self::assertTrue($machine->hasAttribute('attr'));
 
         $machine->transit('t1', 'context');
 
-        $this->assertTrue($machine->isInState('to'));
-        $this->assertFalse($machine->hasAttribute('attr'));
+        self::assertTrue($machine->isInState('to'));
+        self::assertFalse($machine->hasAttribute('attr'));
     }
 }

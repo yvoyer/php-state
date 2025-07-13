@@ -11,9 +11,10 @@ final class EventDispatcherAdapter implements EventRegistry
 {
     private EventDispatcherInterface $dispatcher;
 
-    public function __construct(EventDispatcherInterface $dispatcher = null)
-    {
-        if (! $dispatcher) {
+    public function __construct(
+        ?EventDispatcherInterface $dispatcher = null
+    ) {
+        if (!$dispatcher) {
             $dispatcher = new EventDispatcher();
         }
         $this->dispatcher = $dispatcher;

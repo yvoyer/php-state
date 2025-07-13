@@ -23,7 +23,7 @@ final class AttributeDumperTest extends TestCase
     public function test_it_should_dump_the_attributes(): void
     {
         $this->machine->acceptStateVisitor($dumper = new AttributeDumper());
-        $this->assertEquals(
+        self::assertEquals(
             [
                 's1' => ['a1', 'a2'],
                 's2' => ['a2'],

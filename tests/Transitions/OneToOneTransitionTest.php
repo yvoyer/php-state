@@ -16,7 +16,7 @@ final class OneToOneTransitionTest extends TestCase
 
     public function test_it_should_have_a_name(): void
     {
-        $this->assertSame('name', $this->transition->getName());
+        self::assertSame('name', $this->transition->getName());
     }
 
     public function test_it_should_register_the_from_and_to_states(): void
@@ -25,7 +25,7 @@ final class OneToOneTransitionTest extends TestCase
 
         $this->transition->onRegister($registry);
 
-        $this->assertCount(1, $registry->states['name']['start']);
-        $this->assertCount(1, $registry->states['name']['destination']);
+        self::assertCount(1, $registry->getStates('name', 'start'));
+        self::assertCount(1, $registry->getStates('name', 'destination'));
     }
 }

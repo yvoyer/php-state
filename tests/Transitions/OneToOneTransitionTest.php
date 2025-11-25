@@ -3,7 +3,7 @@
 namespace Star\Component\State\Transitions;
 
 use PHPUnit\Framework\TestCase;
-use Star\Component\State\Stub\RegistrySpy;
+use Star\Component\State\Stub\RegistryBuilderSpy;
 
 final class OneToOneTransitionTest extends TestCase
 {
@@ -21,7 +21,7 @@ final class OneToOneTransitionTest extends TestCase
 
     public function test_it_should_register_the_from_and_to_states(): void
     {
-        $registry = new RegistrySpy();
+        $registry = new RegistryBuilderSpy();
 
         $this->transition->onRegister($registry);
 

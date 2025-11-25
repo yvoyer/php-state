@@ -39,8 +39,11 @@ abstract class StateMetadata
      *
      * @return static
      */
-    final public function transit(string $name, $context, TransitionCallback $callback = null): StateMetadata
-    {
+    final public function transit(
+        string $name,
+        $context,
+        ?TransitionCallback $callback = null
+    ): StateMetadata {
         $this->current = $this->getMachine()->transit($name, $context, $callback);
 
         return $this;

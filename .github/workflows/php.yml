@@ -43,5 +43,8 @@ jobs:
     - name: PHPStan
       run: bin/phpstan
 
+    - name: Composer validate
+      run: composer validate
+
  #   - name: Infection
 #      run: bin/infection --formatter=progress

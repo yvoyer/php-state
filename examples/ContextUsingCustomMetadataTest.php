@@ -64,7 +64,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('archived'));
     }
 
-    public function test_it_should_allow_to_transit_from_approved_to_published(): ContextStub
+    public function test_it_should_allow_to_transit_from_approved_to_published(): void
     {
         $context = new ContextStub();
         $context->approve();
@@ -73,8 +73,6 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $context->publish();
 
         $this->assertTrue($context->state->isInState('published'));
-
-        return $context;
     }
 
     public function test_it_should_allow_to_transit_from_approved_to_archived(): void
@@ -100,7 +98,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('approved'));
     }
 
-    public function test_it_should_allow_to_transit_from_published_to_archived(): ContextStub
+    public function test_it_should_allow_to_transit_from_published_to_archived(): void
     {
         $context = new ContextStub();
         $context->approve();
@@ -110,8 +108,6 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $context->archive();
 
         $this->assertTrue($context->state->isInState('archived'));
-
-        return $context;
     }
 
     public function test_it_should_allow_to_transit_from_archived_to_pending(): void
@@ -125,7 +121,7 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertTrue($context->state->isInState('pending'));
     }
 
-    public function test_it_should_allow_to_transit_from_archived_to_approved(): ContextStub
+    public function test_it_should_allow_to_transit_from_archived_to_approved(): void
     {
         $context = new ContextStub();
         $context->discard();
@@ -134,8 +130,6 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $context->unArchive();
 
         $this->assertTrue($context->state->isInState('approved'));
-
-        return $context;
     }
 
     public function test_attributes_of_pending(): void
@@ -146,34 +140,35 @@ final class ContextUsingCustomMetadataTest extends TestCase
         $this->assertFalse($context->isVisible());
     }
 
-    /**
-     * @param ContextStub $context
-     * @depends test_it_should_allow_to_transit_from_archived_to_approved
-     */
-    public function test_attributes_of_approved(ContextStub $context): void
+    public function test_attributes_of_approved(): void
     {
+        $context = new ContextStub();
+        $context->discard();
+        $context->unArchive();
+
         $this->assertTrue($context->state->isInState('approved'));
         $this->assertTrue($context->isDraft());
         $this->assertFalse($context->isVisible());
     }
 
-    /**
-     * @param ContextStub $context
-     * @depends test_it_should_allow_to_transit_from_approved_to_published
-     */
-    public function test_attributes_of_published(ContextStub $context): void
+    public function test_attributes_of_published(): void
     {
+        $context = new ContextStub();
+        $context->approve();
+        $context->publish();
+
         $this->assertTrue($context->state->isInState('published'));
         $this->assertFalse($context->isDraft());
         $this->assertTrue($context->isVisible());
     }
 
-    /**
-     * @param ContextStub $context
-     * @depends test_it_should_allow_to_transit_from_published_to_archived
-     */
-    public function test_attributes_of_archived(ContextStub $context): void
+    public function test_attributes_of_archived(): void
     {
+        $context = new ContextStub();
+        $context->approve();
+        $context->publish();
+        $context->archive();
+
         $this->assertTrue($context->state->isInState('archived'));
         $this->assertFalse($context->isDraft());
         $this->assertFalse($context->isVisible());

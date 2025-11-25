@@ -7,30 +7,29 @@
 
 namespace Star\Component\State;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
+use Star\Component\State\Stub\EventRegistrySpy;
 use Star\Component\State\Transitions\OneToOneTransition;
+use stdClass;
+use Throwable;
 
 final class StateMachineTest extends TestCase
 {
     private TransitionRegistry $registry;
     private StateMachine $machine;
     private TestContext $context;
-    /**
-     * @var MockObject|EventRegistry
-     */
-    private $listeners;
+    private EventRegistrySpy $events;
 
     public function setUp(): void
     {
-        $this->listeners = $this->createMock(EventRegistry::class);
+        $this->events = new EventRegistrySpy();
         $this->context = new TestContext();
         $this->registry = new TransitionRegistry();
-        $this->machine = new StateMachine('current', $this->registry, $this->listeners);
+        $this->machine = new StateMachine('current', $this->registry, $this->events);
     }
 
     public function test_it_should_not_allow_to_transition_to_a_not_configured_transition(): void
@@ -52,30 +51,22 @@ final class StateMachineTest extends TestCase
 
     public function test_it_should_trigger_an_event_before_any_transition(): void
     {
-        $this->listeners
-            ->expects($this->at(0))
-            ->method('dispatch')
-            ->with(
-                StateEventStore::BEFORE_TRANSITION,
-                $this->isInstanceOf(TransitionWasRequested::class)
-            );
-
         $this->registry->addTransition(new OneToOneTransition('name', 'current', 'next'));
         $this->machine->transit('name', $this->context);
+        $name = StateEventStore::BEFORE_TRANSITION;
+        $events = $this->events->getDispatchedEvents($name);
+        self::assertCount(1, $events);
+        self::assertContainsOnlyInstancesOf(TransitionWasRequested::class, $events);
     }
 
     public function test_it_should_trigger_an_event_after_any_transition(): void
     {
-        $this->listeners
-            ->expects($this->at(1))
-            ->method('dispatch')
-            ->with(
-                StateEventStore::AFTER_TRANSITION,
-                $this->isInstanceOf(TransitionWasSuccessful::class)
-            );
-
         $this->registry->addTransition(new OneToOneTransition('name', 'current', 'next'));
         $this->machine->transit('name', $this->context);
+        $name = StateEventStore::AFTER_TRANSITION;
+        $events = $this->events->getDispatchedEvents($name);
+        self::assertCount(1, $events);
+        self::assertContainsOnlyInstancesOf(TransitionWasSuccessful::class, $events);
     }
 
     public function test_it_should_throw_exception_with_class_context_when_transition_not_allowed(): void
@@ -87,7 +78,7 @@ final class StateMachineTest extends TestCase
         $this->expectExceptionMessage(
             "The transition 't' is not allowed when context 'stdClass' is in state 'current'."
         );
-        $this->machine->transit('t', new \stdClass);
+        $this->machine->transit('t', new stdClass);
     }
 
     public function test_it_should_throw_exception_with_context_as_string_when_transition_not_allowed(): void
@@ -112,7 +103,7 @@ final class StateMachineTest extends TestCase
     public function test_it_should_visit_the_transitions(): void
     {
         $registry = $this->createMock(StateRegistry::class);
-        $machine = new StateMachine('', $registry, $this->listeners);
+        $machine = new StateMachine('', $registry, $this->events);
         $visitor = $this->createMock(TransitionVisitor::class);
 
         $registry
@@ -131,20 +122,18 @@ final class StateMachineTest extends TestCase
 
     public function test_it_should_dispatch_an_event_before_a_transition_has_failed(): void
     {
-        $this->listeners
-            ->expects($this->at(1))
-            ->method('dispatch')
-            ->with(
-                StateEventStore::FAILURE_TRANSITION,
-                $this->isInstanceOf(TransitionWasFailed::class)
-            );
-
         $this->registry->addTransition(new OneToOneTransition('t', 'from', 'to'));
         try {
             $this->machine->transit('t', 'context');
             $this->fail('An exception should have been thrown');
-        } catch (InvalidStateTransitionException $exception) {
+        } catch (Throwable $exception) {
             // silence it
+            self::assertInstanceOf(InvalidStateTransitionException::class, $exception);
         }
+
+        $name = StateEventStore::FAILURE_TRANSITION;
+        $events = $this->events->getDispatchedEvents($name);
+        self::assertCount(1, $events);
+        self::assertContainsOnlyInstancesOf(TransitionWasFailed::class, $events);
     }
 }

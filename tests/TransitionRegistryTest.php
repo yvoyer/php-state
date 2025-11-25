@@ -117,18 +117,34 @@ final class TransitionRegistryTest extends TestCase
 
     public function test_it_should_visit_the_states(): void
     {
-        $visitor = $this->getMockBuilder(StateVisitor::class)->getMock();
-        $visitor
-            ->expects($this->at(0))
-            ->method('visitState')
-            ->with('from', ['attr']);
-        $visitor
-            ->expects($this->at(1))
-            ->method('visitState')
-            ->with('to', []);
+        $visitor = new class implements StateVisitor
+        {
+            /**
+             * @var array<string, array<int, string[]>>
+             */
+            public array $attributes = [];
+
+            public function visitState(string $name, array $attributes): void
+            {
+                $this->attributes[$name][] = $attributes;
+            }
+        };
         $this->registry->addTransition(new OneToOneTransition('t', 'from', 'to'));
         $this->registry->addAttribute('from', 'attr');
 
         $this->registry->acceptStateVisitor($visitor);
+        self::assertSame(
+            [
+                'from' => [
+                    0 => [
+                        0 => 'attr',
+                    ],
+                ],
+                'to' => [
+                    0 => [],
+                ],
+            ],
+            $visitor->attributes
+        );
     }
 }

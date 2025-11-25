@@ -4,7 +4,7 @@ namespace Star\Component\State\Stub;
 
 use Star\Component\State\RegistryBuilder;
 
-final class RegistrySpy implements RegistryBuilder
+final class RegistryBuilderSpy implements RegistryBuilder
 {
     /**
      * @var array<string, array{

@@ -7,6 +7,7 @@
 
 namespace Star\Component\State;
 
+use Closure;
 use Star\Component\State\Callbacks\AlwaysThrowExceptionOnFailure;
 use Star\Component\State\Callbacks\TransitionCallback;
 use Star\Component\State\Event\StateEventStore;
@@ -39,8 +40,11 @@ final class StateMachine
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
-    public function transit(string $transitionName, $context, TransitionCallback $callback = null): string
-    {
+    public function transit(
+        string $transitionName,
+        mixed $context,
+        ?TransitionCallback $callback = null
+    ): string {
         if (!$callback) {
             $callback = new AlwaysThrowExceptionOnFailure();
         }
@@ -101,7 +105,7 @@ final class StateMachine
         return $this->states->hasAttribute($this->currentState, $attribute);
     }
 
-    public function addListener(string $event, \Closure $listener): void
+    public function addListener(string $event, Closure $listener): void
     {
         $this->listeners->addListener($event, $listener);
     }

@@ -2,18 +2,13 @@
 
 <!-- http://www.phpunit.de/manual/current/en/appendixes.configuration.html -->
 <phpunit
-        backupGlobals = "false"
-        backupStaticAttributes = "false"
-        colors = "true"
-        convertErrorsToExceptions = "true"
-        convertNoticesToExceptions = "true"
-        convertWarningsToExceptions = "true"
-        convertDeprecationsToExceptions = "true"
-        beStrictAboutOutputDuringTests = "true"
-        beStrictAboutTestsThatDoNotTestAnything="true"
-        failOnRisky="true"
-        failOnWarning="true"
-        bootstrap = "vendor/autoload.php" >
+        backupGlobals="false"
+        backupStaticProperties="false"
+        colors="true"
+        beStrictAboutOutputDuringTests="true"
+        failOnAllIssues="true"
+        bootstrap="vendor/autoload.php"
+>
 
     <testsuites>
         <testsuite name="main">
@@ -25,9 +20,9 @@
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist>
-            <directory>src</directory>
-        </whitelist>
-    </filter>
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
 </phpunit>

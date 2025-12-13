@@ -25,8 +25,8 @@ final class CallClosureOnFailureTest extends TestCase
             'context',
             new StateMachine(
                 'state',
-                $this->createMock(StateRegistry::class),
-                $this->createMock(EventRegistry::class),
+                $this->createStub(StateRegistry::class),
+                $this->createStub(EventRegistry::class),
             )
         );
     }

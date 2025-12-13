@@ -104,7 +104,7 @@ final class StateMachineTest extends TestCase
     {
         $registry = $this->createMock(StateRegistry::class);
         $machine = new StateMachine('', $registry, $this->events);
-        $visitor = $this->createMock(TransitionVisitor::class);
+        $visitor = $this->createStub(TransitionVisitor::class);
 
         $registry
             ->expects($this->once())

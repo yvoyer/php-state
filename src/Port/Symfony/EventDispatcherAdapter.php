@@ -3,6 +3,7 @@
 namespace Star\Component\State\Port\Symfony;
 
 use Star\Component\State\Event\StateEvent;
+use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\EventRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -22,7 +23,7 @@ final class EventDispatcherAdapter implements EventRegistry
 
     public function dispatch(string $name, StateEvent $event): void
     {
-        $this->dispatcher->dispatch($event);
+        $this->dispatcher->dispatch($event, StateEventStore::eventNameFromClass($event));
     }
 
     public function addListener(string $event, callable $listener): void

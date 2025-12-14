@@ -8,16 +8,16 @@ final class AttributeDumper implements StateVisitor
 {
     /**
      * An array having the state name as key and the attributes of this state.
-     * @var string[][]
+     * @var array<string, string[]>
      */
-    private array $structure = [];
+    private array $attributesByStates = [];
 
     /**
-     * @return string[][]
+     * @return array<string, string[]>
      */
     public function getStructure(): array
     {
-        return $this->structure;
+        return $this->attributesByStates;
     }
 
     /**
@@ -26,10 +26,6 @@ final class AttributeDumper implements StateVisitor
      */
     public function visitState(string $name, array $attributes): void
     {
-        if (!isset($this->structure[$name])) {
-            $this->structure[$name] = [];
-        }
-
-        $this->structure[$name] = array_unique(array_merge($this->structure[$name], $attributes));
+        $this->attributesByStates[$name] = $attributes;
     }
 }

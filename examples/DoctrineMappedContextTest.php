@@ -2,16 +2,12 @@
 
 namespace Star\Component\State\Example;
 
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Embedded;
-use Doctrine\ORM\Mapping\Embeddable;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Tools\Setup;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
@@ -27,14 +23,15 @@ final class DoctrineMappedContextTest extends TestCase
             $this->markTestSkipped('Sqlite extension is needed');
         }
 
-        $configuration = Setup::createAnnotationMetadataConfiguration([__DIR__], true);
-        $this->em = EntityManager::create(
+        $configuration = ORMSetup::createAttributeMetadataConfiguration([__DIR__], true);
+        $connection = DriverManager::getConnection(
             [
                 'driver' => 'pdo_sqlite',
                 'in_memory' => true,
             ],
-            $configuration
+            $configuration,
         );
+        $this->em = new EntityManager($connection, $configuration);
         $tool = new SchemaTool($this->em);
         $tool->createSchema([$this->em->getClassMetadata(MyEntity::class)]);
     }
@@ -82,24 +79,16 @@ final class DoctrineMappedContextTest extends TestCase
     }
 }
 
-/**
- * @Entity()
- */
+#[ORM\Entity]
 class MyEntity
 {
-    /**
-     * @var int
-     * @Id()
-     * @GeneratedValue(strategy="AUTO")
-     * @Column(name="id", type="integer")
-     */
+    #[ORM\Id()]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
+    #[ORM\Column(name: "id", type: "integer")]
     public int $id;
 
-    /**
-     * @var MyState|StateMetadata
-     * @Embedded(class="MyState", columnPrefix="my_")
-     */
-    private $state;
+    #[ORM\Embedded(class: "MyState", columnPrefix: "my_")]
+    private MyState $state;
 
     public function __construct()
     {
@@ -122,15 +111,10 @@ class MyEntity
     }
 }
 
-/**
- * @Embeddable()
- */
+#[ORM\Embeddable]
 final class MyState extends StateMetadata
 {
-    /**
-     * @var string
-     * @Column(name="state", type="string")
-     */
+    #[ORM\Column(name: "state", type: "string")]
     protected string $current;
 
     public function __construct()

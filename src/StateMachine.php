@@ -1,9 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * This file is part of the php-state project.
- *
- * (c) Yannick Voyer (http://github.com/yvoyer)
- */
 
 namespace Star\Component\State;
 
@@ -45,6 +40,7 @@ final class StateMachine
         mixed $context,
         ?TransitionCallback $callback = null
     ): string {
+        // todo deprecate mixed to use StateContext
         if (!$callback) {
             $callback = new AlwaysThrowExceptionOnFailure();
         }

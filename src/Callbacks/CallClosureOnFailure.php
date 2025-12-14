@@ -22,16 +22,20 @@ final class CallClosureOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function beforeStateChange($context, StateMachine $machine): void
-    {
+    public function beforeStateChange(
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): void {
     }
 
     /**
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function afterStateChange($context, StateMachine $machine): void
-    {
+    public function afterStateChange(
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): void {
     }
 
     /**
@@ -43,7 +47,7 @@ final class CallClosureOnFailure implements TransitionCallback
      */
     public function onFailure(
         InvalidStateTransitionException $exception,
-        $context,
+        /* StateContext in 4.0 */ $context,
         StateMachine $machine
     ): string {
         $callback = $this->callback;

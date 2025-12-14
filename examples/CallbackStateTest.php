@@ -9,6 +9,7 @@ use Star\Component\State\Callbacks\CallClosureOnFailure;
 use Star\Component\State\Callbacks\TransitionCallback;
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\RegistryBuilder;
+use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Star\Component\State\StateMetadata;
 use Star\Component\State\StateTransition;
@@ -58,7 +59,7 @@ final class CallbackStateTest extends TestCase
     }
 }
 
-final class TurnStill
+final class TurnStill implements StateContext
 {
     /**
      * @var TurnStillState|StateMetadata
@@ -73,6 +74,11 @@ final class TurnStill
     public function __construct()
     {
         $this->state = new TurnStillState('locked');
+    }
+
+    public function toStateContextIdentifier(): string
+    {
+        return 'turn-still';
     }
 
     public function pay(int $coin): void
@@ -94,7 +100,7 @@ final class TurnStill
     {
         $this->state = $this->state->transit(
             'pass',
-            'turn-still',
+            $this,
             new CallClosureOnFailure(
                 function () {
                     return $this->state->transit('alarm', $this)->getCurrent();
@@ -105,7 +111,7 @@ final class TurnStill
 
     public function reset(): void
     {
-        $this->state = $this->state->transit('reset', 'turn-still');
+        $this->state = $this->state->transit('reset', $this);
     }
 
     public function isLocked(): bool

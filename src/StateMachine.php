@@ -46,7 +46,7 @@ final class StateMachine
      */
     public function transit(
         string $transitionName,
-        mixed $context,
+        $context,
         ?TransitionCallback $callback = null
     ): string {
         if (!$callback) {
@@ -55,8 +55,7 @@ final class StateMachine
         if (is_scalar($context)) {
             $context = new StringAdapterContext((string) $context);
         }
-
-        if (is_object($context) && !$context instanceof StateContext) {
+        if (!$context instanceof StateContext) {
             $context = new ObjectAdapterContext($context);
         }
 

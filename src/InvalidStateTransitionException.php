@@ -31,17 +31,17 @@ final class InvalidStateTransitionException extends \Exception
             $context = new StringAdapterContext((string) $context);
         }
 
-        if (is_object($context) && !$context instanceof StateContext) {
+        if (!$context instanceof StateContext) {
             $context = new ObjectAdapterContext($context);
         }
 
         // todo statte context should have a toString()
 
-        return new static(
+        return new self(
             sprintf(
                 "The transition '%s' is not allowed when context '%s' is in state '%s'.",
                 $transition,
-                $context,
+                $context->toStateContextIdentifier(),
                 $currentState
             )
         );

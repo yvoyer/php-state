@@ -11,18 +11,22 @@ interface TransitionCallback
     /**
      * @param mixed|StateContext $context
      * @param StateMachine $machine
+     * @deprecated $context will expect a type of StateContext in 4.0, you need to update your implementations.
+     * @see StateContext
      */
     public function beforeStateChange(
-        $context,
+        /* StateContext in 4.0 */ $context,
         StateMachine $machine,
     ): void;
 
     /**
      * @param mixed|StateContext $context
      * @param StateMachine $machine
+     * @deprecated $context will expect a type of StateContext in 4.0, you need to update your implementations.
+     * @see StateContext
      */
     public function afterStateChange(
-        $context,
+        /* StateContext in 4.0 */ $context,
         StateMachine $machine,
     ): void;
 
@@ -32,10 +36,12 @@ interface TransitionCallback
      * @param StateMachine $machine
      *
      * @return string The new state to move to on failure
+     * @deprecated $context will expect a type of StateContext in 4.0, you need to update your implementations.
+     * @see StateContext
      */
     public function onFailure(
         InvalidStateTransitionException $exception,
-        $context,
+        /* StateContext in 4.0 */ $context,
         StateMachine $machine,
     ): string;
 }

@@ -7,11 +7,12 @@
 
 namespace Star\Component\State;
 
-use Context\TestContextWithInterface;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Callbacks\BufferStateChanges;
 use Star\Component\State\Context\TestStubContext;
+use Star\Component\State\Event\Adapter\ObjectAdapterContext;
+use Star\Component\State\Event\Adapter\StringAdapterContext;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasRequested;
@@ -82,7 +83,7 @@ final class StateMachineTest extends TestCase
         $this->expectExceptionMessage(
             "The transition 't' is not allowed when context 'stdClass' is in state 'current'."
         );
-        $this->machine->transit('t', new stdClass);
+        $this->machine->transit('t', new ObjectAdapterContext(new stdClass, false));
     }
 
     public function test_it_should_throw_exception_with_context_as_string_when_transition_not_allowed(): void
@@ -94,7 +95,7 @@ final class StateMachineTest extends TestCase
         $this->expectExceptionMessage(
             "The transition 'transition' is not allowed when context 'c' is in state 'current'."
         );
-        $this->machine->transit('transition', 'c');
+        $this->machine->transit('transition', new StringAdapterContext('c', false));
     }
 
     public function test_state_can_have_attribute(): void
@@ -128,7 +129,7 @@ final class StateMachineTest extends TestCase
     {
         $this->registry->addTransition(new OneToOneTransition('t', 'from', 'to'));
         try {
-            $this->machine->transit('t', 'context');
+            $this->machine->transit('t', new TestContext());
             $this->fail('An exception should have been thrown');
         } catch (Throwable $exception) {
             // silence it
@@ -153,7 +154,7 @@ final class StateMachineTest extends TestCase
 
         $this->machine->transit(
             't',
-            'context',
+            new TestStubContext('context'),
             $buffer,
         );
 
@@ -183,22 +184,54 @@ final class StateMachineTest extends TestCase
 
         self::assertSame(
             [
-
+                'post' => [
+                    'beforeStateChange',
+                    'afterStateChange',
+                ],
             ],
-            $this->events->getDispatchedEvents('ddsa')
+            $callback->flushBuffer()
         );
-        self::assertSame(
-            [
-
-            ],
-            $callback->flushBuffer(),
+        self::assertCount(
+            1,
+            $this->events->getDispatchedEvents(StateEventStore::BEFORE_TRANSITION)
         );
-
-        self::fail('todo');
+        self::assertCount(
+            1,
+            $this->events->getDispatchedEvents(StateEventStore::AFTER_TRANSITION)
+        );
     }
 
     public function test_it_should_allow_handle_failure_with_state_context(): void
     {
-        self::fail('todo');
+        $machine = StateBuilder::build(null, $this->events)
+            ->allowTransition('activate', 'right', 'left')
+            ->create('left');
+        $context = new TestStubContext('post');
+        $callback = new BufferStateChanges();
+
+        $machine->transit(
+            'activate',
+            $context,
+            $callback
+        );
+
+        self::assertSame(
+            [
+                'post' => [
+                    'beforeStateChange',
+                    InvalidStateTransitionException::class,
+                    'afterStateChange',
+                ],
+            ],
+            $callback->flushBuffer()
+        );
+        self::assertCount(
+            1,
+            $this->events->getDispatchedEvents(StateEventStore::BEFORE_TRANSITION)
+        );
+        self::assertCount(
+            1,
+            $this->events->getDispatchedEvents(StateEventStore::AFTER_TRANSITION)
+        );
     }
 }

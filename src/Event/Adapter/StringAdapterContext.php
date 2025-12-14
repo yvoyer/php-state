@@ -3,27 +3,36 @@
 namespace Star\Component\State\Event\Adapter;
 
 use Star\Component\State\StateContext;
-use function error_log;
+use function trigger_error;
 use function sprintf;
 
 /**
  * Adapter for string context.
  * @deprecated Will be removed in 4.0. Adapter during the transition to 4.0.
  */
-final readonly class StringAdapterContext implements StateContext
+final class StringAdapterContext implements StateContext
 {
+    /**
+     * @var string
+     */
+    private $context;
+
     public function __construct(
-        private string $context,
+        string $context,
+        bool $logError = true // deprecated: will be removed in 4.0
     ) {
-        @error_log(
-            sprintf(
-                'Passing a string context "%s" is deprecated. ' .
-                'You should provide your own class implementing "%s" interface.',
-            $this->context,
-                StateContext::class,
-            ),
-            E_USER_DEPRECATED,
-        );
+        $this->context = $context;
+        if ($logError) {
+            @trigger_error(
+                sprintf(
+                    'Passing a string context "%s" is deprecated. ' .
+                    'You should provide your own class implementing "%s" interface.',
+                    $this->context,
+                    StateContext::class,
+                ),
+                E_USER_DEPRECATED,
+            );
+        }
     }
 
     public function toStateContextIdentifier(): string

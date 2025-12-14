@@ -7,9 +7,8 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Event\Adapter\ObjectAdapterContext;
-use Star\Component\State\Event\Adapter\StringAdapterContext;
-use function is_object;
+use Star\Component\State\Context\ObjectAdapterContext;
+use Star\Component\State\Context\StringAdapterContext;
 use function is_scalar;
 use function sprintf;
 
@@ -28,11 +27,11 @@ final class InvalidStateTransitionException extends \Exception
         string $currentState
     ): self {
         if (is_scalar($context)) {
-            $context = new StringAdapterContext((string) $context);
+            $context = new StringAdapterContext((string) $context, true);
         }
 
         if (!$context instanceof StateContext) {
-            $context = new ObjectAdapterContext($context);
+            $context = new ObjectAdapterContext($context, true);
         }
 
         // todo statte context should have a toString()

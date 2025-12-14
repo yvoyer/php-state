@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Star\Component\State\Event\Adapter;
+namespace Star\Component\State\Context;
 
 use Star\Component\State\StateContext;
 use function get_class;
@@ -11,7 +11,6 @@ use function trigger_error;
 
 /**
  * Adapter for object that do not yet implement the interface.
- * @deprecated Will be removed in 4.0. Adapter during the transition to 4.0.
  */
 final class ObjectAdapterContext implements StateContext
 {
@@ -22,11 +21,11 @@ final class ObjectAdapterContext implements StateContext
 
     public function __construct(
         object $object,
-        bool $logError = true // deprecated: will be removed in 4.0
+        bool $triggerError = false // deprecated: will be removed in 4.0
     ) {
         $this->object = $object;
 
-        if ($logError) {
+        if ($triggerError) {
             @trigger_error(
                 sprintf(
                     'Passing an object of type "%s" that do not implement "%s" is deprecated. ' .

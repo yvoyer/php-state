@@ -10,9 +10,9 @@ namespace Star\Component\State;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Callbacks\BufferStateChanges;
+use Star\Component\State\Context\ObjectAdapterContext;
+use Star\Component\State\Context\StringAdapterContext;
 use Star\Component\State\Context\TestStubContext;
-use Star\Component\State\Event\Adapter\ObjectAdapterContext;
-use Star\Component\State\Event\Adapter\StringAdapterContext;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasRequested;
@@ -95,7 +95,7 @@ final class StateMachineTest extends TestCase
         $this->expectExceptionMessage(
             "The transition 'transition' is not allowed when context 'c' is in state 'current'."
         );
-        $this->machine->transit('transition', new StringAdapterContext('c', false));
+        $this->machine->transit('transition', new StringAdapterContext('c'));
     }
 
     public function test_state_can_have_attribute(): void

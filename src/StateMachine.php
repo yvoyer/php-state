@@ -10,13 +10,12 @@ namespace Star\Component\State;
 use Closure;
 use Star\Component\State\Callbacks\AlwaysThrowExceptionOnFailure;
 use Star\Component\State\Callbacks\TransitionCallback;
-use Star\Component\State\Event\Adapter\ObjectAdapterContext;
-use Star\Component\State\Event\Adapter\StringAdapterContext;
+use Star\Component\State\Context\ObjectAdapterContext;
+use Star\Component\State\Context\StringAdapterContext;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\Event\TransitionWasSuccessful;
-use function is_object;
 use function is_scalar;
 
 final class StateMachine
@@ -53,10 +52,10 @@ final class StateMachine
             $callback = new AlwaysThrowExceptionOnFailure();
         }
         if (is_scalar($context)) {
-            $context = new StringAdapterContext((string) $context);
+            $context = new StringAdapterContext((string) $context, true);
         }
         if (!$context instanceof StateContext) {
-            $context = new ObjectAdapterContext($context);
+            $context = new ObjectAdapterContext($context, true);
         }
 
         $previous = $this->currentState;

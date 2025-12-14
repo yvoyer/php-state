@@ -35,6 +35,9 @@
         "symfony/cache": ">=7.0",
         "symfony/var-exporter": "^7.0"
     },
+    "scripts": {
+        "test": "bin/phpunit; bin/phpcs; bin/phpstan; bin/infection"
+    },
     "config": {
         "bin-dir": "bin",
         "sort-packages": true,

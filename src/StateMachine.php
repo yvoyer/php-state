@@ -40,6 +40,7 @@ final class StateMachine
         mixed $context,
         ?TransitionCallback $callback = null
     ): string {
+        // todo deprecate mixed to use StateContext
         if (!$callback) {
             $callback = new AlwaysThrowExceptionOnFailure();
         }

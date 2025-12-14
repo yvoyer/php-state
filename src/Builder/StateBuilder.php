@@ -5,7 +5,6 @@ namespace Star\Component\State\Builder;
 use Star\Component\State\EventRegistry;
 use Star\Component\State\Port\Symfony\EventDispatcherAdapter;
 use Star\Component\State\StateMachine;
-use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\ManyToOneTransition;
@@ -18,12 +17,13 @@ use function is_array;
 final class StateBuilder
 {
     private TransitionRegistry $registry;
-    private EventRegistry $listeners;
+    private EventRegistry /* todo use StateRegistry */ $listeners;
 
     public function __construct(
-        ?StateRegistry $registry = null,
+        ?TransitionRegistry $registry = null,
         ?EventRegistry $listeners = null,
     ) {
+        /** @todo deprecated nullable construct, move to private */
         if (!$registry) {
             $registry = new TransitionRegistry();
         }
@@ -42,7 +42,7 @@ final class StateBuilder
      *
      * @return StateBuilder
      */
-    public function allowTransition(string $name, $from, string $to): StateBuilder
+    public function allowTransition(string $name, string|array $from, string $to): StateBuilder
     {
         if (is_array($from)) {
             $transition = new ManyToOneTransition($name, $to, ...$from);
@@ -60,6 +60,7 @@ final class StateBuilder
      */
     public function allowCustomTransition(StateTransition $transition): void
     {
+        // todo add interface for registry, and inject interface instead
         $this->registry->addTransition($transition);
     }
 
@@ -69,7 +70,7 @@ final class StateBuilder
      *
      * @return StateBuilder
      */
-    public function addAttribute(string $attribute, $states): StateBuilder
+    public function addAttribute(string $attribute, string|array $states): StateBuilder
     {
         $states = (array) $states;
         foreach ($states as $stateName) {
@@ -85,7 +86,7 @@ final class StateBuilder
     }
 
     public static function build(
-        ?StateRegistry $registry = null,
+        ?TransitionRegistry $registry = null,
         ?EventRegistry $listeners = null,
     ): StateBuilder {
         return new self($registry, $listeners);

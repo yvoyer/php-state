@@ -1,15 +1,11 @@
 <?php declare(strict_types=1);
-/**
- * This file is part of the php-state project.
- *
- * (c) Yannick Voyer (http://github.com/yvoyer)
- */
 
 namespace Star\Component\State;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Transitions\ManyToOneTransition;
 use Star\Component\State\Transitions\OneToOneTransition;
+use Star\Component\State\Visitor\AttributeDumper;
 
 final class TransitionRegistryTest extends TestCase
 {
@@ -145,6 +141,27 @@ final class TransitionRegistryTest extends TestCase
                 ],
             ],
             $visitor->attributes
+        );
+    }
+
+    public function test_it_should_add_unique_attributes(): void
+    {
+        $this->registry->addAttribute('a', '1');
+        $this->registry->addAttribute('a', '2');
+        $this->registry->addAttribute('a', '2');
+        $this->registry->addAttribute('a', '3');
+        $this->registry->addAttribute('a', '3');
+
+        $this->registry->acceptStateVisitor($visitor = new AttributeDumper());
+        self::assertSame(
+            [
+                'a' => [
+                    '1',
+                    '2',
+                    '3',
+                ],
+            ],
+            $visitor->getStructure()
         );
     }
 }

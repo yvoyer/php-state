@@ -4,6 +4,8 @@ namespace Star\Component\State;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\Event\StateEventStore;
+use Star\Component\State\Port\Symfony\EventDispatcherAdapter;
 
 final class StateBuilderTest extends TestCase
 {
@@ -33,5 +35,30 @@ final class StateBuilderTest extends TestCase
 
         self::assertTrue($machine->isInState('to'));
         self::assertFalse($machine->hasAttribute('attr'));
+    }
+
+    public function test_it_should_dispatch_event_on_transit(): void
+    {
+        $i = 0;
+        $addition = function () use (&$i): void {
+            $i ++;
+        };
+
+        $listeners = new EventDispatcherAdapter();
+        $listeners->addListener(
+            StateEventStore::BEFORE_TRANSITION,
+            $addition
+        );
+        $listeners->addListener(
+            StateEventStore::AFTER_TRANSITION,
+            $addition
+        );
+
+        $machine = StateBuilder::build(listeners: $listeners)
+            ->allowTransition('t', 'from', 'to')
+            ->create('from');
+
+        $machine->transit('t', 'c');
+        self::assertSame(2, $i);
     }
 }

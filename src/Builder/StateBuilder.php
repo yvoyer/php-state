@@ -5,10 +5,12 @@ namespace Star\Component\State\Builder;
 use Star\Component\State\EventRegistry;
 use Star\Component\State\Port\Symfony\EventDispatcherAdapter;
 use Star\Component\State\StateMachine;
+use Star\Component\State\StateRegistry;
 use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\ManyToOneTransition;
 use Star\Component\State\Transitions\OneToOneTransition;
+use function is_array;
 
 /**
  * Tool to build the StateMachine.
@@ -18,10 +20,19 @@ final class StateBuilder
     private TransitionRegistry $registry;
     private EventRegistry $listeners;
 
-    public function __construct()
-    {
-        $this->registry = new TransitionRegistry();
-        $this->listeners = new EventDispatcherAdapter();
+    public function __construct(
+        ?StateRegistry $registry = null,
+        ?EventRegistry $listeners = null,
+    ) {
+        if (!$registry) {
+            $registry = new TransitionRegistry();
+        }
+        $this->registry = $registry;
+
+        if (!$listeners) {
+            $listeners = new EventDispatcherAdapter();
+        }
+        $this->listeners = $listeners;
     }
 
     /**
@@ -33,7 +44,7 @@ final class StateBuilder
      */
     public function allowTransition(string $name, $from, string $to): StateBuilder
     {
-        if (\is_array($from)) {
+        if (is_array($from)) {
             $transition = new ManyToOneTransition($name, $to, ...$from);
         } else {
             $transition = new OneToOneTransition($name, $from, $to);
@@ -73,8 +84,10 @@ final class StateBuilder
         return new StateMachine($currentState, $this->registry, $this->listeners);
     }
 
-    public static function build(): StateBuilder
-    {
-        return new static();
+    public static function build(
+        ?StateRegistry $registry = null,
+        ?EventRegistry $listeners = null,
+    ): StateBuilder {
+        return new self($registry, $listeners);
     }
 }

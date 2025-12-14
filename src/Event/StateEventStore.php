@@ -1,11 +1,8 @@
 <?php declare(strict_types=1);
-/**
- * This file is part of the php-state project.
- *
- * (c) Yannick Voyer (http://github.com/yvoyer)
- */
 
 namespace Star\Component\State\Event;
+
+use function get_class;
 
 final class StateEventStore
 {
@@ -29,4 +26,13 @@ final class StateEventStore
      * @see TransitionWasFailed
      */
     const FAILURE_TRANSITION = 'star_state.transition_failure';
+
+    public static function eventNameFromClass(StateEvent $event): string
+    {
+        return match (get_class($event)) {
+            TransitionWasRequested::class => self::BEFORE_TRANSITION,
+            TransitionWasSuccessful::class => self::AFTER_TRANSITION,
+            TransitionWasFailed::class => self::FAILURE_TRANSITION,
+        };
+    }
 }

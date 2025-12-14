@@ -2,6 +2,7 @@
 <ruleset>
     <rule ref="PSR2" />
     <arg name="colors" />
+    <arg value="p" />
 
     <file>src</file>
     <file>examples</file>

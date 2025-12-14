@@ -1,13 +1,10 @@
 <?php declare(strict_types=1);
-/**
- * This file is part of the php-state project.
- *
- * (c) Yannick Voyer (http://github.com/yvoyer)
- */
 
 namespace Star\Component\State;
 
 use PHPUnit\Framework\TestCase;
+use Star\Component\State\Callbacks\BufferStateChanges;
+use Star\Component\State\Callbacks\TransitionCallback;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasSuccessful;
@@ -102,14 +99,15 @@ final class StateMachineTest extends TestCase
 
     public function test_it_should_visit_the_transitions(): void
     {
-        $registry = $this->createMock(StateRegistry::class);
-        $machine = new StateMachine('', $registry, $this->events);
         $visitor = $this->createStub(TransitionVisitor::class);
-
+        $registry = $this->createMock(StateRegistry::class);
         $registry
             ->expects($this->once())
             ->method('acceptTransitionVisitor')
             ->with($visitor);
+
+        $machine = new StateMachine('', $registry, $this->events);
+
         $machine->acceptTransitionVisitor($visitor);
     }
 
@@ -135,5 +133,32 @@ final class StateMachineTest extends TestCase
         $events = $this->events->getDispatchedEvents($name);
         self::assertCount(1, $events);
         self::assertContainsOnlyInstancesOf(TransitionWasFailed::class, $events);
+    }
+
+    public function test_it_should_invoke_before_state_change_callback(): void
+    {
+        $this->registry->addTransition(new OneToOneTransition('t', 'current', 'to'));
+        $buffer = new BufferStateChanges();
+
+        self::assertSame(
+            [],
+            $buffer->flushBuffer(),
+        );
+
+        $this->machine->transit(
+            't',
+            'context',
+            $buffer,
+        );
+
+        self::assertSame(
+            [
+                'context' => [
+                    'beforeStateChange',
+                    'afterStateChange',
+                ],
+            ],
+            $buffer->flushBuffer(),
+        );
     }
 }

@@ -18,10 +18,19 @@ final class StateBuilder
     private TransitionRegistry $registry;
     private EventRegistry $listeners;
 
-    public function __construct()
-    {
-        $this->registry = new TransitionRegistry();
-        $this->listeners = new EventDispatcherAdapter();
+    public function __construct(
+        ?TransitionRegistry $registry = null,
+        ?EventRegistry $listeners = null
+    ) {
+        if (!$registry) {
+            $registry = new TransitionRegistry();
+        }
+        $this->registry = $registry;
+
+        if (!$listeners) {
+            $listeners = new EventDispatcherAdapter();
+        }
+        $this->listeners = $listeners;
     }
 
     /**
@@ -73,8 +82,11 @@ final class StateBuilder
         return new StateMachine($currentState, $this->registry, $this->listeners);
     }
 
-    public static function build(): StateBuilder
-    {
-        return new static();
+    public static function build(
+        ?TransitionRegistry $registry = null,
+        ?EventRegistry $listeners = null
+    ): StateBuilder {
+        // todo deprecate explict class in favor of interface
+        return new self($registry, $listeners);
     }
 }

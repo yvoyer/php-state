@@ -10,10 +10,13 @@ namespace Star\Component\State;
 use Closure;
 use Star\Component\State\Callbacks\AlwaysThrowExceptionOnFailure;
 use Star\Component\State\Callbacks\TransitionCallback;
+use Star\Component\State\Context\ObjectAdapterContext;
+use Star\Component\State\Context\StringAdapterContext;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
-use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
+use Star\Component\State\Event\TransitionWasSuccessful;
+use function is_scalar;
 
 final class StateMachine
 {
@@ -33,7 +36,7 @@ final class StateMachine
 
     /**
      * @param string $transitionName The transition name
-     * @param string|object $context
+     * @param string|object|StateContext $context
      * @param TransitionCallback|null $callback
      *
      * @return string The next state to store on your context
@@ -42,22 +45,35 @@ final class StateMachine
      */
     public function transit(
         string $transitionName,
-        mixed $context,
+        $context,
         ?TransitionCallback $callback = null
     ): string {
         if (!$callback) {
             $callback = new AlwaysThrowExceptionOnFailure();
         }
+        if (is_scalar($context)) {
+            $context = new StringAdapterContext((string) $context, true);
+        }
+        if (!$context instanceof StateContext) {
+            $context = new ObjectAdapterContext($context, true);
+        }
+
+        $previous = $this->currentState;
+        $transition = $this->states->getTransition($transitionName);
+        $newState = $transition->getDestinationState();
 
         $this->listeners->dispatch(
             StateEventStore::BEFORE_TRANSITION,
-            new TransitionWasRequested($transitionName)
+            new TransitionWasRequested(
+                $transitionName,
+                $previous,
+                $newState,
+                $context,
+            )
         );
 
-        $transition = $this->states->getTransition($transitionName);
         $callback->beforeStateChange($context, $this);
 
-        $newState = $transition->getDestinationState();
         $allowed = $this->states->transitionStartsFrom($transitionName, $this->currentState);
         if (!$allowed) {
             $exception = InvalidStateTransitionException::notAllowedTransition(
@@ -68,7 +84,13 @@ final class StateMachine
 
             $this->listeners->dispatch(
                 StateEventStore::FAILURE_TRANSITION,
-                new TransitionWasFailed($transitionName, $exception)
+                new TransitionWasFailed(
+                    $transitionName,
+                    $previous,
+                    $newState,
+                    $context,
+                    $exception,
+                )
             );
 
             $newState = $callback->onFailure($exception, $context, $this);
@@ -80,7 +102,12 @@ final class StateMachine
 
         $this->listeners->dispatch(
             StateEventStore::AFTER_TRANSITION,
-            new TransitionWasSuccessful($transitionName)
+            new TransitionWasSuccessful(
+                $transitionName,
+                $previous,
+                $newState,
+                $context,
+            )
         );
 
         return $this->currentState;

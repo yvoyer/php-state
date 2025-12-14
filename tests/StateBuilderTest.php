@@ -15,7 +15,7 @@ final class StateBuilderTest extends TestCase
             ->create('from');
 
         self::assertTrue($machine->isInState('from'));
-        $machine->transit('t1', 'context');
+        $machine->transit('t1', new TestContext());
         self::assertTrue($machine->isInState('to'));
     }
 
@@ -29,7 +29,7 @@ final class StateBuilderTest extends TestCase
         self::assertTrue($machine->isInState('from'));
         self::assertTrue($machine->hasAttribute('attr'));
 
-        $machine->transit('t1', 'context');
+        $machine->transit('t1', new TestContext());
 
         self::assertTrue($machine->isInState('to'));
         self::assertFalse($machine->hasAttribute('attr'));

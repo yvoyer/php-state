@@ -15,6 +15,7 @@ use Doctrine\ORM\Tools\Setup;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\StateContext;
 use Star\Component\State\StateMetadata;
 
 final class DoctrineMappedContextTest extends TestCase
@@ -85,7 +86,7 @@ final class DoctrineMappedContextTest extends TestCase
 /**
  * @Entity()
  */
-class MyEntity
+class MyEntity implements StateContext
 {
     /**
      * @var int
@@ -104,6 +105,11 @@ class MyEntity
     public function __construct()
     {
         $this->state = new MyState();
+    }
+
+    public function toStateContextIdentifier(): string
+    {
+        throw new \RuntimeException(__METHOD__ . ' is not implemented yet.');
     }
 
     public function isLocked(): bool

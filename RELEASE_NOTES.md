@@ -1,5 +1,21 @@
 # Release notes
 
+# 3.3.0
+
+This release is a deprecation release. Deprecation warning will be issued when using a changed feature.
+
+* Introduction of a `StateContext` to replace the context that could be mixed.
+
+Before 3.3.0, a context could be `"post"` or an object that was converted to a FQCN.
+
+Starting with 4.0, we'll only accept implementation of `StateContext`. You will need your context to
+ implement the interface, or use the adapters [StringAdapterContext](src/Context/StringAdapterContext.php) or
+ [ObjectAdapterContext](src/Context/ObjectAdapterContext.php) if you don't want to add new custom code.
+
+# 3.2.0 
+
+[3.2.0](https://github.com/yvoyer/php-state/releases/tag/3.2.0)
+
 # 3.1.0
 
 * [#30](https://github.com/yvoyer/php-state/pull/30)

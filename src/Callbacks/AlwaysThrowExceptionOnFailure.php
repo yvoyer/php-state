@@ -11,16 +11,20 @@ final class AlwaysThrowExceptionOnFailure implements TransitionCallback
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function beforeStateChange($context, StateMachine $machine): void
-    {
+    public function beforeStateChange(
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): void {
     }
 
     /**
      * @param mixed $context
      * @param StateMachine $machine
      */
-    public function afterStateChange($context, StateMachine $machine): void
-    {
+    public function afterStateChange(
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): void {
     }
 
     /**
@@ -31,8 +35,11 @@ final class AlwaysThrowExceptionOnFailure implements TransitionCallback
      * @return string
      * @throws InvalidStateTransitionException
      */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
-    {
+    public function onFailure(
+        InvalidStateTransitionException $exception,
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): string {
         throw $exception;
     }
 }

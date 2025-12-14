@@ -5,6 +5,7 @@ namespace Star\Component\State\Example;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\RegistryBuilder;
+use Star\Component\State\StateContext;
 use Star\Component\State\StateMetadata;
 use Star\Component\State\StateTransition;
 
@@ -215,16 +216,18 @@ final class ReOpenTransition implements StateTransition
     }
 }
 
-final class ContextStub
+final class ContextStub implements StateContext
 {
-    /**
-     * @var MyStateWorkflow|StateMetadata
-     */
-    public $state;
+    public MyStateWorkflow $state;
 
     public function __construct()
     {
         $this->state = new MyStateWorkflow();
+    }
+
+    public function toStateContextIdentifier(): string
+    {
+        return 'ContextStub';
     }
 
     public function publish(): void

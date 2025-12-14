@@ -2,8 +2,8 @@
 
 namespace Star\Component\State\Callbacks;
 
-use RuntimeException;
 use Star\Component\State\InvalidStateTransitionException;
+use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 use Webmozart\Assert\Assert;
 use function get_class;
@@ -16,29 +16,46 @@ final class BufferStateChanges implements TransitionCallback
      */
     private array $buffer = [];
 
-    public function beforeStateChange($context, StateMachine $machine): void
+    /**
+     * @param mixed|StateContext $context
+     * @return string
+     */
+    private function extractContextIdentifier($context): string
     {
-        if (is_object($context)) {
-            $context = get_class($context);
+        if (! $context instanceof StateContext) {
+            if (is_object($context)) {
+                $context = get_class($context);
+            }
+        } else {
+            $context = $context->toStateContextIdentifier();
         }
         Assert::string($context, 'Context is expected to be a string. Got: %s');
 
-        $this->buffer[$context][] = __FUNCTION__;
+        return $context;
     }
 
-    public function afterStateChange($context, StateMachine $machine): void
-    {
-        if (is_object($context)) {
-            $context = get_class($context);
-        }
-        Assert::string($context, 'Context is expected to be a string. Got: %s');
-
-        $this->buffer[$context][] = __FUNCTION__;
+    public function beforeStateChange(
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): void {
+        $this->buffer[$this->extractContextIdentifier($context)][] = __FUNCTION__;
     }
 
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
-    {
-        throw new RuntimeException(__METHOD__ . ' is not implemented yet.');
+    public function afterStateChange(
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): void {
+        $this->buffer[$this->extractContextIdentifier($context)][] = __FUNCTION__;
+    }
+
+    public function onFailure(
+        InvalidStateTransitionException $exception,
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): string {
+        $this->buffer[$this->extractContextIdentifier($context)][] = get_class($exception);
+
+        return '';
     }
 
     /**

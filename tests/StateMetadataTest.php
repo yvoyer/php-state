@@ -5,6 +5,7 @@ namespace Star\Component\State;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Callbacks\NullCallback;
+use Star\Component\State\Context\TestStubContext;
 
 final class StateMetadataTest extends TestCase
 {
@@ -24,7 +25,7 @@ final class StateMetadataTest extends TestCase
     public function test_it_should_transit(): void
     {
         $metadata = new CustomMetadata('from');
-        $new = $metadata->transit('t1', 'context');
+        $new = $metadata->transit('t1', new TestStubContext('context'));
 
         self::assertTrue($new->isInState('to'));
     }
@@ -38,7 +39,7 @@ final class StateMetadataTest extends TestCase
         );
         $metadata->transit(
             't1',
-            'context',
+            new TestStubContext('context'),
             new NullCallback()
         );
     }

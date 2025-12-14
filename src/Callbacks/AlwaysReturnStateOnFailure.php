@@ -3,6 +3,7 @@
 namespace Star\Component\State\Callbacks;
 
 use Star\Component\State\InvalidStateTransitionException;
+use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 
 final class AlwaysReturnStateOnFailure implements TransitionCallback
@@ -14,31 +15,34 @@ final class AlwaysReturnStateOnFailure implements TransitionCallback
         $this->to = $to;
     }
 
-    /**
-     * @param mixed $context
-     * @param StateMachine $machine
-     */
-    public function beforeStateChange($context, StateMachine $machine): void
-    {
+    public function beforeStateChange(
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): void {
     }
 
     /**
-     * @param mixed $context
+     * @param string|object|StateContext $context
      * @param StateMachine $machine
      */
-    public function afterStateChange($context, StateMachine $machine): void
-    {
+    public function afterStateChange(
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): void {
     }
 
     /**
      * @param InvalidStateTransitionException $exception
-     * @param mixed $context
+     * @param string|object|StateContext $context
      * @param StateMachine $machine
      *
      * @return string
      */
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
-    {
+    public function onFailure(
+        InvalidStateTransitionException $exception,
+        /* StateContext in 4.0 */ $context,
+        StateMachine $machine
+    ): string {
         return $this->to;
     }
 }

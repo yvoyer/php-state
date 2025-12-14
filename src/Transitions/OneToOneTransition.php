@@ -5,17 +5,13 @@ namespace Star\Component\State\Transitions;
 use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateTransition;
 
-final class OneToOneTransition implements StateTransition
+final readonly class OneToOneTransition implements StateTransition
 {
-    private string $name;
-    private string $from;
-    private string $to;
-
-    public function __construct(string $name, string $from, string $to)
-    {
-        $this->name = $name;
-        $this->from = $from;
-        $this->to = $to;
+    public function __construct(
+        private string $name,
+        private string $from,
+        private string $to,
+    ) {
     }
 
     public function getName(): string

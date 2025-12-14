@@ -5,23 +5,22 @@ namespace Star\Component\State\Transitions;
 use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateTransition;
 use Webmozart\Assert\Assert;
+use function count;
 
-final class ManyToOneTransition implements StateTransition
+final readonly class ManyToOneTransition implements StateTransition
 {
-    private string $name;
-
     /**
      * @var string[]
      */
     private array $fromStates;
-    private string $to;
 
-    public function __construct(string $name, string $to, string ...$fromStates)
-    {
-        $this->name = $name;
-        Assert::greaterThanEq(\count($fromStates), 1, 'Expected at least %2$s state. Got: %s');
+    public function __construct(
+        private string $name,
+        private string $to,
+        string ...$fromStates,
+    ) {
         $this->fromStates = $fromStates;
-        $this->to = $to;
+        Assert::greaterThanEq(count($this->fromStates), 1, 'Expected at least %2$s state. Got: %s');
     }
 
     public function getName(): string

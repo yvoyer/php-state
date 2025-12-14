@@ -2,33 +2,16 @@
 
 namespace Star\Component\State;
 
-use Star\Component\State\Context\ObjectAdapterContext;
-use Star\Component\State\Context\StringAdapterContext;
-use function is_scalar;
+use Exception;
 use function sprintf;
 
-final class InvalidStateTransitionException extends \Exception
+final class InvalidStateTransitionException extends Exception
 {
-    /**
-     * @param string $transition
-     * @param string|object|StateContext $context
-     * @param string $currentState
-     *
-     * @return static
-     */
     public static function notAllowedTransition(
         string $transition,
-        $context,
+        StateContext $context,
         string $currentState
     ): self {
-        if (is_scalar($context)) {
-            $context = new StringAdapterContext((string) $context, true);
-        }
-
-        if (!$context instanceof StateContext) {
-            $context = new ObjectAdapterContext($context, true);
-        }
-
         return new self(
             sprintf(
                 "The transition '%s' is not allowed when context '%s' is in state '%s'.",

@@ -10,9 +10,11 @@ use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\StateContext;
 use Star\Component\State\StateMetadata;
+use function extension_loaded;
 
 final class DoctrineMappedContextTest extends TestCase
 {
@@ -20,7 +22,7 @@ final class DoctrineMappedContextTest extends TestCase
 
     public function setUp(): void
     {
-        if (!\extension_loaded('pdo_sqlite')) {
+        if (!extension_loaded('pdo_sqlite')) {
             $this->markTestSkipped('Sqlite extension is needed');
         }
 
@@ -83,13 +85,13 @@ final class DoctrineMappedContextTest extends TestCase
 #[ORM\Entity]
 class MyEntity implements StateContext
 {
-    #[ORM\Id()]
+    #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "AUTO")]
     #[ORM\Column(name: "id", type: "integer")]
     public int $id;
 
     #[ORM\Embedded(class: "MyState", columnPrefix: "my_")]
-    private MyState $state;
+    private MyState|StateMetadata $state;
 
     public function __construct()
     {
@@ -98,7 +100,7 @@ class MyEntity implements StateContext
 
     public function toStateContextIdentifier(): string
     {
-        throw new \RuntimeException(__METHOD__ . ' is not implemented yet.');
+        throw new RuntimeException(__METHOD__ . ' is not implemented yet.');
     }
 
     public function isLocked(): bool

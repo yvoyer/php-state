@@ -2,9 +2,10 @@
 
 namespace Star\Component\State\Callbacks;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\Context\ObjectAdapterContext;
+use Star\Component\State\Context\StringAdapterContext;
 
 final class BufferStateChangesTest extends TestCase
 {
@@ -15,11 +16,11 @@ final class BufferStateChangesTest extends TestCase
             ->create('');
 
         $buffer->beforeStateChange(
-            (object)[],
+            new ObjectAdapterContext((object)[]),
             $machine
         );
         $buffer->afterStateChange(
-            (object)[],
+            new ObjectAdapterContext((object)[]),
             $machine
         );
 
@@ -41,11 +42,11 @@ final class BufferStateChangesTest extends TestCase
             ->create('');
 
         $buffer->beforeStateChange(
-            'stdClass',
+            new StringAdapterContext('stdClass'),
             $machine
         );
         $buffer->afterStateChange(
-            'stdClass',
+            new StringAdapterContext('stdClass'),
             $machine
         );
 
@@ -58,27 +59,5 @@ final class BufferStateChangesTest extends TestCase
             ],
             $buffer->flushBuffer(),
         );
-    }
-
-    public function test_it_should_not_allow_non_string_context_in_before(): void
-    {
-        $buffer = new BufferStateChanges();
-        $machine = StateBuilder::build()
-            ->create('');
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Context is expected to be a string. Got: integer');
-        $buffer->beforeStateChange(42, $machine);
-    }
-
-    public function test_it_should_not_allow_non_string_context_in_after(): void
-    {
-        $buffer = new BufferStateChanges();
-        $machine = StateBuilder::build()
-            ->create('');
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Context is expected to be a string. Got: integer');
-        $buffer->afterStateChange(42, $machine);
     }
 }

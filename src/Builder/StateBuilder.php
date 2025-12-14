@@ -73,8 +73,11 @@ final class StateBuilder
         return new StateMachine($currentState, $this->registry, $this->listeners);
     }
 
-    public static function build(): StateBuilder
-    {
-        return new static();
+    public static function build(
+        ?TransitionRegistry $registry = null,
+        ?EventRegistry $listeners = null,
+    ): StateBuilder {
+        // todo deprecate explict class in favor of interface
+        return new self($registry, $listeners);
     }
 }

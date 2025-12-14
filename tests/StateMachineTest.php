@@ -7,11 +7,15 @@
 
 namespace Star\Component\State;
 
+use Context\TestContextWithInterface;
 use PHPUnit\Framework\TestCase;
+use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\Callbacks\BufferStateChanges;
+use Star\Component\State\Context\TestStubContext;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
-use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Event\TransitionWasRequested;
+use Star\Component\State\Event\TransitionWasSuccessful;
 use Star\Component\State\Stub\EventRegistrySpy;
 use Star\Component\State\Transitions\OneToOneTransition;
 use stdClass;
@@ -135,5 +139,66 @@ final class StateMachineTest extends TestCase
         $events = $this->events->getDispatchedEvents($name);
         self::assertCount(1, $events);
         self::assertContainsOnlyInstancesOf(TransitionWasFailed::class, $events);
+    }
+
+    public function test_it_should_invoke_before_state_change_callback(): void
+    {
+        $this->registry->addTransition(new OneToOneTransition('t', 'current', 'to'));
+        $buffer = new BufferStateChanges();
+
+        self::assertSame(
+            [],
+            $buffer->flushBuffer(),
+        );
+
+        $this->machine->transit(
+            't',
+            'context',
+            $buffer,
+        );
+
+        self::assertSame(
+            [
+                'context' => [
+                    'beforeStateChange',
+                    'afterStateChange',
+                ],
+            ],
+            $buffer->flushBuffer(),
+        );
+    }
+
+    public function test_it_should_allow_to_transit_using_state_context(): void
+    {
+        $machine = StateBuilder::build(null, $this->events)
+            ->allowTransition('activate', 'left', 'right')
+            ->create('left');
+        $context = new TestStubContext('post');
+
+        $machine->transit(
+            'activate',
+            $context,
+            $callback = new BufferStateChanges(),
+        );
+
+        self::assertSame(
+            [
+
+            ],
+            $this->events->getDispatchedEvents('ddsa')
+        );
+        self::assertSame(
+            [
+
+            ],
+            $callback->flushBuffer(),
+        );
+
+        self::fail('todo');
+    }
+
+    public function test_it_should_allow_handle_failure_with_state_context(): void
+    {
+        self::fail('todo');
     }
 }

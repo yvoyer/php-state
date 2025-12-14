@@ -10,6 +10,7 @@ namespace Star\Component\State\Example;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\InvalidStateTransitionException;
+use Star\Component\State\StateContext;
 use Star\Component\State\StateMachine;
 
 final class ContextUsingBuilderTest extends TestCase
@@ -192,7 +193,7 @@ final class ContextUsingBuilderTest extends TestCase
 /**
  * Example of usage when using self contained workflow creation.
  */
-final class Post
+final class Post implements StateContext
 {
     const ALIAS = 'post';
 
@@ -207,14 +208,16 @@ final class Post
     const ATTRIBUTE_ACTIVE = 'active';
     const ATTRIBUTE_CLOSED = 'closed';
 
-    /**
-     * @var string
-     */
-    private $state;
+    private string $state;
 
     private function __construct(string $state)
     {
         $this->state = $state;
+    }
+
+    public function toStateContextIdentifier(): string
+    {
+        return self::ALIAS;
     }
 
     public function isDraft(): bool
@@ -244,23 +247,20 @@ final class Post
 
     public function moveToDraft(): void
     {
-        $this->state = $this->workflow()->transit(self::TRANSITION_TO_DRAFT, 'post');
+        $this->state = $this->workflow()->transit(self::TRANSITION_TO_DRAFT, $this);
     }
 
     public function publish(): void
     {
-        $this->state = $this->workflow()->transit(self::TRANSITION_PUBLISH, 'post');
+        $this->state = $this->workflow()->transit(self::TRANSITION_PUBLISH, $this);
     }
 
     public function archive(): void
     {
-        $this->state = $this->workflow()->transit(self::TRANSITION_ARCHIVE, 'post');
+        $this->state = $this->workflow()->transit(self::TRANSITION_ARCHIVE, $this);
     }
 
-    /**
-     * @return Post
-     */
-    public static function drafted()
+    public static function drafted(): self
     {
         return new self(self::STATE_DRAFT);
     }

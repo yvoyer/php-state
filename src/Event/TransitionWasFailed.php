@@ -8,13 +8,24 @@ use Throwable;
 
 final class TransitionWasFailed extends Event implements StateEvent
 {
+    private string $transition;
+    private string $previousState;
+    private string $destinationState;
+    private StateContext $context;
+    private Throwable $exception;
+
     public function __construct(
-        private readonly string $transition,
-        private readonly string $previousState,
-        private readonly string $destinationState,
-        private readonly StateContext $context,
-        private readonly Throwable $exception,
+        string $transition,
+        string $previousState,
+        string $destinationState,
+        StateContext $context,
+        Throwable $exception
     ) {
+        $this->transition = $transition;
+        $this->previousState = $previousState;
+        $this->destinationState = $destinationState;
+        $this->context = $context;
+        $this->exception = $exception;
     }
 
     public function transition(): string

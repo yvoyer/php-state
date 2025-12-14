@@ -12,12 +12,21 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 final class TransitionWasSuccessful extends Event implements StateEvent
 {
+    private string $transition;
+    private string $previousState;
+    private string $destinationState;
+    private StateContext $context;
+
     public function __construct(
-        private readonly string $transition,
-        private readonly string $previousState,
-        private readonly string $destinationState,
-        private readonly StateContext $context,
+        string $transition,
+        string $previousState,
+        string $destinationState,
+        StateContext $context
     ) {
+        $this->transition = $transition;
+        $this->previousState = $previousState;
+        $this->destinationState = $destinationState;
+        $this->context = $context;
     }
 
     public function transition(): string

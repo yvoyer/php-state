@@ -25,19 +25,11 @@ final class TransitionDumper implements TransitionVisitor
         $this->currentTransition = $name;
     }
 
-    /**
-     * @param string $state
-     * @param string[] $attributes
-     */
     public function visitFromState(string $state, array $attributes): void
     {
         $this->structure[$this->currentTransition]['from'][] = $state;
     }
 
-    /**
-     * @param string $state
-     * @param string[] $attributes
-     */
     public function visitToState(string $state, array $attributes): void
     {
         $this->structure[$this->currentTransition]['to'][] = $state;

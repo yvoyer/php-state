@@ -5,13 +5,10 @@ namespace Star\Component\State;
 use Closure;
 use Star\Component\State\Callbacks\AlwaysThrowExceptionOnFailure;
 use Star\Component\State\Callbacks\TransitionCallback;
-use Star\Component\State\Context\ObjectAdapterContext;
-use Star\Component\State\Context\StringAdapterContext;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
 use Star\Component\State\Event\TransitionWasRequested;
 use Star\Component\State\Event\TransitionWasSuccessful;
-use function is_scalar;
 
 final class StateMachine
 {
@@ -30,28 +27,17 @@ final class StateMachine
     }
 
     /**
-     * @param string $transitionName The transition name
-     * @param string|object|StateContext $context
-     * @param TransitionCallback|null $callback
-     *
      * @return string The next state to store on your context
      * @throws InvalidStateTransitionException
      * @throws NotFoundException
      */
     public function transit(
         string $transitionName,
-        $context,
+        StateContext $context,
         ?TransitionCallback $callback = null
     ): string {
-        // todo deprecate mixed to use StateContext
         if (!$callback) {
             $callback = new AlwaysThrowExceptionOnFailure();
-        }
-        if (is_scalar($context)) {
-            $context = new StringAdapterContext((string) $context, true);
-        }
-        if (!$context instanceof StateContext) {
-            $context = new ObjectAdapterContext($context, true);
         }
 
         $previous = $this->currentState;
@@ -109,11 +95,6 @@ final class StateMachine
         return $this->currentState;
     }
 
-    /**
-     * @param string $stateName
-     * @return bool
-     * @throws NotFoundException
-     */
     public function isInState(string $stateName): bool
     {
         if (!$this->states->hasState($stateName)) {

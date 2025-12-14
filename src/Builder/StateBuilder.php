@@ -36,11 +36,7 @@ final class StateBuilder
     }
 
     /**
-     * @param string $name
      * @param string|string[] $from
-     * @param string $to
-     *
-     * @return StateBuilder
      */
     public function allowTransition(string $name, string|array $from, string $to): StateBuilder
     {
@@ -65,10 +61,7 @@ final class StateBuilder
     }
 
     /**
-     * @param string $attribute The attribute
      * @param string|string[] $states The list of states that this attribute applies to
-     *
-     * @return StateBuilder
      */
     public function addAttribute(string $attribute, string|array $states): StateBuilder
     {

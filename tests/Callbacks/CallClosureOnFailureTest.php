@@ -4,6 +4,7 @@ namespace Star\Component\State\Callbacks;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Star\Component\State\Context\StringAdapterContext;
 use Star\Component\State\EventRegistry;
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\StateMachine;
@@ -22,7 +23,7 @@ final class CallClosureOnFailureTest extends TestCase
         $this->expectExceptionMessage('Callback should be returning a string, type "integer" returned.');
         $handler->onFailure(
             new InvalidStateTransitionException(),
-            'context',
+            new StringAdapterContext('context'),
             new StateMachine(
                 'state',
                 $this->createStub(StateRegistry::class),

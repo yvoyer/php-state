@@ -20,10 +20,6 @@ final class AttributeDumper implements StateVisitor
         return $this->attributesByStates;
     }
 
-    /**
-     * @param string $name
-     * @param string[] $attributes
-     */
     public function visitState(string $name, array $attributes): void
     {
         $this->attributesByStates[$name] = $attributes;

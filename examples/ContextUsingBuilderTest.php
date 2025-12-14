@@ -2,6 +2,7 @@
 
 namespace Star\Component\State\Example;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\InvalidStateTransitionException;
@@ -34,10 +35,8 @@ final class ContextUsingBuilderTest extends TestCase
         $this->assertTrue($post->isArchived());
     }
 
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     */
+    #[Depends('test_post_should_be_draft')]
+    #[Depends('test_post_should_be_published')]
     public function test_it_should_not_allow_from_draft_to_draft(): void
     {
         $post = Post::drafted();
@@ -50,10 +49,8 @@ final class ContextUsingBuilderTest extends TestCase
         $post->moveToDraft();
     }
 
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     */
+    #[Depends('test_post_should_be_draft')]
+    #[Depends('test_post_should_be_published')]
     public function test_it_should_allow_from_draft_to_published(): void
     {
         $post = Post::drafted();
@@ -65,10 +62,8 @@ final class ContextUsingBuilderTest extends TestCase
         $this->assertTrue($post->isPublished());
     }
 
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     */
+    #[Depends('test_post_should_be_draft')]
+    #[Depends('test_post_should_be_published')]
     public function test_it_should_not_allow_from_published_to_published(): void
     {
         $post = Post::published();
@@ -81,10 +76,8 @@ final class ContextUsingBuilderTest extends TestCase
         $post->publish();
     }
 
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     */
+    #[Depends('test_post_should_be_draft')]
+    #[Depends('test_post_should_be_published')]
     public function test_it_should_allow_from_published_to_draft(): void
     {
         $post = Post::published();
@@ -95,9 +88,7 @@ final class ContextUsingBuilderTest extends TestCase
         $this->assertTrue($post->isDraft());
     }
 
-    /**
-     * @depends test_post_should_be_archived
-     */
+    #[Depends('test_post_should_be_archived')]
     public function test_it_should_not_allow_from_draft_to_archived(): void
     {
         $post = Post::drafted();
@@ -110,9 +101,7 @@ final class ContextUsingBuilderTest extends TestCase
         $post->archive();
     }
 
-    /**
-     * @depends test_post_should_be_archived
-     */
+    #[Depends('test_post_should_be_archived')]
     public function test_it_should_allow_from_published_to_archived(): void
     {
         $post = Post::published();
@@ -123,9 +112,7 @@ final class ContextUsingBuilderTest extends TestCase
         $this->assertTrue($post->isArchived());
     }
 
-    /**
-     * @depends test_post_should_be_archived
-     */
+    #[Depends('test_post_should_be_archived')]
     public function test_it_should_not_allow_from_archived_to_archived(): void
     {
         $post = Post::archived();
@@ -138,9 +125,7 @@ final class ContextUsingBuilderTest extends TestCase
         $post->archive();
     }
 
-    /**
-     * @depends test_post_should_be_archived
-     */
+    #[Depends('test_post_should_be_archived')]
     public function test_it_should_not_allow_from_archived_to_draft(): void
     {
         $post = Post::archived();
@@ -153,9 +138,7 @@ final class ContextUsingBuilderTest extends TestCase
         $post->moveToDraft();
     }
 
-    /**
-     * @depends test_post_should_be_archived
-     */
+    #[Depends('test_post_should_be_archived')]
     public function test_it_should_not_allow_from_archived_to_published(): void
     {
         $post = Post::archived();
@@ -168,11 +151,9 @@ final class ContextUsingBuilderTest extends TestCase
         $post->publish();
     }
 
-    /**
-     * @depends test_post_should_be_draft
-     * @depends test_post_should_be_published
-     * @depends test_post_should_be_archived
-     */
+    #[Depends('test_post_should_be_draft')]
+    #[Depends('test_post_should_be_published')]
+    #[Depends('test_post_should_be_archived')]
     public function test_it_should_allow_to_define_attributes_on_state(): void
     {
         $this->assertFalse(Post::drafted()->isActive());

@@ -4,6 +4,8 @@ namespace Star\Component\State;
 
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
+use Star\Component\State\Context\StringAdapterContext;
+use Star\Component\State\Context\HardCodedTestContext;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Port\Symfony\EventDispatcherAdapter;
 
@@ -17,7 +19,7 @@ final class StateBuilderTest extends TestCase
             ->create('from');
 
         self::assertTrue($machine->isInState('from'));
-        $machine->transit('t1', new TestContext());
+        $machine->transit('t1', new HardCodedTestContext());
         self::assertTrue($machine->isInState('to'));
     }
 
@@ -31,7 +33,7 @@ final class StateBuilderTest extends TestCase
         self::assertTrue($machine->isInState('from'));
         self::assertTrue($machine->hasAttribute('attr'));
 
-        $machine->transit('t1', new TestContext());
+        $machine->transit('t1', new HardCodedTestContext());
 
         self::assertTrue($machine->isInState('to'));
         self::assertFalse($machine->hasAttribute('attr'));
@@ -58,7 +60,7 @@ final class StateBuilderTest extends TestCase
             ->allowTransition('t', 'from', 'to')
             ->create('from');
 
-        $machine->transit('t', 'c');
+        $machine->transit('t', new StringAdapterContext('c'));
         self::assertSame(2, $i);
     }
 }

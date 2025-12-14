@@ -218,7 +218,7 @@ final class ReOpenTransition implements StateTransition
 
 final class ContextStub implements StateContext
 {
-    public MyStateWorkflow $state;
+    public MyStateWorkflow|StateMetadata $state;
 
     public function __construct()
     {

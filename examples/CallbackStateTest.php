@@ -7,6 +7,7 @@ use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Callbacks\CallContextMethodOnFailure;
 use Star\Component\State\Callbacks\CallClosureOnFailure;
 use Star\Component\State\Callbacks\TransitionCallback;
+use Star\Component\State\Context\StringAdapterContext;
 use Star\Component\State\InvalidStateTransitionException;
 use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateContext;
@@ -61,15 +62,9 @@ final class CallbackStateTest extends TestCase
 
 final class TurnStill implements StateContext
 {
-    /**
-     * @var TurnStillState|StateMetadata
-     */
-    private $state;
+    private TurnStillState|StateMetadata $state;
 
-    /**
-     * @var int
-     */
-    private $coins = 0;
+    private int $coins = 0;
 
     public function __construct()
     {
@@ -142,9 +137,6 @@ final class PayTransition implements StateTransition
         return 'pay';
     }
 
-    /**
-     * @param RegistryBuilder $registry
-     */
     public function onRegister(RegistryBuilder $registry): void
     {
         $registry->registerStartingState($this->getName(), 'locked', []);
@@ -159,26 +151,31 @@ final class PayTransition implements StateTransition
 
 final class TriggerAlarm implements TransitionCallback
 {
-    public function beforeStateChange($context, StateMachine $machine): void
-    {
+    public function beforeStateChange(
+        StateContext $context,
+        StateMachine $machine,
+    ): void {
     }
 
-    public function afterStateChange($context, StateMachine $machine): void
-    {
+    public function afterStateChange(
+        StateContext $context,
+        StateMachine $machine,
+    ): void {
     }
 
-    public function onFailure(InvalidStateTransitionException $exception, $context, StateMachine $machine): string
-    {
-        return $machine->transit('alarm', 'turnstill');
+    public function onFailure(
+        InvalidStateTransitionException $exception,
+        StateContext $context,
+        StateMachine $machine,
+    ): string {
+        return $machine->transit('alarm', new StringAdapterContext('turnstill'));
     }
 }
 
 final class TurnStillState extends StateMetadata
 {
     /**
-     * Returns the state workflow configuration.
-     *
-     * @param StateBuilder $builder
+     * Configure the state workflow configuration.
      */
     protected function configure(StateBuilder $builder): void
     {

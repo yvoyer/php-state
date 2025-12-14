@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Star\Component\State\Builder\StateBuilder;
 
-class BufferStateChangesTest extends TestCase
+final class BufferStateChangesTest extends TestCase
 {
     public function test_it_should_buffer_context_as_object(): void
     {
@@ -15,11 +15,11 @@ class BufferStateChangesTest extends TestCase
             ->create('');
 
         $buffer->beforeStateChange(
-            (object) [],
+            (object)[],
             $machine
         );
         $buffer->afterStateChange(
-            (object) [],
+            (object)[],
             $machine
         );
 

@@ -89,6 +89,7 @@ final class StateBuilder
         ?TransitionRegistry $registry = null,
         ?EventRegistry $listeners = null,
     ): StateBuilder {
+        // todo deprecate explict class in favor of interface
         return new self($registry, $listeners);
     }
 }

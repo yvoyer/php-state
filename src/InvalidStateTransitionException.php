@@ -34,8 +34,6 @@ final class InvalidStateTransitionException extends \Exception
             $context = new ObjectAdapterContext($context, true);
         }
 
-        // todo statte context should have a toString()
-
         return new self(
             sprintf(
                 "The transition '%s' is not allowed when context '%s' is in state '%s'.",

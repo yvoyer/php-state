@@ -4,15 +4,10 @@ namespace Star\Component\State\Context;
 
 use Star\Component\State\StateContext;
 
-final readonly class TestStubContext implements StateContext
+final class HardCodedTestContext implements StateContext
 {
-    public function __construct(
-        private string $identifier,
-    ) {
-    }
-
     public function toStateContextIdentifier(): string
     {
-        return $this->identifier;
+        return 'context';
     }
 }

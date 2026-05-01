@@ -5,13 +5,11 @@ namespace Star\Component\State\Transitions;
 use Star\Component\State\RegistryBuilder;
 use Star\Component\State\StateTransition;
 
-final class ReadOnlyTransition implements StateTransition
+final readonly class ReadOnlyTransition implements StateTransition
 {
-    private string $destination;
-
-    public function __construct(string $destination)
-    {
-        $this->destination = $destination;
+    public function __construct(
+        private string $destination,
+    ) {
     }
 
     public function getName(): string

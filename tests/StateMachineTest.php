@@ -1,9 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * This file is part of the php-state project.
- *
- * (c) Yannick Voyer (http://github.com/yvoyer)
- */
 
 namespace Star\Component\State;
 
@@ -12,6 +7,7 @@ use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Callbacks\BufferStateChanges;
 use Star\Component\State\Context\ObjectAdapterContext;
 use Star\Component\State\Context\StringAdapterContext;
+use Star\Component\State\Context\HardCodedTestContext;
 use Star\Component\State\Context\TestStubContext;
 use Star\Component\State\Event\StateEventStore;
 use Star\Component\State\Event\TransitionWasFailed;
@@ -26,13 +22,13 @@ final class StateMachineTest extends TestCase
 {
     private TransitionRegistry $registry;
     private StateMachine $machine;
-    private TestContext $context;
+    private HardCodedTestContext $context;
     private EventRegistrySpy $events;
 
     public function setUp(): void
     {
         $this->events = new EventRegistrySpy();
-        $this->context = new TestContext();
+        $this->context = new HardCodedTestContext();
         $this->registry = new TransitionRegistry();
         $this->machine = new StateMachine('current', $this->registry, $this->events);
     }
@@ -83,7 +79,7 @@ final class StateMachineTest extends TestCase
         $this->expectExceptionMessage(
             "The transition 't' is not allowed when context 'stdClass' is in state 'current'."
         );
-        $this->machine->transit('t', new ObjectAdapterContext(new stdClass, false));
+        $this->machine->transit('t', new ObjectAdapterContext(new stdClass));
     }
 
     public function test_it_should_throw_exception_with_context_as_string_when_transition_not_allowed(): void
@@ -108,13 +104,15 @@ final class StateMachineTest extends TestCase
     public function test_it_should_visit_the_transitions(): void
     {
         $registry = $this->createMock(StateRegistry::class);
-        $machine = new StateMachine('', $registry, $this->events);
         $visitor = $this->createStub(TransitionVisitor::class);
 
         $registry
             ->expects($this->once())
             ->method('acceptTransitionVisitor')
             ->with($visitor);
+
+        $machine = new StateMachine('', $registry, $this->events);
+
         $machine->acceptTransitionVisitor($visitor);
     }
 
@@ -129,7 +127,7 @@ final class StateMachineTest extends TestCase
     {
         $this->registry->addTransition(new OneToOneTransition('t', 'from', 'to'));
         try {
-            $this->machine->transit('t', new TestContext());
+            $this->machine->transit('t', new HardCodedTestContext());
             $this->fail('An exception should have been thrown');
         } catch (Throwable $exception) {
             // silence it
@@ -154,7 +152,7 @@ final class StateMachineTest extends TestCase
 
         $this->machine->transit(
             't',
-            new TestStubContext('context'),
+            new HardCodedTestContext(),
             $buffer,
         );
 

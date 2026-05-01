@@ -7,14 +7,12 @@ use Star\Component\State\Callbacks\TransitionCallback;
 
 abstract class StateMetadata
 {
-    protected string $current;
-
     /**
-     * @param string $initial The initial state name
+     * @param string $current The initial state name
      */
-    public function __construct(string $initial)
-    {
-        $this->current = $initial;
+    public function __construct(
+        protected string $current,
+    ) {
     }
 
     /**
@@ -32,16 +30,9 @@ abstract class StateMetadata
         return $builder->create($this->current);
     }
 
-    /**
-     * @param string $name
-     * @param string|object $context
-     * @param TransitionCallback|null $callback
-     *
-     * @return static
-     */
     final public function transit(
         string $name,
-        $context,
+        StateContext $context,
         ?TransitionCallback $callback = null
     ): StateMetadata {
         $this->current = $this->getMachine()->transit($name, $context, $callback);

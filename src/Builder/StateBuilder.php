@@ -9,6 +9,7 @@ use Star\Component\State\StateTransition;
 use Star\Component\State\TransitionRegistry;
 use Star\Component\State\Transitions\ManyToOneTransition;
 use Star\Component\State\Transitions\OneToOneTransition;
+use function is_array;
 
 /**
  * Tool to build the StateMachine.
@@ -16,12 +17,13 @@ use Star\Component\State\Transitions\OneToOneTransition;
 final class StateBuilder
 {
     private TransitionRegistry $registry;
-    private EventRegistry $listeners;
+    private EventRegistry /* todo use StateRegistry */ $listeners;
 
     public function __construct(
         ?TransitionRegistry $registry = null,
-        ?EventRegistry $listeners = null
+        ?EventRegistry $listeners = null,
     ) {
+        /** @todo deprecated nullable construct, move to private */
         if (!$registry) {
             $registry = new TransitionRegistry();
         }
@@ -34,15 +36,11 @@ final class StateBuilder
     }
 
     /**
-     * @param string $name
      * @param string|string[] $from
-     * @param string $to
-     *
-     * @return StateBuilder
      */
-    public function allowTransition(string $name, $from, string $to): StateBuilder
+    public function allowTransition(string $name, string|array $from, string $to): StateBuilder
     {
-        if (\is_array($from)) {
+        if (is_array($from)) {
             $transition = new ManyToOneTransition($name, $to, ...$from);
         } else {
             $transition = new OneToOneTransition($name, $from, $to);
@@ -58,16 +56,14 @@ final class StateBuilder
      */
     public function allowCustomTransition(StateTransition $transition): void
     {
+        // todo add interface for registry, and inject interface instead
         $this->registry->addTransition($transition);
     }
 
     /**
-     * @param string $attribute The attribute
      * @param string|string[] $states The list of states that this attribute applies to
-     *
-     * @return StateBuilder
      */
-    public function addAttribute(string $attribute, $states): StateBuilder
+    public function addAttribute(string $attribute, string|array $states): StateBuilder
     {
         $states = (array) $states;
         foreach ($states as $stateName) {
@@ -84,7 +80,7 @@ final class StateBuilder
 
     public static function build(
         ?TransitionRegistry $registry = null,
-        ?EventRegistry $listeners = null
+        ?EventRegistry $listeners = null,
     ): StateBuilder {
         // todo deprecate explict class in favor of interface
         return new self($registry, $listeners);

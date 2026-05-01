@@ -3,8 +3,10 @@
 namespace Star\Component\State;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Star\Component\State\Builder\StateBuilder;
 use Star\Component\State\Callbacks\NullCallback;
+use Star\Component\State\Context\HardCodedTestContext;
 use Star\Component\State\Context\TestStubContext;
 
 final class StateMetadataTest extends TestCase
@@ -25,7 +27,7 @@ final class StateMetadataTest extends TestCase
     public function test_it_should_transit(): void
     {
         $metadata = new CustomMetadata('from');
-        $new = $metadata->transit('t1', new TestStubContext('context'));
+        $new = $metadata->transit('t1', new HardCodedTestContext());
 
         self::assertTrue($new->isInState('to'));
     }
@@ -33,13 +35,13 @@ final class StateMetadataTest extends TestCase
     public function test_it_should_use_the_failure_callback_on_transit(): void
     {
         $metadata = new CustomMetadata('to');
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(
             'Method Star\Component\State\Callbacks\NullCallback::onFailure should never be called.'
         );
         $metadata->transit(
             't1',
-            new TestStubContext('context'),
+            new HardCodedTestContext(),
             new NullCallback()
         );
     }

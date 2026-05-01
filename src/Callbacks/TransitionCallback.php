@@ -9,39 +9,28 @@ use Star\Component\State\StateMachine;
 interface TransitionCallback
 {
     /**
-     * @param mixed|StateContext $context
-     * @param StateMachine $machine
-     * @deprecated $context will expect a type of StateContext in 4.0, you need to update your implementations.
      * @see StateContext
      */
     public function beforeStateChange(
-        /* StateContext in 4.0 */ $context,
+        StateContext $context,
         StateMachine $machine,
     ): void;
 
     /**
-     * @param mixed|StateContext $context
-     * @param StateMachine $machine
-     * @deprecated $context will expect a type of StateContext in 4.0, you need to update your implementations.
      * @see StateContext
      */
     public function afterStateChange(
-        /* StateContext in 4.0 */ $context,
+        StateContext $context,
         StateMachine $machine,
     ): void;
 
     /**
-     * @param InvalidStateTransitionException $exception
-     * @param mixed|StateContext $context
-     * @param StateMachine $machine
-     *
      * @return string The new state to move to on failure
-     * @deprecated $context will expect a type of StateContext in 4.0, you need to update your implementations.
      * @see StateContext
      */
     public function onFailure(
         InvalidStateTransitionException $exception,
-        /* StateContext in 4.0 */ $context,
+        StateContext $context,
         StateMachine $machine,
     ): string;
 }

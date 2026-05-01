@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
-/**
- * This file is part of the php-state project.
- *
- * (c) Yannick Voyer (http://github.com/yvoyer)
- */
 
 namespace Star\Component\State;
 
 use Star\Component\State\Transitions\ReadOnlyTransition;
+use function array_key_exists;
+use function array_map;
+use function array_merge;
+use function array_unique;
+use function in_array;
 
 final class TransitionRegistry implements StateRegistry
 {
@@ -62,10 +62,10 @@ final class TransitionRegistry implements StateRegistry
     {
         $attributes = [$attribute];
         if ($this->hasState($state)) {
-            $attributes = \array_merge($this->states[$state], $attributes);
+            $attributes = array_merge($this->states[$state], $attributes);
         }
 
-        $this->states[$state] = \array_unique($attributes);
+        $this->states[$state] = array_unique($attributes);
     }
 
     /**
@@ -74,7 +74,7 @@ final class TransitionRegistry implements StateRegistry
      */
     private function addAttributes(string $state, array $attributes): void
     {
-        \array_map(
+        array_map(
             function ($attribute) use ($state) {
                 $this->addAttribute($state, $attribute);
             },
@@ -89,7 +89,7 @@ final class TransitionRegistry implements StateRegistry
             $from = $this->transitions[$transition]['from'];
         }
 
-        return \in_array($state, $from, true); // @phpstan-ignore-line
+        return in_array($state, $from, true); // @phpstan-ignore-line
     }
 
     public function hasAttribute(string $state, string $attribute): bool
@@ -98,12 +98,12 @@ final class TransitionRegistry implements StateRegistry
             return false;
         }
 
-        return \in_array($attribute, $this->states[$state]);
+        return in_array($attribute, $this->states[$state]);
     }
 
     public function hasState(string $name): bool
     {
-        return \array_key_exists($name, $this->states);
+        return array_key_exists($name, $this->states);
     }
 
     public function acceptTransitionVisitor(TransitionVisitor $visitor): void
